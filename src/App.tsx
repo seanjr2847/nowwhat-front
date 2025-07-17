@@ -1,13 +1,19 @@
 import { useState } from 'react'
+import { useTranslation, Trans } from 'react-i18next'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
+import LanguageSwitcher from './components/LanguageSwitcher'
 import './App.css'
 
 function App() {
   const [count, setCount] = useState(0)
+  const { t } = useTranslation()
 
   return (
     <>
+      <div className="absolute top-4 right-4">
+        <LanguageSwitcher />
+      </div>
       <div>
         <a href="https://vitejs.dev" target="_blank">
           <img src={viteLogo} className="logo" alt="Vite logo" />
@@ -16,17 +22,20 @@ function App() {
           <img src={reactLogo} className="logo react" alt="React logo" />
         </a>
       </div>
-      <h1>Vite + React</h1>
+      <h1>{t('welcome.title')}</h1>
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
+          {t('welcome.countButton', { count })}
         </button>
         <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
+          <Trans 
+            i18nKey="welcome.editMessage"
+            components={{ 1: <code /> }}
+          />
         </p>
       </div>
       <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
+        {t('welcome.learnMore')}
       </p>
     </>
   )

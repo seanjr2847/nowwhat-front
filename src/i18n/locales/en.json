@@ -1,0 +1,20 @@
+{
+  "welcome": {
+    "title": "Vite + React",
+    "countButton": "count is {{count}}",
+    "editMessage": "Edit <1>src/App.tsx</1> and save to test HMR",
+    "learnMore": "Click on the Vite and React logos to learn more"
+  },
+  "ui": {
+    "languageSelector": "Language",
+    "korean": "한국어",
+    "english": "English"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "confirm": "Confirm"
+  }
+} 
