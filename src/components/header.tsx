@@ -1,14 +1,14 @@
 "use client"
 
+import { ChevronDown, Globe, List, LogOut, MapPin, Menu, User } from "lucide-react"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { Button } from "./ui/button"
+import { useIsMobile } from "../hooks/use-mobile"
+import { ThemeToggle } from "./theme-toggle"
 import { Badge } from "./ui/badge"
+import { Button } from "./ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu"
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet"
-import { ChevronDown, Globe, MapPin, LogOut, List, User, Menu } from "lucide-react"
-import { ThemeToggle } from "./theme-toggle"
-import { useIsMobile } from "../hooks/use-mobile"
 
 /**
  * 애플리케이션의 최상단에 위치하는 반응형 헤더 컴포넌트입니다.
@@ -26,7 +26,7 @@ export function Header() {
   const [region, setRegion] = useState("KR")
 
   const handleNavigation = (path: string) => {
-    router(path)
+    void router(path)
     setIsSheetOpen(false)
   }
 

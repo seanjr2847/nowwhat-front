@@ -1,8 +1,8 @@
 "use client"
 
-import * as React from "react"
 import { Moon, Sun } from "lucide-react"
-import { useTheme } from "./theme-provider"
+import * as React from "react"
+import { useTheme } from "../hooks/use-theme"
 import { Button } from "./ui/button"
 
 /**

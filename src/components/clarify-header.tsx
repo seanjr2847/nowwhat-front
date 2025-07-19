@@ -1,6 +1,6 @@
-import { Button } from "../ui/button"
 import { ArrowLeft, Sparkles } from "lucide-react"
 import { Link } from "react-router-dom"
+import { Button } from "./ui/button"
 
 interface ClarifyHeaderProps {
   goal: string

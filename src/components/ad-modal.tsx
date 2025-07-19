@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
-import { Card, CardContent } from "../ui/card"
+import { useEffect, useRef, useState } from "react"
 import { LoadingSpinner } from "./loading-spinner"
+import { Card, CardContent } from "./ui/card"
 
 interface AdModalProps {
   onComplete: () => void

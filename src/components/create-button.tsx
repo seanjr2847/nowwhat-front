@@ -1,7 +1,7 @@
 "use client"
 
-import { Button } from "../ui/button"
 import { Loader2, Sparkles, Zap } from "lucide-react"
+import { Button } from "./ui/button"
 
 interface CreateButtonProps {
   onClick: () => void

@@ -1,7 +1,7 @@
 "use client"
 
-import { Button } from "../ui/button"
 import { AlertCircle } from "lucide-react"
+import { Button } from "./ui/button"
 
 interface ErrorMessageProps {
   message: string

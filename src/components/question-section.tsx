@@ -1,10 +1,10 @@
 "use client"
 
-import { Card, CardContent } from "../ui/card"
-import { Button } from "../ui/button"
-import { Checkbox } from "../ui/checkbox"
-import { useEffect, useRef } from "react"
 import { Check, Circle } from "lucide-react"
+import { useEffect, useRef } from "react"
+import { Button } from "./ui/button"
+import { Card, CardContent } from "./ui/card"
+import { Checkbox } from "./ui/checkbox"
 
 interface Question {
   id: string
@@ -153,7 +153,7 @@ export function QuestionSection({ questions, answers, onAnswerChange }: Question
           className={`bg-white/70 dark:bg-gray-900/70 backdrop-blur-2xl border border-white/40 dark:border-gray-700/40 transition-all duration-300 rounded-2xl ${
             isQuestionAnswered(question.id) ? "border-green-500/50 bg-green-500/10" : "hover:border-blue-500/50"
           }`}
-          ref={(el) => (questionRefs.current[index] = el)}
+          ref={(el) => {(questionRefs.current[index] = el)}}
           tabIndex={-1}
         >
           <CardContent className="p-8">

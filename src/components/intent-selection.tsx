@@ -1,8 +1,8 @@
 "use client"
 
-import { Card, CardContent } from "../ui/card"
-import { useEffect, useRef } from "react"
 import { ChevronRight } from "lucide-react"
+import { useEffect, useRef } from "react"
+import { Card, CardContent } from "./ui/card"
 
 interface Intent {
   id: string

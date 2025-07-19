@@ -1,19 +1,19 @@
 "use client"
 
-import { Button } from "./ui/button"
-import { List, BarChart3, User } from "lucide-react"
+import { BarChart3, List, User } from "lucide-react"
 import { useNavigate } from "react-router-dom"
+import { Button } from "./ui/button"
 
 export function Navigation() {
   const navigate = useNavigate()
 
   const handleMyListsClick = () => {
-    navigate("/my-lists")
+    void navigate("/my-lists")
     console.log("Navigate to my-lists page")
   }
 
   const handleProfileClick = () => {
-    navigate("/profile")
+    void navigate("/profile")
     console.log("Navigate to profile page")
   }
 
