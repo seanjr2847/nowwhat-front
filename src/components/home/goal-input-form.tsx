@@ -23,15 +23,6 @@ export function GoalInputForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (goal.trim()) {
-      // TODO: API 연결 - POST /goals/analyze
-      // 사용자 입력 목표를 분석하여 의도 옵션들을 생성
-      // const response = await fetch('/api/goals/analyze', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ goal: goal.trim() })
-      // });
-      // const analysisResult = await response.json();
-
       sessionStorage.setItem("goal", goal.trim())
       void router("/clarify")
     }

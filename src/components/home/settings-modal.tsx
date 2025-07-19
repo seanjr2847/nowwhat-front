@@ -17,54 +17,6 @@ interface SettingsModalProps {
  * @returns {JSX.Element | null} 렌더링된 설정 모달입니다.
  */
 export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
-  // TODO: API 연결 - GET /users/profile
-  // 사용자 프로필 정보 조회
-  // const [userProfile, setUserProfile] = useState(null);
-  // useEffect(() => {
-  //   if (isOpen) {
-  //     const fetchProfile = async () => {
-  //       const response = await fetch('/api/users/profile', {
-  //         headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
-  //       });
-  //       const profile = await response.json();
-  //       setUserProfile(profile);
-  //     };
-  //     fetchProfile();
-  //   }
-  // }, [isOpen]);
-
-  // TODO: API 연결 - PATCH /users/profile
-  // 사용자 프로필 수정
-  // const updateProfile = async (updates) => {
-  //   const response = await fetch('/api/users/profile', {
-  //     method: 'PATCH',
-  //     headers: { 
-  //       'Content-Type': 'application/json',
-  //       'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-  //     },
-  //     body: JSON.stringify(updates)
-  //   });
-  //   if (response.ok) {
-  //     const updatedProfile = await response.json();
-  //     setUserProfile(updatedProfile);
-  //   }
-  // };
-
-  // TODO: API 연결 - GET /users/statistics
-  // 사용자 활동 통계 조회 (완료한 체크리스트 수, 달성률 등)
-  // const [userStats, setUserStats] = useState(null);
-  // useEffect(() => {
-  //   if (isOpen) {
-  //     const fetchStats = async () => {
-  //       const response = await fetch('/api/users/statistics', {
-  //         headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
-  //       });
-  //       const stats = await response.json();
-  //       setUserStats(stats);
-  //     };
-  //     fetchStats();
-  //   }
-  // }, [isOpen]);
 
   if (!isOpen) return null
 

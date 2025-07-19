@@ -93,17 +93,6 @@ export default function ClarifyPage() {
   }
 
   const handleIntentSelect = async (intentId: string) => {
-    // TODO: API 연결 - POST /intents/select
-    // 사용자가 선택한 의도를 서버에 저장
-    // const selectResponse = await fetch('/api/intents/select', {
-    //   method: 'POST',
-    //   headers: { 
-    //     'Content-Type': 'application/json',
-    //     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-    //   },
-    //   body: JSON.stringify({ intentId, goalId: goal })
-    // });
-
     setSelectedIntent(intentId)
     setIsLoading(true)
 

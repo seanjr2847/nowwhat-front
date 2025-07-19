@@ -8,24 +8,7 @@ import MyListsPage from './pages/MyListsPage'
 import ResultPage from './pages/ResultPage'
 
 function App() {
-  // TODO: API 연결 - GET /health
-  // 서버 상태 체크 (애플리케이션 시작 시 서버 연결 확인)
-  // useEffect(() => {
-  //   const checkServerHealth = async () => {
-  //     try {
-  //       const response = await fetch('/api/health');
-  //       if (!response.ok) {
-  //         console.warn('서버 상태가 불안정합니다.');
-  //       }
-  //     } catch (error) {
-  //       console.error('서버 연결 실패:', error);
-  //     }
-  //   };
-  //   
-  //   checkServerHealth();
-  //   const interval = setInterval(checkServerHealth, 5 * 60 * 1000); // 5분마다 체크
-  //   return () => clearInterval(interval);
-  // }, []);
+  // 애플리케이션 초기화
   return (
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange={false}>
       <BrowserRouter>

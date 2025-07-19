@@ -20,35 +20,7 @@ export function Header() {
   const isMobile = useIsMobile()
   const [isSheetOpen, setIsSheetOpen] = useState(false)
 
-  // TODO: API 연결 - POST /auth/refresh
-  // JWT 토큰 자동 갱신 (인증 상태 유지)
-  // useEffect(() => {
-  //   const refreshToken = async () => {
-  //     const refreshToken = localStorage.getItem('refreshToken');
-  //     if (!refreshToken) return;
-  //     
-  //     const response = await fetch('/api/auth/refresh', {
-  //       method: 'POST',
-  //       headers: { 'Content-Type': 'application/json' },
-  //       body: JSON.stringify({ refreshToken })
-  //     });
-  //     
-  //     if (response.ok) {
-  //       const { accessToken, refreshToken: newRefreshToken } = await response.json();
-  //       localStorage.setItem('accessToken', accessToken);
-  //       localStorage.setItem('refreshToken', newRefreshToken);
-  //       setIsLoggedIn(true);
-  //     } else {
-  //       localStorage.removeItem('accessToken');
-  //       localStorage.removeItem('refreshToken');
-  //       setIsLoggedIn(false);
-  //     }
-  //   };
-  //   
-  //   refreshToken();
-  //   const interval = setInterval(refreshToken, 15 * 60 * 1000); // 15분마다 갱신
-  //   return () => clearInterval(interval);
-  // }, []);
+  // JWT 토큰 갱신 기능 (추후 구현)
 
   // TODO: API 연동 - 실제 인증 상태(예: Context, 세션)를 사용해야 합니다.
   const [isLoggedIn, setIsLoggedIn] = useState(false)
