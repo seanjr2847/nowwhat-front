@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Card, CardContent } from "../ui/card"
 import { LoadingSpinner } from "./loading-spinner"
 
@@ -21,6 +21,19 @@ export function AdModal({ onComplete, isCreating }: AdModalProps) {
   const [timeLeft, setTimeLeft] = useState(15)
   const modalRef = useRef<HTMLDivElement>(null)
   const previousFocusRef = useRef<HTMLElement | null>(null)
+
+  // TODO: API 연결 - GET /ads/config
+  // 광고 설정 조회 (표시할 광고 유형, 시간 등)
+  // useEffect(() => {
+  //   const fetchAdConfig = async () => {
+  //     const response = await fetch('/api/ads/config', {
+  //       headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
+  //     });
+  //     const { adDuration, adType } = await response.json();
+  //     setTimeLeft(adDuration || 15);
+  //   };
+  //   fetchAdConfig();
+  // }, []);
 
   useEffect(() => {
     // 현재 포커스된 요소 저장

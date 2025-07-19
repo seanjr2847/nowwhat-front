@@ -1,9 +1,9 @@
 "use client"
 
+import { Heart, MessageCircle, ThumbsDown, ThumbsUp } from "lucide-react"
 import { useState } from "react"
-import { Card, CardContent } from "../ui/card"
 import { Button } from "../ui/button"
-import { ThumbsUp, ThumbsDown, Heart, MessageCircle } from "lucide-react"
+import { Card, CardContent } from "../ui/card"
 
 interface FeedbackSectionProps {
   onFeedback: (isPositive: boolean) => void
@@ -21,6 +21,23 @@ export function FeedbackSection({ onFeedback, feedbackGiven }: FeedbackSectionPr
   const [showThanks, setShowThanks] = useState(feedbackGiven)
 
   const handleFeedback = (isPositive: boolean) => {
+    // TODO: API 연결 - POST /feedback
+    // 피드백 제출
+    // (async () => {
+    //   const response = await fetch('/api/feedback', {
+    //     method: 'POST',
+    //     headers: { 
+    //       'Content-Type': 'application/json',
+    //       'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+    //     },
+    //     body: JSON.stringify({ 
+    //       checklistId: checklistId, 
+    //       isPositive: isPositive,
+    //       timestamp: new Date().toISOString()
+    //     })
+    //   });
+    // })();
+
     onFeedback(isPositive)
     setShowThanks(true)
   }

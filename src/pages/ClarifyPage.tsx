@@ -47,7 +47,11 @@ export default function ClarifyPage() {
     try {
       setIsLoading(true)
       await new Promise((resolve) => setTimeout(resolve, 2000))
-      // TODO: API 연동 - 'goalText'를 기반으로 실제 의도(intent) 목록을 가져옵니다.
+      // TODO: API 연결 - GET /intents/{goalId}
+      // 목표별 의도 옵션 조회
+      // const response = await fetch(`/api/intents/${goalId}`);
+      // const { intents } = await response.json();
+      // setIntents(intents);
       // 예: const response = await fetch('/api/intents', { method: 'POST', body: JSON.stringify({ goal: goalText }) });
       // const data = await response.json();
       // setIntents(data.intents);
@@ -89,15 +93,29 @@ export default function ClarifyPage() {
   }
 
   const handleIntentSelect = async (intentId: string) => {
+    // TODO: API 연결 - POST /intents/select
+    // 사용자가 선택한 의도를 서버에 저장
+    // const selectResponse = await fetch('/api/intents/select', {
+    //   method: 'POST',
+    //   headers: { 
+    //     'Content-Type': 'application/json',
+    //     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+    //   },
+    //   body: JSON.stringify({ intentId, goalId: goal })
+    // });
+
     setSelectedIntent(intentId)
     setIsLoading(true)
 
     try {
       await new Promise((resolve) => setTimeout(resolve, 1500))
-      // TODO: API 연동 - 'intentId'를 기반으로 실제 질문 목록을 가져옵니다.
-      // 예: const response = await fetch(`/api/questions?intentId=${intentId}`);
-      // const data = await response.json();
-      // setQuestions(data.questions);
+      // TODO: API 연결 - GET /questions/{intentId}
+      // 의도별 맞춤 질문 조회
+      // const response = await fetch(`/api/questions/${intentId}`, {
+      //   headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
+      // });
+      // const { questions } = await response.json();
+      // setQuestions(questions);
 
       const mockQuestions: Question[] = [
         {
@@ -130,6 +148,17 @@ export default function ClarifyPage() {
   }
 
   const handleAnswerChange = (questionId: string, answer: string | string[]) => {
+    // TODO: API 연결 - POST /questions/answer
+    // 질문 답변 제출 (실시간 저장)
+    // const response = await fetch('/api/questions/answer', {
+    //   method: 'POST',
+    //   headers: { 
+    //     'Content-Type': 'application/json',
+    //     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+    //   },
+    //   body: JSON.stringify({ questionId, answer })
+    // });
+
     setAnswers((prev) => ({ ...prev, [questionId]: answer }))
 
     const answeredCount = Object.keys({ ...answers, [questionId]: answer }).length
@@ -144,10 +173,17 @@ export default function ClarifyPage() {
 
     try {
       await new Promise((resolve) => setTimeout(resolve, 3000))
-      // TODO: API 연동 - 'goal', 'selectedIntent', 'answers'를 서버로 보내고 실제 체크리스트를 생성합니다.
-      // 예: const response = await fetch('/api/checklists', { method: 'POST', body: JSON.stringify({ goal, intentId: selectedIntent, answers }) });
-      // const data = await response.json();
-      // const checklistId = data.id;
+      // TODO: API 연결 - POST /checklists/generate
+      // 답변 기반 체크리스트 생성
+      // const response = await fetch('/api/checklists/generate', {
+      //   method: 'POST',
+      //   headers: { 
+      //     'Content-Type': 'application/json',
+      //     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+      //   },
+      //   body: JSON.stringify({ goal, intentId: selectedIntent, answers })
+      // });
+      // const { checklistId } = await response.json();
 
       const checklistId = "mock-id-123"
       void navigate(`/result/${checklistId}`)

@@ -36,11 +36,14 @@ export default function MyListsPage() {
     try {
       setIsLoading(true)
       await new Promise((resolve) => setTimeout(resolve, 1000))
-      // TODO: API 연동 - 현재 로그인된 사용자의 체크리스트 목록을 가져옵니다.
-      // 예: const response = await fetch('/api/my-checklists');
-      // const data = await response.json();
-      // setChecklists(data.checklists);
-      // setFilteredChecklists(data.checklists);
+      // TODO: API 연결 - GET /checklists/my
+      // 내 체크리스트 목록 조회
+      // const response = await fetch('/api/checklists/my', {
+      //   headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
+      // });
+      // const { checklists } = await response.json();
+      // setChecklists(checklists);
+      // setFilteredChecklists(checklists);
 
       const mockChecklists: ChecklistSummary[] = [
         {
@@ -120,8 +123,18 @@ export default function MyListsPage() {
 
   const handleDelete = (id: string) => {
     if (confirm("정말로 이 체크리스트를 삭제하시겠습니까?")) {
-      // TODO: API 연동 - 서버에 체크리스트 삭제 요청을 보냅니다.
-      // 예: await fetch(`/api/checklists/${id}`, { method: 'DELETE' });
+      // TODO: API 연결 - DELETE /checklists/{id}
+      // 체크리스트 삭제
+      // (async () => {
+      //   const response = await fetch(`/api/checklists/${id}`, {
+      //     method: 'DELETE',
+      //     headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
+      //   });
+      //   if (response.ok) {
+      //     setChecklists((prev) => prev.filter((item) => item.id !== id))
+      //   }
+      // })();
+
       setChecklists((prev) => prev.filter((item) => item.id !== id))
     }
   }

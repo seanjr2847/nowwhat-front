@@ -18,7 +18,17 @@ export default function LoginPage() {
 
   const handleGoogleLogin = () => {
     setIsLoading(true)
-    // TODO: API 연동 - 실제 Google OAuth 로그인 로직을 구현해야 합니다.
+    // TODO: API 연결 - POST /auth/google
+    // 구글 OAuth 로그인 처리
+    // const response = await fetch('/api/auth/google', {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify({ googleToken: googleToken })
+    // });
+    // const { accessToken, refreshToken } = await response.json();
+    // localStorage.setItem('accessToken', accessToken);
+    // localStorage.setItem('refreshToken', refreshToken);
+
     // 현재는 2초 후 성공으로 가정하고 홈으로 이동합니다.
     setTimeout(() => {
       console.log("Google login successful (mock)")

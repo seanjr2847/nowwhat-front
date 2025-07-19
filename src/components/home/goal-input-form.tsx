@@ -1,11 +1,11 @@
 "use client"
 
+import { HelpCircle, Send, Settings, Sparkles, Target, Zap } from "lucide-react"
 import type React from "react"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { Input } from "../ui/input"
 import { Button } from "../ui/button"
-import { Send, Sparkles, Zap, Target, HelpCircle, Settings } from "lucide-react"
+import { Input } from "../ui/input"
 import { HelpModal } from "./help-modal"
 import { SettingsModal } from "./settings-modal"
 
@@ -23,8 +23,17 @@ export function GoalInputForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (goal.trim()) {
+      // TODO: API 연결 - POST /goals/analyze
+      // 사용자 입력 목표를 분석하여 의도 옵션들을 생성
+      // const response = await fetch('/api/goals/analyze', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ goal: goal.trim() })
+      // });
+      // const analysisResult = await response.json();
+
       sessionStorage.setItem("goal", goal.trim())
-      router("/clarify")
+      void router("/clarify")
     }
   }
 

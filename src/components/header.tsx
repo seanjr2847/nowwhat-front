@@ -20,6 +20,36 @@ export function Header() {
   const isMobile = useIsMobile()
   const [isSheetOpen, setIsSheetOpen] = useState(false)
 
+  // TODO: API 연결 - POST /auth/refresh
+  // JWT 토큰 자동 갱신 (인증 상태 유지)
+  // useEffect(() => {
+  //   const refreshToken = async () => {
+  //     const refreshToken = localStorage.getItem('refreshToken');
+  //     if (!refreshToken) return;
+  //     
+  //     const response = await fetch('/api/auth/refresh', {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify({ refreshToken })
+  //     });
+  //     
+  //     if (response.ok) {
+  //       const { accessToken, refreshToken: newRefreshToken } = await response.json();
+  //       localStorage.setItem('accessToken', accessToken);
+  //       localStorage.setItem('refreshToken', newRefreshToken);
+  //       setIsLoggedIn(true);
+  //     } else {
+  //       localStorage.removeItem('accessToken');
+  //       localStorage.removeItem('refreshToken');
+  //       setIsLoggedIn(false);
+  //     }
+  //   };
+  //   
+  //   refreshToken();
+  //   const interval = setInterval(refreshToken, 15 * 60 * 1000); // 15분마다 갱신
+  //   return () => clearInterval(interval);
+  // }, []);
+
   // TODO: API 연동 - 실제 인증 상태(예: Context, 세션)를 사용해야 합니다.
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [language, setLanguage] = useState("EN")
@@ -36,7 +66,25 @@ export function Header() {
   }
 
   const handleSignOut = () => {
-    // TODO: API 연동 - 실제 로그아웃 로직을 구현합니다.
+    // TODO: API 연결 - POST /auth/logout
+    // 로그아웃 처리 (세션 무효화)
+    // (async () => {
+    //   const response = await fetch('/api/auth/logout', {
+    //     method: 'POST',
+    //     headers: { 
+    //       'Content-Type': 'application/json',
+    //       'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+    //     },
+    //     body: JSON.stringify({ refreshToken: localStorage.getItem('refreshToken') })
+    //   });
+    //   if (response.ok) {
+    //     localStorage.removeItem('accessToken');
+    //     localStorage.removeItem('refreshToken');
+    //     setIsLoggedIn(false);
+    //     handleNavigation("/");
+    //   }
+    // })();
+
     setIsLoggedIn(false)
     handleNavigation("/")
   }

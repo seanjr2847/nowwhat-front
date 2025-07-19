@@ -45,11 +45,26 @@ export function ChecklistItem({ item, index, onToggle }: ChecklistItemProps) {
     item.details.price ||
     item.details.location
 
+  // TODO: API 연결 - PATCH /checklists/{id}/items/{itemId}
+  // 체크리스트 항목 체크/언체크 시 호출
+  // const handleToggle = async (itemId: string) => {
+  //   const response = await fetch(`/api/checklists/${checklistId}/items/${itemId}`, {
+  //     method: 'PATCH',
+  //     headers: { 
+  //       'Content-Type': 'application/json',
+  //       'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+  //     },
+  //     body: JSON.stringify({ isCompleted: !item.isCompleted })
+  //   });
+  //   if (response.ok) {
+  //     onToggle(itemId);
+  //   }
+  // };
+
   return (
     <Card
-      className={`bg-white/70 dark:bg-gray-900/70 backdrop-blur-2xl border border-white/40 dark:border-gray-700/40 transition-all duration-300 rounded-2xl shadow-xl ${
-        item.isCompleted ? "border-green-500/50 bg-green-500/10" : "hover:border-blue-500/50"
-      }`}
+      className={`bg-white/70 dark:bg-gray-900/70 backdrop-blur-2xl border border-white/40 dark:border-gray-700/40 transition-all duration-300 rounded-2xl shadow-xl ${item.isCompleted ? "border-green-500/50 bg-green-500/10" : "hover:border-blue-500/50"
+        }`}
     >
       <CardContent className="p-6">
         <div className="flex items-start space-x-4">
@@ -67,16 +82,14 @@ export function ChecklistItem({ item, index, onToggle }: ChecklistItemProps) {
               <div className="flex-1">
                 <div className="flex items-center space-x-3 mb-2">
                   <div
-                    className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold transition-colors duration-300 ${
-                      item.isCompleted ? "bg-green-500 text-white" : "bg-muted text-muted-foreground"
-                    }`}
+                    className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold transition-colors duration-300 ${item.isCompleted ? "bg-green-500 text-white" : "bg-muted text-muted-foreground"
+                      }`}
                   >
                     {index + 1}
                   </div>
                   <h3
-                    className={`text-lg font-semibold transition-all duration-300 ${
-                      item.isCompleted ? "text-green-300 line-through" : "text-foreground"
-                    }`}
+                    className={`text-lg font-semibold transition-all duration-300 ${item.isCompleted ? "text-green-300 line-through" : "text-foreground"
+                      }`}
                   >
                     {item.title}
                   </h3>
