@@ -31,7 +31,7 @@ interface Question {
  * @returns {JSX.Element} 목표 구체화 페이지를 렌더링합니다.
  */
 export default function ClarifyPage() {
-  const router = useNavigate()
+  const navigate = useNavigate()
   const [goal, setGoal] = useState<string>("")
   const [intents, setIntents] = useState<Intent[]>([])
   const [selectedIntent, setSelectedIntent] = useState<string>("")
@@ -43,7 +43,7 @@ export default function ClarifyPage() {
   const [showAdModal, setShowAdModal] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
 
-  const fetchIntents = async (goalText: string) => {
+  const fetchIntents = async () => {
     try {
       setIsLoading(true)
       await new Promise((resolve) => setTimeout(resolve, 2000))
@@ -81,7 +81,7 @@ export default function ClarifyPage() {
 
       setIntents(mockIntents)
       setProgress(25)
-    } catch (err) {
+    } catch {
       setError("의도 분석 중 오류가 발생했습니다.")
     } finally {
       setIsLoading(false)
@@ -122,7 +122,7 @@ export default function ClarifyPage() {
 
       setQuestions(mockQuestions)
       setProgress(50)
-    } catch (err) {
+    } catch {
       setError("질문 생성 중 오류가 발생했습니다.")
     } finally {
       setIsLoading(false)
@@ -151,7 +151,7 @@ export default function ClarifyPage() {
 
       const checklistId = "mock-id-123"
       navigate(`/result/${checklistId}`)
-    } catch (err) {
+    } catch {
       setError("체크리스트 생성 중 오류가 발생했습니다.")
       setShowAdModal(false)
     } finally {
@@ -168,8 +168,8 @@ export default function ClarifyPage() {
   useEffect(() => {
     const storedGoal = sessionStorage.getItem("goal") || "일본 여행 가고싶어"
     setGoal(storedGoal)
-    fetchIntents(storedGoal)
-  }, [router])
+    fetchIntents()
+  }, [navigate])
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
