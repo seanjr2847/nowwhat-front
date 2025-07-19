@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useNavigate, useLocation } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { Button } from "../components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../components/ui/card"
 import { ArrowLeft, Loader2 } from "lucide-react"
@@ -14,7 +14,7 @@ import { GoogleIcon } from "@/components/icons/google-icon"
  * @returns {JSX.Element} 로그인 페이지를 렌더링합니다.
  */
 export default function LoginPage() {
-  const router = useNavigate()
+  const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(false)
 
   const handleGoogleLogin = () => {

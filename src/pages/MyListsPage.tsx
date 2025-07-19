@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useNavigate, useLocation } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { MyListsHeader } from "../components/my-lists/my-lists-header"
 import { SearchAndFilter } from "../components/my-lists/search-and-filter"
 import { ChecklistCard } from "../components/my-lists/checklist-card"
@@ -25,7 +25,7 @@ interface ChecklistSummary {
  * @returns {JSX.Element} '내 체크리스트' 페이지를 렌더링합니다.
  */
 export default function MyListsPage() {
-  const router = useNavigate()
+  const navigate = useNavigate()
   const [checklists, setChecklists] = useState<ChecklistSummary[]>([])
   const [filteredChecklists, setFilteredChecklists] = useState<ChecklistSummary[]>([])
   const [isLoading, setIsLoading] = useState(true)
