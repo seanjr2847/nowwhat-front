@@ -74,7 +74,7 @@ export function IntentSelection({ intents, onSelect }: IntentSelectionProps) {
         {intents.map((intent, index) => (
           <Card
             key={intent.id}
-            ref={(el) => (cardRefs.current[index] = el)}
+            ref={(el) => {(cardRefs.current[index] = el)}}
             className="group bg-white/70 dark:bg-gray-900/70 backdrop-blur-2xl border border-white/40 dark:border-gray-700/40 hover:bg-white/80 dark:hover:bg-gray-900/80 cursor-pointer transition-all duration-500 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/20 focus-ring rounded-2xl hover:border-blue-500/50 card-hover overflow-hidden"
             onClick={() => onSelect(intent.id)}
             onKeyDown={(e) => {
