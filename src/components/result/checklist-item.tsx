@@ -1,10 +1,10 @@
 "use client"
 
+import { ChevronDown, ChevronUp, DollarSign, ExternalLink, Lightbulb, Mail, MapPin, Phone } from "lucide-react"
 import { useState } from "react"
+import { Button } from "../ui/button"
 import { Card, CardContent } from "../ui/card"
 import { Checkbox } from "../ui/checkbox"
-import { Button } from "../ui/button"
-import { ChevronDown, ChevronUp, Phone, Mail, ExternalLink, MapPin, DollarSign, Lightbulb } from "lucide-react"
 
 interface ChecklistItemData {
   id: string
@@ -173,7 +173,7 @@ export function ChecklistItem({ item, index, onToggle }: ChecklistItemProps) {
                       {item.details.links.map((link, linkIndex) => (
                         <a
                           key={linkIndex}
-                          to={link.url}
+                          href={link.url}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-sm text-green-400 hover:text-green-300 transition-colors duration-200 flex items-center group"
