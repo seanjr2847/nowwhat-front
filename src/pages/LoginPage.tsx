@@ -1,12 +1,11 @@
 "use client"
 
+import { GoogleIcon } from "@/components/icons/google-icon"
+import { ArrowLeft, Loader2 } from "lucide-react"
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { Button } from "../components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../components/ui/card"
-import { ArrowLeft, Loader2 } from "lucide-react"
-import { Link } from "react-router-dom"
-import { GoogleIcon } from "@/components/icons/google-icon"
 
 /**
  * 사용자 로그인을 위한 페이지 컴포넌트입니다.
@@ -24,7 +23,7 @@ export default function LoginPage() {
     setTimeout(() => {
       console.log("Google login successful (mock)")
       setIsLoading(false)
-      navigate("/")
+      void navigate("/")
     }, 2000)
   }
 

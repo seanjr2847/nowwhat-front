@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { MyListsHeader } from "../components/my-lists/my-lists-header"
-import { SearchAndFilter } from "../components/my-lists/search-and-filter"
+import { LoadingSpinner } from "../components/clarify/loading-spinner"
 import { ChecklistCard } from "../components/my-lists/checklist-card"
 import { EmptyState } from "../components/my-lists/empty-state"
-import { LoadingSpinner } from "../components/clarify/loading-spinner"
+import { MyListsHeader } from "../components/my-lists/my-lists-header"
+import { SearchAndFilter } from "../components/my-lists/search-and-filter"
 
 interface ChecklistSummary {
   id: string
@@ -118,7 +118,7 @@ export default function MyListsPage() {
     setFilteredChecklists(filtered)
   }, [checklists, searchQuery, selectedCategory])
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
     if (confirm("정말로 이 체크리스트를 삭제하시겠습니까?")) {
       // TODO: API 연동 - 서버에 체크리스트 삭제 요청을 보냅니다.
       // 예: await fetch(`/api/checklists/${id}`, { method: 'DELETE' });
@@ -127,15 +127,16 @@ export default function MyListsPage() {
   }
 
   const handleChecklistClick = (id: string) => {
-    navigate(`/result/${id}`)
+    void navigate(`/result/${id}`)
   }
 
   const handleNewChecklist = () => {
-    navigate("/")
+    void navigate("/")
   }
 
   useEffect(() => {
-    fetchChecklists()
+    // TODO : 보이드 제거
+    void fetchChecklists()
   }, [])
 
   if (isLoading) {

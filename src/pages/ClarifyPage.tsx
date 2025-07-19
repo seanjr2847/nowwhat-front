@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { ClarifyHeader } from "../components/clarify/clarify-header"
-import { ProgressBar } from "../components/clarify/progress-bar"
-import { IntentSelection } from "../components/clarify/intent-selection"
-import { QuestionSection } from "../components/clarify/question-section"
-import { CreateButton } from "../components/clarify/create-button"
 import { AdModal } from "../components/clarify/ad-modal"
-import { LoadingSpinner } from "../components/clarify/loading-spinner"
+import { ClarifyHeader } from "../components/clarify/clarify-header"
+import { CreateButton } from "../components/clarify/create-button"
 import { ErrorMessage } from "../components/clarify/error-message"
+import { IntentSelection } from "../components/clarify/intent-selection"
+import { LoadingSpinner } from "../components/clarify/loading-spinner"
+import { ProgressBar } from "../components/clarify/progress-bar"
+import { QuestionSection } from "../components/clarify/question-section"
 
 interface Intent {
   id: string
@@ -150,7 +150,7 @@ export default function ClarifyPage() {
       // const checklistId = data.id;
 
       const checklistId = "mock-id-123"
-      navigate(`/result/${checklistId}`)
+      void navigate(`/result/${checklistId}`)
     } catch {
       setError("체크리스트 생성 중 오류가 발생했습니다.")
       setShowAdModal(false)
@@ -168,7 +168,8 @@ export default function ClarifyPage() {
   useEffect(() => {
     const storedGoal = sessionStorage.getItem("goal") || "일본 여행 가고싶어"
     setGoal(storedGoal)
-    fetchIntents()
+    // TODO: 보이드 제거 아악
+    void fetchIntents()
   }, [navigate])
 
   useEffect(() => {
@@ -178,7 +179,8 @@ export default function ClarifyPage() {
       }
 
       if (e.ctrlKey && e.key === "Enter" && isAllQuestionsAnswered && !isCreating) {
-        handleCreateChecklist()
+        // TODO: 보이드 제거
+        void handleCreateChecklist()
       }
     }
 
@@ -224,7 +226,8 @@ export default function ClarifyPage() {
         <ClarifyHeader goal={goal} />
         <ProgressBar progress={progress} />
 
-        {!selectedIntent && <IntentSelection intents={intents} onSelect={handleIntentSelect} />}
+        {/* TODO: 보이드 제거 */}
+        {!selectedIntent && <IntentSelection intents={intents} onSelect={(id) => void handleIntentSelect(id)} />}
 
         {selectedIntent && isLoading && (
           <div className="flex justify-center py-20">
@@ -236,7 +239,8 @@ export default function ClarifyPage() {
           <QuestionSection questions={questions} answers={answers} onAnswerChange={handleAnswerChange} />
         )}
 
-        {isAllQuestionsAnswered && <CreateButton onClick={handleCreateChecklist} isLoading={isCreating} />}
+        // TODO: 보이드 제거
+        {isAllQuestionsAnswered && <CreateButton onClick={() => void handleCreateChecklist()} isLoading={isCreating} />}
 
         {showAdModal && <AdModal onComplete={() => setShowAdModal(false)} isCreating={isCreating} />}
       </div>
