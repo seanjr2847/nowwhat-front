@@ -3,9 +3,10 @@
 import { GoogleIcon } from "@/components/icons/google-icon"
 import { ArrowLeft, Loader2 } from "lucide-react"
 import { useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link } from "react-router-dom"
 import { Button } from "../components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../components/ui/card"
+import { getGoogleOAuthUrl } from "../lib/auth"
 
 /**
  * 사용자 로그인을 위한 페이지 컴포넌트입니다.
@@ -13,28 +14,25 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
  * @returns {JSX.Element} 로그인 페이지를 렌더링합니다.
  */
 export default function LoginPage() {
-  const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleGoogleLogin = () => {
+  const handleGoogleLogin = async () => {
     setIsLoading(true)
-    // TODO: API 연결 - POST /auth/google
-    // 구글 OAuth 로그인 처리
-    // const response = await fetch('/api/auth/google', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ googleToken: googleToken })
-    // });
-    // const { accessToken, refreshToken } = await response.json();
-    // localStorage.setItem('accessToken', accessToken);
-    // localStorage.setItem('refreshToken', refreshToken);
 
-    // 현재는 2초 후 성공으로 가정하고 홈으로 이동합니다.
-    setTimeout(() => {
-      console.log("Google login successful (mock)")
+    try {
+      // 실제 구글 OAuth 플로우를 시작합니다
+      // 여기서는 클라이언트 사이드 구글 로그인을 구현할 수 있습니다
+      // 또는 팝업 방식으로 구글 인증을 처리할 수 있습니다
+
+      // 현재는 백엔드 API가 어떤 형태인지 확실하지 않으므로
+      // 구글 OAuth URL로 리다이렉트하는 방식을 사용합니다
+      await new Promise(resolve => setTimeout(resolve, 100)) // 로딩 상태를 잠시 보여주기 위함
+      window.location.href = getGoogleOAuthUrl()
+
+    } catch (error) {
+      console.error("Google login error:", error instanceof Error ? error.message : 'Unknown error')
       setIsLoading(false)
-      void navigate("/")
-    }, 2000)
+    }
   }
 
   return (
@@ -58,7 +56,7 @@ export default function LoginPage() {
           <Button
             variant="outline"
             className="w-full bg-transparent py-3 text-base"
-            onClick={handleGoogleLogin}
+            onClick={() => void handleGoogleLogin()}
             disabled={isLoading}
           >
             {isLoading ? (

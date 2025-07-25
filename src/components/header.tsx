@@ -4,6 +4,7 @@ import { ChevronDown, Globe, List, LogOut, MapPin, Menu, User } from "lucide-rea
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useIsMobile } from "../hooks/use-mobile"
+import { useAuth } from "../hooks/useAuth"
 import { ThemeToggle } from "./theme-toggle"
 import { Badge } from "./ui/badge"
 import { Button } from "./ui/button"
@@ -18,12 +19,8 @@ import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet"
 export function Header() {
   const router = useNavigate()
   const isMobile = useIsMobile()
+  const { isAuthenticated, logout } = useAuth()
   const [isSheetOpen, setIsSheetOpen] = useState(false)
-
-  // JWT 토큰 갱신 기능 (추후 구현)
-
-  // TODO: API 연동 - 실제 인증 상태(예: Context, 세션)를 사용해야 합니다.
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [language, setLanguage] = useState("EN")
   const [region, setRegion] = useState("KR")
 
@@ -33,32 +30,16 @@ export function Header() {
   }
 
   const handleSignIn = () => {
-    // TODO: API 연동 - 실제 로그인 로직을 구현합니다 (예: OAuth).
     handleNavigation("/login")
   }
 
-  const handleSignOut = () => {
-    // TODO: API 연결 - POST /auth/logout
-    // 로그아웃 처리 (세션 무효화)
-    // (async () => {
-    //   const response = await fetch('/api/auth/logout', {
-    //     method: 'POST',
-    //     headers: { 
-    //       'Content-Type': 'application/json',
-    //       'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-    //     },
-    //     body: JSON.stringify({ refreshToken: localStorage.getItem('refreshToken') })
-    //   });
-    //   if (response.ok) {
-    //     localStorage.removeItem('accessToken');
-    //     localStorage.removeItem('refreshToken');
-    //     setIsLoggedIn(false);
-    //     handleNavigation("/");
-    //   }
-    // })();
-
-    setIsLoggedIn(false)
-    handleNavigation("/")
+  const handleSignOut = async () => {
+    try {
+      await logout()
+      handleNavigation("/")
+    } catch (error) {
+      console.error('Logout failed:', error)
+    }
   }
 
   const renderNavContent = () => (
@@ -103,14 +84,14 @@ export function Header() {
         </div>
       </div>
 
-      {isLoggedIn ? (
+      {isAuthenticated ? (
         <div className={`flex ${isMobile ? "flex-col space-y-2 border-t pt-4 mt-4" : "items-center space-x-2"}`}>
           <Button onClick={() => handleNavigation("/my-lists")} variant="ghost" className="w-full justify-start px-3">
             <List className="w-4 h-4 mr-2" />
             <span>My Lists</span>
           </Button>
           <Button
-            onClick={handleSignOut}
+            onClick={() => void handleSignOut()}
             variant="ghost"
             className="w-full justify-start text-red-500 hover:text-red-500 px-3"
           >

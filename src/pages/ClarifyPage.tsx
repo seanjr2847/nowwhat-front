@@ -47,14 +47,19 @@ export default function ClarifyPage() {
     try {
       setIsLoading(true)
       await new Promise((resolve) => setTimeout(resolve, 2000))
-      // TODO: API 연결 - GET /intents/{goalId}
-      // 목표별 의도 옵션 조회
-      // const response = await fetch(`/api/intents/${goalId}`);
-      // const { intents } = await response.json();
+      // TODO: API 연결 - POST /intents/analyze
+      // 사용자 입력을 분석하여 의도 옵션 생성
+      // const response = await fetch('/api/intents/analyze', {
+      //   method: 'POST',
+      //   headers: { 
+      //     'Content-Type': 'application/json',
+      //     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+      //   },
+      //   body: JSON.stringify({ goal })
+      // });
+      // const { sessionId, intents } = await response.json();
+      // sessionStorage.setItem('sessionId', sessionId);
       // setIntents(intents);
-      // 예: const response = await fetch('/api/intents', { method: 'POST', body: JSON.stringify({ goal: goalText }) });
-      // const data = await response.json();
-      // setIntents(data.intents);
 
       const mockIntents: Intent[] = [
         {
@@ -98,12 +103,24 @@ export default function ClarifyPage() {
 
     try {
       await new Promise((resolve) => setTimeout(resolve, 1500))
-      // TODO: API 연결 - GET /questions/{intentId}
-      // 의도별 맞춤 질문 조회
-      // const response = await fetch(`/api/questions/${intentId}`, {
-      //   headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
+      // TODO: API 연결 - POST /questions/generate
+      // 선택된 의도에 따른 맞춤 질문 생성
+      // const sessionId = sessionStorage.getItem('sessionId');
+      // const selectedIntentObj = intents.find(i => i.id === intentId);
+      // const response = await fetch('/api/questions/generate', {
+      //   method: 'POST',
+      //   headers: { 
+      //     'Content-Type': 'application/json',
+      //     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+      //   },
+      //   body: JSON.stringify({ 
+      //     sessionId,
+      //     goal,
+      //     intentTitle: selectedIntentObj.title
+      //   })
       // });
-      // const { questions } = await response.json();
+      // const { questionSetId, questions } = await response.json();
+      // sessionStorage.setItem('questionSetId', questionSetId);
       // setQuestions(questions);
 
       const mockQuestions: Question[] = [
@@ -116,7 +133,7 @@ export default function ClarifyPage() {
         {
           id: "2",
           text: "관심 있는 지역은 어디인가요?",
-          type: "multiple",
+          type: "single",
           options: ["도쿄", "오사카", "교토", "후쿠오카", "홋카이도"],
         },
         {
@@ -137,17 +154,7 @@ export default function ClarifyPage() {
   }
 
   const handleAnswerChange = (questionId: string, answer: string | string[]) => {
-    // TODO: API 연결 - POST /questions/answer
-    // 질문 답변 제출 (실시간 저장)
-    // const response = await fetch('/api/questions/answer', {
-    //   method: 'POST',
-    //   headers: { 
-    //     'Content-Type': 'application/json',
-    //     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-    //   },
-    //   body: JSON.stringify({ questionId, answer })
-    // });
-
+    // 답변은 로컬에만 저장하고 최종 제출 시 한번에 전송
     setAnswers((prev) => ({ ...prev, [questionId]: answer }))
 
     const answeredCount = Object.keys({ ...answers, [questionId]: answer }).length
@@ -162,17 +169,32 @@ export default function ClarifyPage() {
 
     try {
       await new Promise((resolve) => setTimeout(resolve, 3000))
-      // TODO: API 연결 - POST /checklists/generate
-      // 답변 기반 체크리스트 생성
-      // const response = await fetch('/api/checklists/generate', {
+      // TODO: API 연결 - POST /questions/answer
+      // 모든 답변을 한번에 제출하여 체크리스트 생성
+      // const sessionId = sessionStorage.getItem('sessionId');
+      // const questionSetId = sessionStorage.getItem('questionSetId');
+      // const selectedIntentObj = intents.find(i => i.id === selectedIntent);
+      // const answersArray = questions.map(q => ({
+      //   questionId: q.id,
+      //   questionText: q.text,
+      //   questionType: q.type === 'single' ? 'multiple' : 'text',
+      //   answer: answers[q.id] || ''
+      // }));
+      // const response = await fetch('/api/questions/answer', {
       //   method: 'POST',
       //   headers: { 
       //     'Content-Type': 'application/json',
       //     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
       //   },
-      //   body: JSON.stringify({ goal, intentId: selectedIntent, answers })
+      //   body: JSON.stringify({
+      //     sessionId,
+      //     questionSetId,
+      //     goal,
+      //     selectedIntent: selectedIntentObj.title,
+      //     answers: answersArray
+      //   })
       // });
-      // const { checklistId } = await response.json();
+      // const { checklistId, redirectUrl } = await response.json();
 
       const checklistId = "mock-id-123"
       void navigate(`/result/${checklistId}`)
