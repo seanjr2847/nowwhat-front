@@ -77,7 +77,7 @@ export default function AuthCallbackPage() {
                 <CardHeader>
                     <CardTitle className="text-center">로그인 중...</CardTitle>
                     <CardDescription className="text-center">
-                        잠시만 기다려주세요
+                        잠시만 기다려주세요...
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="flex justify-center">

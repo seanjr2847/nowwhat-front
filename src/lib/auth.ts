@@ -2,22 +2,29 @@ import { apiRequest, authenticatedRequest, type LoginResponse, type User } from 
 
 // 구글 로그인
 export async function loginWithGoogle(googleToken: string) {
-    return apiRequest<LoginResponse>('/auth/google', {
+    const deviceInfo = navigator.userAgent
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+
+    return apiRequest<LoginResponse>('/api/v1/auth/google', {
         method: 'POST',
-        body: JSON.stringify({ googleToken }),
+        body: JSON.stringify({
+            googleToken,
+            deviceInfo,
+            timezone
+        }),
     })
 }
 
 // 로그아웃
 export async function logout() {
-    return authenticatedRequest('/auth/logout', {
+    return authenticatedRequest('/api/v1/auth/logout', {
         method: 'POST',
     })
 }
 
 // 현재 사용자 정보 가져오기
 export async function getCurrentUser() {
-    return authenticatedRequest<User>('/auth/me')
+    return authenticatedRequest<User>('/api/v1/auth/me')
 }
 
 // 토큰 갱신
@@ -31,7 +38,7 @@ export async function refreshToken() {
         }
     }
 
-    return apiRequest<{ accessToken: string }>('/auth/refresh', {
+    return apiRequest<{ accessToken: string }>('/api/v1/auth/refresh', {
         method: 'POST',
         body: JSON.stringify({ refreshToken: refreshTokenValue }),
     })
