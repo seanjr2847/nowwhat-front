@@ -1,6 +1,6 @@
 import { apiRequest, authenticatedRequest, type LoginResponse, type User } from './api'
 
-// 구글 로그인
+// 구글 로그인 (ID 토큰 사용)
 export async function loginWithGoogle(googleToken: string) {
     const deviceInfo = navigator.userAgent
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
@@ -8,7 +8,7 @@ export async function loginWithGoogle(googleToken: string) {
     return apiRequest<LoginResponse>('/api/v1/auth/google', {
         method: 'POST',
         body: JSON.stringify({
-            googleToken,
+            googleToken, // 이제 ID 토큰입니다
             deviceInfo,
             timezone
         }),

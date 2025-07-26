@@ -3,7 +3,6 @@ import './App.css'
 import { AuthProvider } from './components/AuthProvider'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { ThemeProvider } from './components/theme-provider'
-import AuthCallbackPage from './pages/AuthCallbackPage'
 import ClarifyPage from './pages/ClarifyPage'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
@@ -20,7 +19,7 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/clarify" element={<ClarifyPage />} />
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/auth/callback" element={<AuthCallbackPage />} />
+            {/* AuthCallback 라우트는 ID 토큰 방식에서는 불필요 */}
             <Route path="/my-lists" element={<ProtectedRoute><MyListsPage /></ProtectedRoute>} />
             <Route path="/result/:id" element={<ResultPage />} />
             <Route path="/privacy" element={<div>Privacy Policy</div>} />
