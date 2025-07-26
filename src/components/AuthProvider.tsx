@@ -21,20 +21,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // 초기 로드 시 사용자 정보 확인
     useEffect(() => {
         async function checkAuthStatus() {
+            console.log('🔍 초기 인증 상태 확인 시작')
             if (isLoggedIn()) {
+                console.log('🔑 로컬 토큰 발견, 사용자 정보 조회 중...')
                 try {
                     const response = await getCurrentUser()
                     if (response.success && response.data) {
+                        console.log('✅ 사용자 정보 조회 성공:', response.data)
                         setUser(response.data)
                     } else {
+                        console.log('❌ 사용자 정보 조회 실패, 토큰 정리')
                         // 토큰이 유효하지 않은 경우 정리
                         clearTokens()
                     }
                 } catch (error) {
-                    console.error('Failed to get current user:', error)
+                    console.error('💥 사용자 정보 조회 에러:', error)
                     clearTokens()
                 }
+            } else {
+                console.log('🚫 로컬 토큰 없음')
             }
+            console.log('🏁 초기 로딩 완료')
             setIsLoading(false)
         }
 
@@ -43,22 +50,28 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     const login = async (googleToken: string): Promise<boolean> => {
         try {
+            console.log('🔄 로그인 시작...')
             setIsLoading(true)
             const response = await loginWithGoogle(googleToken)
+            console.log('📡 로그인 응답:', response)
 
             if (response.success && response.data) {
                 const { user: userData, accessToken, refreshToken } = response.data
+                console.log('✅ 로그인 성공, 토큰 저장 중...')
                 saveTokens(accessToken, refreshToken)
+                console.log('👤 사용자 정보 설정:', userData)
                 setUser(userData)
+                console.log('🎉 로그인 프로세스 완료')
                 return true
             } else {
-                console.error('Login failed:', response.error)
+                console.error('❌ 로그인 실패:', response.error)
                 return false
             }
         } catch (error) {
-            console.error('Login error:', error)
+            console.error('💥 로그인 에러:', error)
             return false
         } finally {
+            console.log('🏁 로딩 상태 해제')
             setIsLoading(false)
         }
     }
@@ -97,6 +110,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
         logout,
         refreshUser,
     }
+
+    // 인증 상태 변화 로깅
+    console.log('🔄 AuthProvider 상태 업데이트:', {
+        hasUser: !!user,
+        isLoading,
+        isAuthenticated: !!user,
+        userName: user?.name
+    })
 
     return (
         <AuthContext.Provider value={value}>

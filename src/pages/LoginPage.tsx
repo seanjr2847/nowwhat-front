@@ -60,18 +60,27 @@ export default function LoginPage() {
   }
 
   const processGoogleLogin = async (credential: string) => {
+    console.log('🚀 Google 로그인 프로세스 시작')
     setIsLoading(true)
     try {
+      console.log('🔑 구글 credential 받음, 로그인 함수 호출')
       const success = await login(credential) // ID 토큰을 직접 전송
+      console.log('📊 로그인 결과:', success)
 
       if (success) {
-        void navigate('/', { replace: true })
+        console.log('🎯 로그인 성공! 잠시 대기 후 홈으로 이동...')
+        // 상태 업데이트가 완료될 시간을 주기 위해 약간의 지연
+        setTimeout(() => {
+          console.log('🏠 홈으로 이동 중...')
+          void navigate('/', { replace: true })
+        }, 100)
       } else {
-        console.error('로그인에 실패했습니다.')
+        console.error('❌ 로그인에 실패했습니다.')
       }
     } catch (error) {
-      console.error("Google login error:", error instanceof Error ? error.message : 'Unknown error')
+      console.error("💥 Google login error:", error instanceof Error ? error.message : 'Unknown error')
     } finally {
+      console.log('🏁 LoginPage 로딩 상태 해제')
       setIsLoading(false)
     }
   }

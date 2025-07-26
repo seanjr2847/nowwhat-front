@@ -32,6 +32,8 @@ async function apiRequest<T>(
 ): Promise<ApiResponse<T>> {
     const url = `${API_BASE_URL}${endpoint}`
 
+    console.log('🌐 API 요청 시작:', { endpoint, method: options.method || 'GET', url })
+
     try {
         const response = await fetch(url, {
             headers: {
@@ -41,20 +43,26 @@ async function apiRequest<T>(
             ...options,
         })
 
+        console.log('📡 API 응답 상태:', { status: response.status, statusText: response.statusText })
+
         const data: unknown = await response.json()
+        console.log('📄 API 응답 데이터:', data)
 
         if (!response.ok) {
+            console.error('❌ API 요청 실패:', { status: response.status, data })
             return {
                 success: false,
                 error: (data as { message?: string }).message || `HTTP ${response.status}`,
             }
         }
 
+        console.log('✅ API 요청 성공')
         return {
             success: true,
             data: data as T,
         }
     } catch (error) {
+        console.error('💥 API 요청 에러:', error)
         return {
             success: false,
             error: error instanceof Error ? error.message : 'Unknown error',
@@ -68,6 +76,7 @@ async function authenticatedRequest<T>(
     options: RequestInit = {}
 ): Promise<ApiResponse<T>> {
     const token = localStorage.getItem('accessToken')
+    console.log('🔐 인증된 요청:', { endpoint, hasToken: !!token })
 
     return apiRequest<T>(endpoint, {
         ...options,

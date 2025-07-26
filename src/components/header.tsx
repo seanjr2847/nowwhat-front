@@ -19,10 +19,13 @@ import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet"
 export function Header() {
   const router = useNavigate()
   const isMobile = useIsMobile()
-  const { isAuthenticated, logout } = useAuth()
+  const { isAuthenticated, logout, user, isLoading } = useAuth()
   const [isSheetOpen, setIsSheetOpen] = useState(false)
   const [language, setLanguage] = useState("EN")
   const [region, setRegion] = useState("KR")
+
+  // 인증 상태 변화 로깅
+  console.log('🔍 Header 렌더링 - 인증 상태:', { isAuthenticated, isLoading, user: user?.name || 'None' })
 
   const handleNavigation = (path: string) => {
     void router(path)
