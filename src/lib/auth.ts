@@ -17,9 +17,12 @@ export async function loginWithGoogle(googleToken: string) {
 
 // 로그아웃
 export async function logout() {
-    return authenticatedRequest('/api/v1/auth/logout', {
+    console.log('🌐 서버 로그아웃 API 호출')
+    const result = await authenticatedRequest('/api/v1/auth/logout', {
         method: 'POST',
     })
+    console.log('📡 서버 로그아웃 응답:', result)
+    return result
 }
 
 // 현재 사용자 정보 가져오기
@@ -52,8 +55,10 @@ export function saveTokens(accessToken: string, refreshToken: string) {
 
 // 토큰 제거
 export function clearTokens() {
+    console.log('🧹 로컬 토큰 삭제 중...')
     localStorage.removeItem('accessToken')
     localStorage.removeItem('refreshToken')
+    console.log('✅ 로컬 토큰 삭제 완료')
 }
 
 // 로그인 상태 확인

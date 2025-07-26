@@ -4,8 +4,20 @@ import { ChevronDown, Globe, List, LogOut, MapPin, Menu, User } from "lucide-rea
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useIsMobile } from "../hooks/use-mobile"
+import { useToast } from "../hooks/use-toast"
 import { useAuth } from "../hooks/useAuth"
 import { ThemeToggle } from "./theme-toggle"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "./ui/alert-dialog"
 import { Badge } from "./ui/badge"
 import { Button } from "./ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu"
@@ -20,9 +32,11 @@ export function Header() {
   const router = useNavigate()
   const isMobile = useIsMobile()
   const { isAuthenticated, logout, user, isLoading } = useAuth()
+  const { toast } = useToast()
   const [isSheetOpen, setIsSheetOpen] = useState(false)
   const [language, setLanguage] = useState("EN")
   const [region, setRegion] = useState("KR")
+  const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false)
 
   // 인증 상태 변화 로깅
   console.log('🔍 Header 렌더링 - 인증 상태:', { isAuthenticated, isLoading, user: user?.name || 'None' })
@@ -38,10 +52,28 @@ export function Header() {
 
   const handleSignOut = async () => {
     try {
+      console.log('🚪 로그아웃 프로세스 시작')
       await logout()
+      console.log('✅ 로그아웃 성공, 홈으로 이동')
+      setIsLogoutDialogOpen(false)
+
+      // 로그아웃 성공 토스트 표시
+      toast({
+        title: "로그아웃 완료",
+        description: "성공적으로 로그아웃되었습니다.",
+        variant: "default",
+      })
+
       handleNavigation("/")
     } catch (error) {
-      console.error('Logout failed:', error)
+      console.error('💥 로그아웃 실패:', error)
+
+      // 로그아웃 실패 토스트 표시
+      toast({
+        title: "로그아웃 실패",
+        description: "로그아웃 중 오류가 발생했습니다. 다시 시도해주세요.",
+        variant: "destructive",
+      })
     }
   }
 
@@ -93,14 +125,35 @@ export function Header() {
             <List className="w-4 h-4 mr-2" />
             <span>My Lists</span>
           </Button>
-          <Button
-            onClick={() => void handleSignOut()}
-            variant="ghost"
-            className="w-full justify-start text-red-500 hover:text-red-500 px-3"
-          >
-            <LogOut className="w-4 h-4 mr-2" />
-            <span>Sign Out</span>
-          </Button>
+
+          <AlertDialog open={isLogoutDialogOpen} onOpenChange={setIsLogoutDialogOpen}>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-red-500 hover:text-red-500 px-3"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                <span>Sign Out</span>
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>로그아웃 하시겠습니까?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  로그아웃하면 현재 세션이 종료되며, 다시 로그인해야 합니다.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>취소</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => void handleSignOut()}
+                  className="bg-red-500 hover:bg-red-600"
+                >
+                  로그아웃
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       ) : (
         <div className={isMobile ? "border-t pt-4 mt-4" : ""}>

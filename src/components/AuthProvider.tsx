@@ -78,14 +78,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     const logout = async (): Promise<void> => {
         try {
+            console.log('🔄 AuthProvider 로그아웃 시작')
             setIsLoading(true)
+            console.log('📡 서버에 로그아웃 요청 전송')
             await logoutService()
+            console.log('✅ 서버 로그아웃 완료')
         } catch (error) {
-            console.error('Logout error:', error)
+            console.error('💥 서버 로그아웃 에러 (토큰은 삭제됨):', error)
         } finally {
+            console.log('🧹 로컬 토큰 및 사용자 정보 정리')
             clearTokens()
             setUser(null)
             setIsLoading(false)
+            console.log('🎯 로그아웃 프로세스 완료')
         }
     }
 

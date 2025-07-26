@@ -3,6 +3,7 @@ import './App.css'
 import { AuthProvider } from './components/AuthProvider'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { ThemeProvider } from './components/theme-provider'
+import { Toaster } from './components/ui/toaster'
 import ClarifyPage from './pages/ClarifyPage'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
@@ -25,6 +26,7 @@ function App() {
             <Route path="/privacy" element={<div>Privacy Policy</div>} />
             <Route path="/terms" element={<div>Terms of Service</div>} />
           </Routes>
+          <Toaster />
         </BrowserRouter>
       </AuthProvider>
     </ThemeProvider>
