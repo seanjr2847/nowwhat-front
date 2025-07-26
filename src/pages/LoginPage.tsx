@@ -6,6 +6,7 @@ import { useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { Button } from "../components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../components/ui/card"
+import { useToast } from "../hooks/use-toast"
 import { useAuth } from "../hooks/useAuth"
 
 // 구글 Sign-In 라이브러리 타입 정의
@@ -30,6 +31,7 @@ declare global {
 export default function LoginPage() {
   const navigate = useNavigate()
   const { login } = useAuth()
+  const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
@@ -69,6 +71,14 @@ export default function LoginPage() {
 
       if (success) {
         console.log('🎯 로그인 성공! 잠시 대기 후 홈으로 이동...')
+
+        // 로그인 성공 토스트 표시
+        toast({
+          title: "로그인 성공!",
+          description: "환영합니다! 홈페이지로 이동합니다.",
+          variant: "default",
+        })
+
         // 상태 업데이트가 완료될 시간을 주기 위해 약간의 지연
         setTimeout(() => {
           console.log('🏠 홈으로 이동 중...')
@@ -76,9 +86,23 @@ export default function LoginPage() {
         }, 100)
       } else {
         console.error('❌ 로그인에 실패했습니다.')
+
+        // 로그인 실패 토스트 표시
+        toast({
+          title: "로그인 실패",
+          description: "로그인에 실패했습니다. 다시 시도해주세요.",
+          variant: "destructive",
+        })
       }
     } catch (error) {
       console.error("💥 Google login error:", error instanceof Error ? error.message : 'Unknown error')
+
+      // 로그인 에러 토스트 표시
+      toast({
+        title: "로그인 오류",
+        description: "로그인 중 오류가 발생했습니다. 다시 시도해주세요.",
+        variant: "destructive",
+      })
     } finally {
       console.log('🏁 LoginPage 로딩 상태 해제')
       setIsLoading(false)

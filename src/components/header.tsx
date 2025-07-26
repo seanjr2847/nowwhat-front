@@ -121,6 +121,19 @@ export function Header() {
 
       {isAuthenticated ? (
         <div className={`flex ${isMobile ? "flex-col space-y-2 border-t pt-4 mt-4" : "items-center space-x-2"}`}>
+          {/* 사용자 정보 표시 */}
+          <div className={`flex items-center ${isMobile ? "px-3 py-2 mb-2" : "px-3"}`}>
+            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-3">
+              <span className="text-white text-sm font-medium">
+                {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+              </span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm font-medium">{user?.name || '사용자'}</span>
+              <span className="text-xs text-muted-foreground">{user?.email}</span>
+            </div>
+          </div>
+
           <Button onClick={() => handleNavigation("/my-lists")} variant="ghost" className="w-full justify-start px-3">
             <List className="w-4 h-4 mr-2" />
             <span>My Lists</span>
