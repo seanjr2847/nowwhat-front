@@ -10,20 +10,15 @@ import { IntentSelection } from "../components/clarify/intent-selection"
 import { LoadingSpinner } from "../components/clarify/loading-spinner"
 import { ProgressBar } from "../components/clarify/progress-bar"
 import { QuestionSection } from "../components/clarify/question-section"
-
-interface Intent {
-  id: string
-  title: string
-  description: string
-  icon: string
-}
-
-interface Question {
-  id: string
-  text: string
-  type: "single" | "multiple"
-  options: string[]
-}
+import { useToast } from "../hooks/use-toast"
+import { useAuth } from "../hooks/useAuth"
+import {
+  analyzeIntents,
+  createChecklist,
+  generateQuestions,
+  type Intent,
+  type Question
+} from "../lib/api"
 
 /**
  * 사용자의 목표를 구체화하기 위한 다단계 페이지 컴포넌트입니다.
@@ -32,6 +27,9 @@ interface Question {
  */
 export default function ClarifyPage() {
   const navigate = useNavigate()
+  const { isAuthenticated, isLoading: authLoading } = useAuth()
+  const { toast } = useToast()
+
   const [goal, setGoal] = useState<string>("")
   const [intents, setIntents] = useState<Intent[]>([])
   const [selectedIntent, setSelectedIntent] = useState<string>("")
@@ -43,118 +41,102 @@ export default function ClarifyPage() {
   const [showAdModal, setShowAdModal] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
 
+  // 세션 정보
+  const [sessionId, setSessionId] = useState<string>("")
+  const [questionSetId, setQuestionSetId] = useState<string>("")
+
   const fetchIntents = async () => {
     try {
+      console.log('🎯 의도 분석 시작:', { goal })
       setIsLoading(true)
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-      // TODO: API 연결 - POST /intents/analyze
-      // 사용자 입력을 분석하여 의도 옵션 생성
-      // const response = await fetch('/api/intents/analyze', {
-      //   method: 'POST',
-      //   headers: { 
-      //     'Content-Type': 'application/json',
-      //     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-      //   },
-      //   body: JSON.stringify({ goal })
-      // });
-      // const { sessionId, intents } = await response.json();
-      // sessionStorage.setItem('sessionId', sessionId);
-      // setIntents(intents);
+      setError("")
 
-      const mockIntents: Intent[] = [
-        {
-          id: "1",
-          title: "여행 계획 세우기",
-          description: "일본 여행의 구체적인 일정과 준비사항을 계획",
-          icon: "✈️",
-        },
-        {
-          id: "2",
-          title: "예산 관리하기",
-          description: "여행 비용을 효율적으로 계획하고 관리",
-          icon: "💰",
-        },
-        {
-          id: "3",
-          title: "문화 체험하기",
-          description: "일본의 전통문화와 현지 체험 활동 탐색",
-          icon: "🏮",
-        },
-        {
-          id: "4",
-          title: "언어 준비하기",
-          description: "여행에 필요한 일본어 기초 학습",
-          icon: "🗣️",
-        },
-      ]
+      const response = await analyzeIntents(goal)
 
-      setIntents(mockIntents)
-      setProgress(25)
-    } catch {
+      if (response.success && response.data) {
+        console.log('✅ 의도 분석 성공:', response.data)
+        setSessionId(response.data.sessionId)
+        setIntents(response.data.intents)
+        setProgress(25)
+
+        toast({
+          title: "분석 완료!",
+          description: `${response.data.intents.length}개의 방향을 찾았습니다.`,
+          variant: "default",
+        })
+      } else {
+        console.error('❌ 의도 분석 실패:', response.error)
+        setError(response.error || "의도 분석 중 오류가 발생했습니다.")
+
+        toast({
+          title: "분석 실패",
+          description: response.error || "의도 분석 중 오류가 발생했습니다.",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error('💥 의도 분석 에러:', error)
       setError("의도 분석 중 오류가 발생했습니다.")
+
+      toast({
+        title: "연결 오류",
+        description: "서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.",
+        variant: "destructive",
+      })
     } finally {
       setIsLoading(false)
     }
   }
 
   const handleIntentSelect = async (intentId: string) => {
+    const selectedIntentObj = intents.find(i => i.id === intentId)
+    if (!selectedIntentObj) return
+
+    console.log('🎯 의도 선택:', selectedIntentObj)
     setSelectedIntent(intentId)
     setIsLoading(true)
+    setError("")
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-      // TODO: API 연결 - POST /questions/generate
-      // 선택된 의도에 따른 맞춤 질문 생성
-      // const sessionId = sessionStorage.getItem('sessionId');
-      // const selectedIntentObj = intents.find(i => i.id === intentId);
-      // const response = await fetch('/api/questions/generate', {
-      //   method: 'POST',
-      //   headers: { 
-      //     'Content-Type': 'application/json',
-      //     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-      //   },
-      //   body: JSON.stringify({ 
-      //     sessionId,
-      //     goal,
-      //     intentTitle: selectedIntentObj.title
-      //   })
-      // });
-      // const { questionSetId, questions } = await response.json();
-      // sessionStorage.setItem('questionSetId', questionSetId);
-      // setQuestions(questions);
+      const response = await generateQuestions(sessionId, goal, selectedIntentObj.title)
 
-      const mockQuestions: Question[] = [
-        {
-          id: "1",
-          text: "여행 기간은 얼마나 되나요?",
-          type: "single",
-          options: ["3-4일", "5-7일", "1주일 이상", "아직 미정"],
-        },
-        {
-          id: "2",
-          text: "관심 있는 지역은 어디인가요?",
-          type: "single",
-          options: ["도쿄", "오사카", "교토", "후쿠오카", "홋카이도"],
-        },
-        {
-          id: "3",
-          text: "여행 스타일은 어떤가요?",
-          type: "single",
-          options: ["자유여행", "패키지여행", "반자유여행", "배낭여행"],
-        },
-      ]
+      if (response.success && response.data) {
+        console.log('✅ 질문 생성 성공:', response.data)
+        setQuestionSetId(response.data.questionSetId)
+        setQuestions(response.data.questions)
+        setProgress(50)
 
-      setQuestions(mockQuestions)
-      setProgress(50)
-    } catch {
+        toast({
+          title: "질문 생성 완료!",
+          description: `${response.data.questions.length}개의 맞춤 질문을 준비했습니다.`,
+          variant: "default",
+        })
+      } else {
+        console.error('❌ 질문 생성 실패:', response.error)
+        setError(response.error || "질문 생성 중 오류가 발생했습니다.")
+
+        toast({
+          title: "질문 생성 실패",
+          description: response.error || "질문 생성 중 오류가 발생했습니다.",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error('💥 질문 생성 에러:', error)
       setError("질문 생성 중 오류가 발생했습니다.")
+
+      toast({
+        title: "연결 오류",
+        description: "서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.",
+        variant: "destructive",
+      })
     } finally {
       setIsLoading(false)
     }
   }
 
   const handleAnswerChange = (questionId: string, answer: string | string[]) => {
-    // 답변은 로컬에만 저장하고 최종 제출 시 한번에 전송
+    console.log('📝 답변 업데이트:', { questionId, answer })
     setAnswers((prev) => ({ ...prev, [questionId]: answer }))
 
     const answeredCount = Object.keys({ ...answers, [questionId]: answer }).length
@@ -164,43 +146,66 @@ export default function ClarifyPage() {
   }
 
   const handleCreateChecklist = async () => {
+    console.log('🚀 체크리스트 생성 시작')
     setShowAdModal(true)
     setIsCreating(true)
+    setError("")
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 3000))
-      // TODO: API 연결 - POST /questions/answer
-      // 모든 답변을 한번에 제출하여 체크리스트 생성
-      // const sessionId = sessionStorage.getItem('sessionId');
-      // const questionSetId = sessionStorage.getItem('questionSetId');
-      // const selectedIntentObj = intents.find(i => i.id === selectedIntent);
-      // const answersArray = questions.map(q => ({
-      //   questionId: q.id,
-      //   questionText: q.text,
-      //   questionType: q.type === 'single' ? 'multiple' : 'text',
-      //   answer: answers[q.id] || ''
-      // }));
-      // const response = await fetch('/api/questions/answer', {
-      //   method: 'POST',
-      //   headers: { 
-      //     'Content-Type': 'application/json',
-      //     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-      //   },
-      //   body: JSON.stringify({
-      //     sessionId,
-      //     questionSetId,
-      //     goal,
-      //     selectedIntent: selectedIntentObj.title,
-      //     answers: answersArray
-      //   })
-      // });
-      // const { checklistId, redirectUrl } = await response.json();
+      const selectedIntentObj = intents.find(i => i.id === selectedIntent)
+      if (!selectedIntentObj) throw new Error('선택된 의도를 찾을 수 없습니다.')
 
-      const checklistId = "mock-id-123"
-      void navigate(`/result/${checklistId}`)
-    } catch {
+      const answersArray = questions.map(q => ({
+        questionId: q.id,
+        questionText: q.text,
+        questionType: q.type === 'single' ? 'multiple' : 'text',
+        answer: answers[q.id] || ''
+      }))
+
+      console.log('📊 제출할 데이터:', { sessionId, questionSetId, goal, selectedIntent: selectedIntentObj.title, answersArray })
+
+      const response = await createChecklist(
+        sessionId,
+        questionSetId,
+        goal,
+        selectedIntentObj.title,
+        answersArray
+      )
+
+      if (response.success && response.data) {
+        console.log('✅ 체크리스트 생성 성공:', response.data)
+
+        toast({
+          title: "체크리스트 생성 완료!",
+          description: "나만의 실행 체크리스트가 준비되었습니다.",
+          variant: "default",
+        })
+
+        // 잠시 후 결과 페이지로 이동
+        setTimeout(() => {
+          void navigate(`/result/${response.data!.checklistId}`)
+        }, 1000)
+      } else {
+        console.error('❌ 체크리스트 생성 실패:', response.error)
+        setError(response.error || "체크리스트 생성 중 오류가 발생했습니다.")
+        setShowAdModal(false)
+
+        toast({
+          title: "생성 실패",
+          description: response.error || "체크리스트 생성 중 오류가 발생했습니다.",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error('💥 체크리스트 생성 에러:', error)
       setError("체크리스트 생성 중 오류가 발생했습니다.")
       setShowAdModal(false)
+
+      toast({
+        title: "연결 오류",
+        description: "서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.",
+        variant: "destructive",
+      })
     } finally {
       setIsCreating(false)
     }
@@ -213,11 +218,36 @@ export default function ClarifyPage() {
     )
 
   useEffect(() => {
-    const storedGoal = sessionStorage.getItem("goal") || "일본 여행 가고싶어"
-    setGoal(storedGoal)
-    // TODO: 보이드 제거 아악
-    void fetchIntents()
-  }, [navigate])
+    // 인증 상태 확인
+    if (!authLoading && !isAuthenticated) {
+      console.log('🚫 인증되지 않은 사용자, 로그인 페이지로 이동')
+      toast({
+        title: "로그인 필요",
+        description: "체크리스트를 생성하려면 로그인이 필요합니다.",
+        variant: "destructive",
+      })
+      void navigate('/login')
+      return
+    }
+
+    // 목표 확인 및 의도 분석 시작
+    if (isAuthenticated) {
+      const storedGoal = sessionStorage.getItem("goal")
+      if (!storedGoal) {
+        console.log('🚫 목표 없음, 홈페이지로 이동')
+        toast({
+          title: "목표 없음",
+          description: "먼저 목표를 입력해주세요.",
+          variant: "destructive",
+        })
+        void navigate('/')
+        return
+      }
+
+      setGoal(storedGoal)
+      void fetchIntents()
+    }
+  }, [navigate, isAuthenticated, authLoading])
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -226,7 +256,6 @@ export default function ClarifyPage() {
       }
 
       if (e.ctrlKey && e.key === "Enter" && isAllQuestionsAnswered && !isCreating) {
-        // TODO: 보이드 제거
         void handleCreateChecklist()
       }
     }
@@ -235,6 +264,16 @@ export default function ClarifyPage() {
     return () => document.removeEventListener("keydown", handleKeyDown)
   }, [showAdModal, isAllQuestionsAnswered, isCreating])
 
+  // 인증 로딩 중
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-slate-900">
+        <LoadingSpinner message="인증 상태 확인 중..." />
+      </div>
+    )
+  }
+
+  // 의도 분석 로딩 중
   if (isLoading && intents.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-slate-900">
@@ -243,10 +282,21 @@ export default function ClarifyPage() {
     )
   }
 
+  // 에러 상태
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-slate-900">
-        <ErrorMessage message={error} onRetry={() => window.location.reload()} />
+        <ErrorMessage
+          message={error}
+          onRetry={() => {
+            setError("")
+            if (intents.length === 0) {
+              void fetchIntents()
+            } else if (selectedIntent && questions.length === 0) {
+              void handleIntentSelect(selectedIntent)
+            }
+          }}
+        />
       </div>
     )
   }
@@ -270,10 +320,10 @@ export default function ClarifyPage() {
           {progress >= 50 && progress < 90 && "맞춤 질문에 답변해주세요"}
           {progress >= 90 && "모든 질문에 답변하셨습니다. 체크리스트를 생성할 수 있습니다"}
         </div>
+
         <ClarifyHeader goal={goal} />
         <ProgressBar progress={progress} />
 
-        {/* TODO: 보이드 제거 */}
         {!selectedIntent && <IntentSelection intents={intents} onSelect={(id) => void handleIntentSelect(id)} />}
 
         {selectedIntent && isLoading && (
@@ -286,7 +336,6 @@ export default function ClarifyPage() {
           <QuestionSection questions={questions} answers={answers} onAnswerChange={handleAnswerChange} />
         )}
 
-        // TODO: 보이드 제거
         {isAllQuestionsAnswered && <CreateButton onClick={() => void handleCreateChecklist()} isLoading={isCreating} />}
 
         {showAdModal && <AdModal onComplete={() => setShowAdModal(false)} isCreating={isCreating} />}

@@ -87,5 +87,85 @@ async function authenticatedRequest<T>(
     })
 }
 
+// Intent 관련 타입 정의
+export interface Intent {
+    id: string
+    title: string
+    description: string
+    icon: string
+}
+
+export interface Question {
+    id: string
+    text: string
+    type: "single" | "multiple"
+    options: string[]
+}
+
+export interface IntentAnalysisResponse {
+    sessionId: string
+    intents: Intent[]
+}
+
+export interface QuestionGenerationResponse {
+    questionSetId: string
+    questions: Question[]
+}
+
+export interface ChecklistCreationResponse {
+    checklistId: string
+    redirectUrl?: string
+}
+
+// Intent 분석 API
+export async function analyzeIntents(goal: string): Promise<ApiResponse<IntentAnalysisResponse>> {
+    console.log('🧠 의도 분석 API 호출:', { goal })
+
+    return authenticatedRequest<IntentAnalysisResponse>('/api/v1/intents/analyze', {
+        method: 'POST',
+        body: JSON.stringify({ goal })
+    })
+}
+
+// 질문 생성 API
+export async function generateQuestions(
+    sessionId: string,
+    goal: string,
+    intentTitle: string
+): Promise<ApiResponse<QuestionGenerationResponse>> {
+    console.log('❓ 질문 생성 API 호출:', { sessionId, goal, intentTitle })
+
+    return authenticatedRequest<QuestionGenerationResponse>('/api/v1/questions/generate', {
+        method: 'POST',
+        body: JSON.stringify({
+            sessionId,
+            goal,
+            intentTitle
+        })
+    })
+}
+
+// 체크리스트 생성 API
+export async function createChecklist(
+    sessionId: string,
+    questionSetId: string,
+    goal: string,
+    selectedIntent: string,
+    answers: { questionId: string, questionText: string, questionType: string, answer: string | string[] }[]
+): Promise<ApiResponse<ChecklistCreationResponse>> {
+    console.log('✅ 체크리스트 생성 API 호출:', { sessionId, questionSetId, goal, selectedIntent, answersCount: answers.length })
+
+    return authenticatedRequest<ChecklistCreationResponse>('/api/v1/questions/answer', {
+        method: 'POST',
+        body: JSON.stringify({
+            sessionId,
+            questionSetId,
+            goal,
+            selectedIntent,
+            answers
+        })
+    })
+}
+
 export { apiRequest, authenticatedRequest }
 

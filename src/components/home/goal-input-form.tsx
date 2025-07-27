@@ -4,6 +4,8 @@ import { HelpCircle, Send, Settings, Sparkles, Target, Zap } from "lucide-react"
 import type React from "react"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { useToast } from "../../hooks/use-toast"
+import { useAuth } from "../../hooks/useAuth"
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
 import { HelpModal } from "./help-modal"
@@ -16,16 +18,45 @@ import { SettingsModal } from "./settings-modal"
  */
 export function GoalInputForm() {
   const router = useNavigate()
+  const { isAuthenticated } = useAuth()
+  const { toast } = useToast()
   const [goal, setGoal] = useState("")
   const [showHelpModal, setShowHelpModal] = useState(false)
   const [showSettingsModal, setShowSettingsModal] = useState(false)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (goal.trim()) {
-      sessionStorage.setItem("goal", goal.trim())
-      void router("/clarify")
+    if (!goal.trim()) return
+
+    console.log('🎯 목표 제출:', { goal: goal.trim(), isAuthenticated })
+
+    // 로그인 상태 확인
+    if (!isAuthenticated) {
+      console.log('🚫 로그인 필요, 로그인 페이지로 이동')
+      sessionStorage.setItem("pendingGoal", goal.trim()) // 로그인 후 복원할 수 있도록 저장
+
+      toast({
+        title: "로그인 필요",
+        description: "체크리스트를 생성하려면 먼저 로그인해주세요.",
+        variant: "destructive",
+      })
+
+      void router("/login")
+      return
     }
+
+    // 로그인된 경우 목표 저장 후 clarify 페이지로 이동
+    sessionStorage.setItem("goal", goal.trim())
+    sessionStorage.removeItem("pendingGoal") // 임시 저장된 목표 제거
+
+    toast({
+      title: "목표 설정 완료!",
+      description: "AI가 분석하여 맞춤 체크리스트를 만들어드립니다.",
+      variant: "default",
+    })
+
+    console.log('✅ 목표 저장 완료, clarify 페이지로 이동')
+    void router("/clarify")
   }
 
   return (

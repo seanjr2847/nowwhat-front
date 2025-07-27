@@ -2,14 +2,8 @@
 
 import { ChevronRight } from "lucide-react"
 import { useEffect, useRef } from "react"
+import { type Intent } from "../../lib/api"
 import { Card, CardContent } from "../ui/card"
-
-interface Intent {
-  id: string
-  title: string
-  description: string
-  icon: string
-}
 
 interface IntentSelectionProps {
   intents: Intent[]
@@ -33,25 +27,29 @@ export function IntentSelection({ intents, onSelect }: IntentSelectionProps) {
 
       if (currentIndex === -1) return
 
-        switch (e.key) {
-          case "ArrowRight":
-          case "ArrowDown":
-            { e.preventDefault()
+      switch (e.key) {
+        case "ArrowRight":
+        case "ArrowDown":
+          {
+            e.preventDefault()
             const nextIndex = (currentIndex + 1) % intents.length
             cardRefs.current[nextIndex]?.focus()
-            break }
-          case "ArrowLeft":
-          case "ArrowUp":
-            { e.preventDefault()
+            break
+          }
+        case "ArrowLeft":
+        case "ArrowUp":
+          {
+            e.preventDefault()
             const prevIndex = currentIndex === 0 ? intents.length - 1 : currentIndex - 1
             cardRefs.current[prevIndex]?.focus()
-            break }
-          case "Enter":
-          case " ":
-            e.preventDefault()
-            onSelect(intents[currentIndex].id)
             break
-        }
+          }
+        case "Enter":
+        case " ":
+          e.preventDefault()
+          onSelect(intents[currentIndex].id)
+          break
+      }
     }
 
     document.addEventListener("keydown", handleKeyDown)
@@ -74,7 +72,7 @@ export function IntentSelection({ intents, onSelect }: IntentSelectionProps) {
         {intents.map((intent, index) => (
           <Card
             key={intent.id}
-            ref={(el) => {(cardRefs.current[index] = el)}}
+            ref={(el) => { (cardRefs.current[index] = el) }}
             className="group bg-white/70 dark:bg-gray-900/70 backdrop-blur-2xl border border-white/40 dark:border-gray-700/40 hover:bg-white/80 dark:hover:bg-gray-900/80 cursor-pointer transition-all duration-500 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/20 focus-ring rounded-2xl hover:border-blue-500/50 card-hover overflow-hidden"
             onClick={() => onSelect(intent.id)}
             onKeyDown={(e) => {

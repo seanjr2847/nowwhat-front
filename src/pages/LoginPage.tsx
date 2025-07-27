@@ -81,8 +81,17 @@ export default function LoginPage() {
 
         // 상태 업데이트가 완료될 시간을 주기 위해 약간의 지연
         setTimeout(() => {
-          console.log('🏠 홈으로 이동 중...')
-          void navigate('/', { replace: true })
+          // 임시 저장된 목표가 있는지 확인
+          const pendingGoal = sessionStorage.getItem("pendingGoal")
+          if (pendingGoal) {
+            console.log('📝 임시 저장된 목표 발견, clarify 페이지로 이동:', pendingGoal)
+            sessionStorage.setItem("goal", pendingGoal)
+            sessionStorage.removeItem("pendingGoal")
+            void navigate('/clarify', { replace: true })
+          } else {
+            console.log('🏠 홈으로 이동 중...')
+            void navigate('/', { replace: true })
+          }
         }, 100)
       } else {
         console.error('❌ 로그인에 실패했습니다.')
