@@ -123,6 +123,9 @@ export async function analyzeIntents(goal: string): Promise<ApiResponse<IntentAn
 
     return authenticatedRequest<IntentAnalysisResponse>('/api/v1/intents/analyze', {
         method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
         body: JSON.stringify({ goal })
     })
 }
