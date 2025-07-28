@@ -124,8 +124,9 @@ async function authenticatedRequest<T>(
     const response = await apiRequest<T>(endpoint, {
         ...options,
         headers: {
+            'Content-Type': 'application/json',  // 기본 Content-Type 보장
             Authorization: `Bearer ${token}`,
-            ...options.headers,
+            ...options.headers,  // 사용자 정의 헤더가 있으면 덮어씀
         },
     })
 
@@ -224,9 +225,6 @@ export async function analyzeIntents(goal: string): Promise<ApiResponse<IntentAn
 
     return authenticatedRequest<IntentAnalysisResponse>('/api/v1/intents/analyze', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
         body: JSON.stringify({ goal })
     })
 }
