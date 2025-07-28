@@ -33,7 +33,12 @@ async function apiRequest<T>(
 ): Promise<ApiResponse<T>> {
     const url = `${API_BASE_URL}${endpoint}`
 
-    console.log('🌐 API 요청 시작:', { endpoint, method: options.method || 'GET', url })
+    console.log('🌐 API 요청 시작:', {
+        endpoint,
+        method: options.method || 'GET',
+        url,
+        headers: options.headers
+    })
 
     try {
         const response = await fetch(url, {
@@ -44,17 +49,28 @@ async function apiRequest<T>(
             ...options,
         })
 
-        console.log('📡 API 응답 상태:', { status: response.status, statusText: response.statusText })
+        console.log('📡 API 응답 상태:', {
+            status: response.status,
+            statusText: response.statusText,
+            headers: Object.fromEntries(response.headers.entries()),
+            url: response.url
+        })
 
         const data: unknown = await response.json()
         console.log('📄 API 응답 데이터:', data)
 
         if (!response.ok) {
-            console.error('❌ API 요청 실패:', { status: response.status, data })
+            console.error('❌ API 요청 실패:', {
+                status: response.status,
+                statusText: response.statusText,
+                data,
+                endpoint,
+                requestHeaders: options.headers
+            })
             return {
                 success: false,
                 status: response.status,  // 상태 코드 포함
-                error: (data as { message?: string }).message || `HTTP ${response.status}`,
+                error: (data as { message?: string }).message || (data as { detail?: string }).detail || `HTTP ${response.status}`,
             }
         }
 
@@ -65,7 +81,12 @@ async function apiRequest<T>(
             data: data as T,
         }
     } catch (error) {
-        console.error('💥 API 요청 에러:', error)
+        console.error('💥 API 요청 에러:', {
+            error,
+            endpoint,
+            options,
+            message: error instanceof Error ? error.message : 'Unknown error'
+        })
         return {
             success: false,
             error: error instanceof Error ? error.message : 'Unknown error',
@@ -133,6 +154,13 @@ async function authenticatedRequest<T>(
     // 401 에러 처리 (토큰 만료)
     if (!response.success && response.status === 401) {
         console.log('🔄 401 에러 감지, 토큰 갱신 시도...')
+        console.log('📊 응답 상세 정보:', {
+            status: response.status,
+            error: response.error,
+            endpoint,
+            hasToken: !!token,
+            tokenPreview: token ? `${token.substring(0, 20)}...` : 'null'
+        })
 
         if (retryCount === 0) {
             const refreshResult = await refreshTokenRequest()
@@ -143,35 +171,50 @@ async function authenticatedRequest<T>(
                 return authenticatedRequest<T>(endpoint, options, retryCount + 1)
             } else {
                 console.log('❌ 토큰 갱신 실패, 로그인 필요')
+                console.log('🔍 토큰 갱신 실패 상세:', refreshResult.error)
                 // 토큰 갱신 실패 시 로그아웃 처리
                 localStorage.removeItem('accessToken')
                 localStorage.removeItem('refreshToken')
 
-                // 로그인 페이지로 리다이렉트
-                if (typeof window !== 'undefined') {
-                    window.location.href = '/login'
-                }
+                // 🚨 디버깅 목적으로 리다이렉트 임시 비활성화
+                console.error('🚨 [디버깅용] 자동 리다이렉트 비활성화됨. 네트워크 탭을 확인하세요!')
+                console.error('🚨 원래는 /login으로 리다이렉트됩니다.')
+
+                // TODO: 디버깅 완료 후 아래 주석을 해제하여 자동 리다이렉트 다시 활성화
+                // if (typeof window !== 'undefined') {
+                //     window.location.href = '/login'
+                // }
 
                 return {
                     success: false,
                     status: 401,
-                    error: '인증이 만료되었습니다. 다시 로그인해주세요.',
+                    error: '🚨 [디버깅] 인증이 만료되었습니다. 네트워크 탭을 확인 후 수동으로 로그인해주세요.',
                 }
             }
         } else {
             console.log('❌ 토큰 갱신 후에도 401 에러, 로그인 필요')
+            console.log('🔍 재시도 후에도 실패 상세:', {
+                retryCount,
+                status: response.status,
+                error: response.error
+            })
             // 토큰 갱신 후에도 실패하면 로그아웃
             localStorage.removeItem('accessToken')
             localStorage.removeItem('refreshToken')
 
-            if (typeof window !== 'undefined') {
-                window.location.href = '/login'
-            }
+            // 🚨 디버깅 목적으로 리다이렉트 임시 비활성화
+            console.error('🚨 [디버깅용] 자동 리다이렉트 비활성화됨. 네트워크 탭을 확인하세요!')
+            console.error('🚨 원래는 /login으로 리다이렉트됩니다.')
+
+            // TODO: 디버깅 완료 후 아래 주석을 해제하여 자동 리다이렉트 다시 활성화
+            // if (typeof window !== 'undefined') {
+            //     window.location.href = '/login'
+            // }
 
             return {
                 success: false,
                 status: 401,
-                error: '인증에 실패했습니다. 다시 로그인해주세요.',
+                error: '🚨 [디버깅] 인증에 실패했습니다. 네트워크 탭을 확인 후 수동으로 로그인해주세요.',
             }
         }
     }
