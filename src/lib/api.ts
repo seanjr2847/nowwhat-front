@@ -105,14 +105,22 @@ async function refreshTokenRequest(): Promise<{ success: boolean; accessToken?: 
         }
     }
 
-    const response = await apiRequest<{ accessToken: string }>('/api/v1/auth/refresh', {
+    const response = await apiRequest<{ accessToken: string; refreshToken: string; user: User }>('/api/v1/auth/refresh', {
         method: 'POST',
         body: JSON.stringify({ refreshToken: refreshTokenValue }),
     })
 
     if (response.success && response.data) {
-        // 새 토큰 저장
+        console.log('💾 새 토큰들 저장 중:', {
+            hasAccessToken: !!response.data.accessToken,
+            hasRefreshToken: !!response.data.refreshToken,
+            hasUser: !!response.data.user
+        })
+
+        // 새 토큰들 저장
         localStorage.setItem('accessToken', response.data.accessToken)
+        localStorage.setItem('refreshToken', response.data.refreshToken)  // ← 새로운 refreshToken도 저장!
+
         return {
             success: true,
             accessToken: response.data.accessToken
