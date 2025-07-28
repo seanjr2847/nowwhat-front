@@ -35,16 +35,36 @@ export async function refreshToken() {
     const refreshTokenValue = localStorage.getItem('refreshToken')
 
     if (!refreshTokenValue) {
+        console.log('❌ Refresh token이 없습니다')
         return {
             success: false,
             error: 'No refresh token available',
         }
     }
 
-    return apiRequest<{ accessToken: string }>('/api/v1/auth/refresh', {
+    console.log('🔄 토큰 갱신 요청 시작')
+    const response = await apiRequest<{ accessToken: string }>('/api/v1/auth/refresh', {
         method: 'POST',
         body: JSON.stringify({ refreshToken: refreshTokenValue }),
     })
+
+    if (response.success && response.data) {
+        console.log('✅ 토큰 갱신 성공')
+        // 새 토큰 자동 저장
+        localStorage.setItem('accessToken', response.data.accessToken)
+        return {
+            success: true,
+            data: response.data,
+        }
+    } else {
+        console.log('❌ 토큰 갱신 실패:', response.error)
+        // 갱신 실패 시 기존 토큰들 제거
+        clearTokens()
+        return {
+            success: false,
+            error: response.error || 'Token refresh failed',
+        }
+    }
 }
 
 // 토큰 저장

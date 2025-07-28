@@ -101,9 +101,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
             const response = await getCurrentUser()
             if (response.success && response.data) {
                 setUser(response.data)
+            } else {
+                // 사용자 정보 조회 실패 시 (토큰 만료 등)
+                console.log('❌ 사용자 정보 조회 실패, 로그아웃 처리:', response.error)
+                if (response.error?.includes('인증') || response.error?.includes('만료')) {
+                    // 인증 에러인 경우 자동 로그아웃
+                    await logout()
+                }
             }
         } catch (error) {
-            console.error('Failed to refresh user:', error)
+            console.error('💥 사용자 정보 새로고침 에러:', error)
+            // 네트워크 에러가 아닌 인증 에러인 경우에만 로그아웃
+            if (error instanceof Error && error.message.includes('인증')) {
+                await logout()
+            }
         }
     }
 
