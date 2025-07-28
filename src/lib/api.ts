@@ -131,8 +131,49 @@ async function authenticatedRequest<T>(
     options: RequestInit = {},
     retryCount = 0
 ): Promise<ApiResponse<T>> {
+    // 🔍 현재 토큰 상태 상세 체크
     const token = localStorage.getItem('accessToken')
-    console.log('🔐 인증된 요청:', { endpoint, hasToken: !!token, retryCount })
+    const refreshToken = localStorage.getItem('refreshToken')
+
+    console.log('🔐 인증된 요청 시작:', {
+        endpoint,
+        retryCount,
+        hasToken: !!token,
+        hasRefreshToken: !!refreshToken,
+        tokenPreview: token ? `${token.substring(0, 20)}...${token.substring(token.length - 10)}` : 'null',
+        refreshTokenPreview: refreshToken ? `${refreshToken.substring(0, 20)}...` : 'null',
+        localStorageKeys: Object.keys(localStorage)
+    })
+
+    // JWT 토큰 디코딩해서 만료시간 체크
+    if (token) {
+        try {
+            const tokenParts = token.split('.')
+            if (tokenParts.length === 3) {
+                const payload = JSON.parse(atob(tokenParts[1])) as { exp?: number; sub?: string; type?: string }
+                const now = Math.floor(Date.now() / 1000)
+                const exp = payload.exp || 0
+                const timeLeft = exp - now
+
+                console.log('🕒 토큰 만료시간 분석:', {
+                    exp: exp,
+                    now: now,
+                    timeLeft: timeLeft,
+                    expired: timeLeft <= 0,
+                    expiresAt: new Date(exp * 1000).toISOString(),
+                    currentTime: new Date(now * 1000).toISOString(),
+                    sub: payload.sub,
+                    type: payload.type
+                })
+
+                if (timeLeft <= 0) {
+                    console.error('❌ 토큰이 이미 만료됨!')
+                }
+            }
+        } catch (e) {
+            console.error('❌ 토큰 디코딩 실패:', e)
+        }
+    }
 
     if (!token) {
         console.error('❌ 토큰이 없습니다. 로그인이 필요합니다.')
@@ -188,7 +229,7 @@ async function authenticatedRequest<T>(
                 return {
                     success: false,
                     status: 401,
-                    error: '🚨 [디버깅] 인증이 만료되었습니다. 네트워크 탭을 확인 후 수동으로 로그인해주세요.',
+                    error: '�� [디버깅] 인증이 만료되었습니다. 네트워크 탭을 확인 후 수동으로 로그인해주세요.',
                 }
             }
         } else {
