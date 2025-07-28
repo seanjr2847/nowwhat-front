@@ -33,7 +33,14 @@ export function GoalInputForm() {
     // 로그인 상태 확인
     if (!isAuthenticated) {
       console.log('🚫 로그인 필요, 로그인 페이지로 이동')
-      sessionStorage.setItem("pendingGoal", goal.trim()) // 로그인 후 복원할 수 있도록 저장
+      const trimmedGoal = goal.trim()
+      console.log('💾 임시 목표 저장:', { goal: trimmedGoal, length: trimmedGoal.length })
+
+      sessionStorage.setItem("pendingGoal", trimmedGoal) // 로그인 후 복원할 수 있도록 저장
+
+      // 저장 확인
+      const savedPendingGoal = sessionStorage.getItem("pendingGoal")
+      console.log('✅ 임시 저장 확인:', { saved: savedPendingGoal })
 
       toast({
         title: "로그인 필요",
@@ -46,8 +53,15 @@ export function GoalInputForm() {
     }
 
     // 로그인된 경우 목표 저장 후 clarify 페이지로 이동
-    sessionStorage.setItem("goal", goal.trim())
+    const trimmedGoal = goal.trim()
+    console.log('💾 목표 저장 중:', { original: goal, trimmed: trimmedGoal, length: trimmedGoal.length })
+
+    sessionStorage.setItem("goal", trimmedGoal)
     sessionStorage.removeItem("pendingGoal") // 임시 저장된 목표 제거
+
+    // 저장된 값 확인
+    const savedGoal = sessionStorage.getItem("goal")
+    console.log('✅ 저장 확인:', { saved: savedGoal, savedLength: savedGoal?.length })
 
     toast({
       title: "목표 설정 완료!",
@@ -55,7 +69,7 @@ export function GoalInputForm() {
       variant: "default",
     })
 
-    console.log('✅ 목표 저장 완료, clarify 페이지로 이동')
+    console.log('🎯 clarify 페이지로 이동')
     void router("/clarify")
   }
 

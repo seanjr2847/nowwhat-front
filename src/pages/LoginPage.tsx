@@ -83,13 +83,21 @@ export default function LoginPage() {
         setTimeout(() => {
           // 임시 저장된 목표가 있는지 확인
           const pendingGoal = sessionStorage.getItem("pendingGoal")
-          if (pendingGoal) {
-            console.log('📝 임시 저장된 목표 발견, clarify 페이지로 이동:', pendingGoal)
-            sessionStorage.setItem("goal", pendingGoal)
+          console.log('🔍 로그인 후 목표 확인:', { pendingGoal, length: pendingGoal?.length })
+
+          if (pendingGoal && pendingGoal.trim()) {
+            const trimmedGoal = pendingGoal.trim()
+            console.log('📝 임시 저장된 목표 발견, clarify 페이지로 이동:', { goal: trimmedGoal })
+            sessionStorage.setItem("goal", trimmedGoal)
             sessionStorage.removeItem("pendingGoal")
+
+            // 저장 확인
+            const savedGoal = sessionStorage.getItem("goal")
+            console.log('✅ 목표 복원 완료:', { saved: savedGoal })
+
             void navigate('/clarify', { replace: true })
           } else {
-            console.log('🏠 홈으로 이동 중...')
+            console.log('🏠 유효한 임시 목표가 없음, 홈으로 이동')
             void navigate('/', { replace: true })
           }
         }, 100)

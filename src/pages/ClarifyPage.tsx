@@ -45,13 +45,21 @@ export default function ClarifyPage() {
   const [sessionId, setSessionId] = useState<string>("")
   const [questionSetId, setQuestionSetId] = useState<string>("")
 
-  const fetchIntents = async () => {
+  const fetchIntents = async (targetGoal?: string) => {
+    const goalToAnalyze = targetGoal || goal
+
+    if (!goalToAnalyze || !goalToAnalyze.trim()) {
+      console.error('❌ 의도 분석 실패: 목표가 비어있음')
+      setError("목표가 설정되지 않았습니다.")
+      return
+    }
+
     try {
-      console.log('🎯 의도 분석 시작:', { goal })
+      console.log('🎯 의도 분석 시작:', { goal: goalToAnalyze })
       setIsLoading(true)
       setError("")
 
-      const response = await analyzeIntents(goal)
+      const response = await analyzeIntents(goalToAnalyze.trim())
 
       if (response.success && response.data) {
         console.log('✅ 의도 분석 성공:', response.data)
@@ -233,8 +241,10 @@ export default function ClarifyPage() {
     // 목표 확인 및 의도 분석 시작
     if (isAuthenticated) {
       const storedGoal = sessionStorage.getItem("goal")
-      if (!storedGoal) {
-        console.log('🚫 목표 없음, 홈페이지로 이동')
+      console.log('📝 sessionStorage에서 가져온 목표:', { storedGoal, length: storedGoal?.length })
+
+      if (!storedGoal || !storedGoal.trim()) {
+        console.log('🚫 목표 없음 또는 빈 문자열, 홈페이지로 이동')
         toast({
           title: "목표 없음",
           description: "먼저 목표를 입력해주세요.",
@@ -244,8 +254,10 @@ export default function ClarifyPage() {
         return
       }
 
-      setGoal(storedGoal)
-      void fetchIntents()
+      const trimmedGoal = storedGoal.trim()
+      console.log('✅ 유효한 목표 설정:', { goal: trimmedGoal })
+      setGoal(trimmedGoal)
+      void fetchIntents(trimmedGoal)
     }
   }, [navigate, isAuthenticated, authLoading])
 
@@ -291,7 +303,7 @@ export default function ClarifyPage() {
           onRetry={() => {
             setError("")
             if (intents.length === 0) {
-              void fetchIntents()
+              void fetchIntents(goal)
             } else if (selectedIntent && questions.length === 0) {
               void handleIntentSelect(selectedIntent)
             }
