@@ -229,7 +229,15 @@ export default function ClarifyPage() {
         }
       })
 
-      console.log('📊 제출할 데이터:', { sessionId, questionSetId, goal, selectedIntent: selectedIntentObj.title, answersArray })
+      console.log('📊 제출할 데이터:', { 
+        sessionId, 
+        questionSetId, 
+        goal, 
+        selectedIntent: selectedIntentObj.title, 
+        answersArray,
+        answersCount: answersArray.length,
+        firstAnswer: answersArray[0]
+      })
 
       const response = await createChecklist(
         sessionId,
@@ -254,12 +262,13 @@ export default function ClarifyPage() {
         }, 1000)
       } else {
         console.error('❌ 체크리스트 생성 실패:', response.error)
-        setError(response.error || "체크리스트 생성 중 오류가 발생했습니다.")
+        const errorMessage = typeof response.error === 'string' ? response.error : "체크리스트 생성 중 오류가 발생했습니다."
+        setError(errorMessage)
         setShowAdModal(false)
 
         toast({
           title: "생성 실패",
-          description: response.error || "체크리스트 생성 중 오류가 발생했습니다.",
+          description: errorMessage,
           variant: "destructive",
         })
       }

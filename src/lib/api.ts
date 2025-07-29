@@ -67,6 +67,12 @@ async function apiRequest<T>(
                 endpoint,
                 requestHeaders: options.headers
             })
+            
+            // 422 에러의 경우 자세한 validation 에러 정보 출력
+            if (response.status === 422 && data && typeof data === 'object') {
+                console.error('🔍 Validation 에러 상세:', JSON.stringify(data, null, 2))
+            }
+            
             return {
                 success: false,
                 status: response.status,  // 상태 코드 포함
