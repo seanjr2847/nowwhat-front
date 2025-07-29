@@ -63,8 +63,17 @@ export default function ClarifyPage() {
 
       if (response.success && response.data) {
         console.log('✅ 의도 분석 성공:', response.data)
+        
+        // Intent에 id가 없는 경우 생성해주기
+        const intentsWithId = response.data.intents.map((intent, index) => ({
+          ...intent,
+          id: intent.id || `intent_${index}_${Date.now()}`
+        }))
+        
+        console.log('🔧 ID 추가된 의도들:', intentsWithId)
+        
         setSessionId(response.data.sessionId)
-        setIntents(response.data.intents)
+        setIntents(intentsWithId)
         setProgress(25)
 
         toast({
@@ -105,8 +114,10 @@ export default function ClarifyPage() {
 
     // 상태 업데이트 전
     console.log('🔄 상태 업데이트 전:', { selectedIntent, isLoading })
+    console.log('🆔 선택된 intentId:', intentId)
+    console.log('📝 사용할 title:', selectedIntentObj.title)
 
-    setSelectedIntent(intentId)
+    setSelectedIntent(selectedIntentObj.title)
     setIsLoading(true)
     setError("")
 
@@ -413,7 +424,12 @@ export default function ClarifyPage() {
           <div className="text-center py-10">
             <p className="text-gray-500 mb-4">질문을 생성하지 못했습니다.</p>
             <button
-              onClick={() => void handleIntentSelect(selectedIntent)}
+              onClick={() => {
+                const intentObj = intents.find(i => i.title === selectedIntent)
+                if (intentObj) {
+                  void handleIntentSelect(intentObj.id)
+                }
+              }}
               className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
             >
               다시 시도
