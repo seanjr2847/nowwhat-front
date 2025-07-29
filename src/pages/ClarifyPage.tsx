@@ -214,7 +214,8 @@ export default function ClarifyPage() {
     setError("")
 
     try {
-      const selectedIntentObj = intents.find(i => i.id === selectedIntent)
+      // selectedIntent는 이제 title을 저장하고 있으므로 title로 찾기
+      const selectedIntentObj = intents.find(i => i.title === selectedIntent)
       if (!selectedIntentObj) throw new Error('선택된 의도를 찾을 수 없습니다.')
 
       const answersArray = questions.map(q => {
@@ -447,6 +448,7 @@ export default function ClarifyPage() {
             <p className="text-gray-500 mb-4">질문을 생성하지 못했습니다.</p>
             <button
               onClick={() => {
+                // selectedIntent는 이제 title이므로 직접 해당하는 intent를 찾아서 id 사용
                 const intentObj = intents.find(i => i.title === selectedIntent)
                 if (intentObj) {
                   void handleIntentSelect(intentObj.id)
