@@ -74,10 +74,14 @@ export function IntentSelection({ intents, onSelect }: IntentSelectionProps) {
             key={intent.id}
             ref={(el) => { (cardRefs.current[index] = el) }}
             className="group bg-white/70 dark:bg-gray-900/70 backdrop-blur-2xl border border-white/40 dark:border-gray-700/40 hover:bg-white/80 dark:hover:bg-gray-900/80 cursor-pointer transition-all duration-500 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/20 focus-ring rounded-2xl hover:border-blue-500/50 card-hover overflow-hidden"
-            onClick={() => onSelect(intent.id)}
+            onClick={() => {
+              console.log('🖱️ 의도 카드 클릭:', { intentId: intent.id, title: intent.title })
+              onSelect(intent.id)
+            }}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault()
+                console.log('⌨️ 의도 키보드 선택:', { intentId: intent.id, title: intent.title })
                 onSelect(intent.id)
               }
             }}
