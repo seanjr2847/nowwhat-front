@@ -101,6 +101,8 @@ export default function ClarifyPage() {
     if (!selectedIntentObj) return
 
     console.log('🎯 의도 선택:', selectedIntentObj)
+    console.log('📌 현재 sessionId:', sessionId)
+    
     setSelectedIntent(intentId)
     setIsLoading(true)
     setError("")
@@ -110,6 +112,19 @@ export default function ClarifyPage() {
 
       if (response.success && response.data) {
         console.log('✅ 질문 생성 성공:', response.data)
+        console.log('📋 질문 데이터:', {
+          questionSetId: response.data.questionSetId,
+          questionsCount: response.data.questions?.length || 0,
+          firstQuestion: response.data.questions?.[0]
+        })
+        
+        // 질문이 실제로 있는지 확인
+        if (!response.data.questions || response.data.questions.length === 0) {
+          console.error('⚠️ 질문 배열이 비어있습니다!')
+          setError("질문을 생성하지 못했습니다.")
+          return
+        }
+        
         setQuestionSetId(response.data.questionSetId)
         setQuestions(response.data.questions)
         setProgress(50)
@@ -275,6 +290,7 @@ export default function ClarifyPage() {
     document.addEventListener("keydown", handleKeyDown)
     return () => document.removeEventListener("keydown", handleKeyDown)
   }, [showAdModal, isAllQuestionsAnswered, isCreating])
+  
 
   // 인증 로딩 중
   if (authLoading) {
@@ -336,16 +352,34 @@ export default function ClarifyPage() {
         <ClarifyHeader goal={goal} />
         <ProgressBar progress={progress} />
 
-        {!selectedIntent && <IntentSelection intents={intents} onSelect={(id) => void handleIntentSelect(id)} />}
+        {/* 의도 선택 단계 */}
+        {!selectedIntent && intents.length > 0 && (
+          <IntentSelection intents={intents} onSelect={(id) => void handleIntentSelect(id)} />
+        )}
 
+        {/* 질문 생성 중 */}
         {selectedIntent && isLoading && (
           <div className="flex justify-center py-20">
             <LoadingSpinner message="맞춤 질문을 생성하고 있습니다..." />
           </div>
         )}
 
+        {/* 질문 표시 */}
         {selectedIntent && !isLoading && questions.length > 0 && (
           <QuestionSection questions={questions} answers={answers} onAnswerChange={handleAnswerChange} />
+        )}
+        
+        {/* 에러 상태: 질문 생성 실패 */}
+        {selectedIntent && !isLoading && questions.length === 0 && !error && (
+          <div className="text-center py-10">
+            <p className="text-gray-500 mb-4">질문을 생성하지 못했습니다.</p>
+            <button 
+              onClick={() => void handleIntentSelect(selectedIntent)}
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              다시 시도
+            </button>
+          </div>
         )}
 
         {isAllQuestionsAnswered && <CreateButton onClick={() => void handleCreateChecklist()} isLoading={isCreating} />}
