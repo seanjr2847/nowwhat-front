@@ -114,11 +114,15 @@ export default function ClarifyPage() {
     console.log('🔄 상태 업데이트 호출 완료')
 
     try {
+      console.log('⏳ API 호출 시작 - 최소 500ms 로딩 보장')
+      
       // 최소 로딩 시간 보장 (500ms)
       const [response] = await Promise.all([
         generateQuestions(sessionId, goal, selectedIntentObj.title),
         new Promise<void>(resolve => setTimeout(resolve, 500))
       ])
+      
+      console.log('✅ API 호출 및 최소 로딩 시간 완료')
 
       if (response.success && response.data) {
         console.log('✅ 질문 생성 성공:', response.data)
@@ -304,6 +308,15 @@ export default function ClarifyPage() {
     return () => document.removeEventListener("keydown", handleKeyDown)
   }, [showAdModal, isAllQuestionsAnswered, isCreating])
 
+  // 디버그: 상태 변경 추적
+  useEffect(() => {
+    console.log('📊 상태 변경 감지:', {
+      selectedIntent,
+      isLoading,
+      questionsLength: questions.length,
+      questionsData: questions.slice(0, 2) // 처음 2개만 로깅
+    })
+  }, [selectedIntent, isLoading, questions])
 
   // 인증 로딩 중
   if (authLoading) {
@@ -364,6 +377,19 @@ export default function ClarifyPage() {
 
         <ClarifyHeader goal={goal} />
         <ProgressBar progress={progress} />
+
+        {/* 디버그: 현재 상태 확인 */}
+        {(() => {
+          console.log('🔍 렌더링 상태:', {
+            selectedIntent,
+            isLoading,
+            questionsLength: questions.length,
+            showIntentSelection: !selectedIntent && intents.length > 0,
+            showLoading: selectedIntent && isLoading,
+            showQuestions: selectedIntent && !isLoading && questions.length > 0
+          })
+          return null
+        })()}
 
         {/* 의도 선택 단계 */}
         {!selectedIntent && intents.length > 0 && (
