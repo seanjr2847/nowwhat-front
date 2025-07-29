@@ -5,12 +5,20 @@ import { useEffect, useRef } from "react"
 import { Button } from "../ui/button"
 import { Card, CardContent } from "../ui/card"
 import { Checkbox } from "../ui/checkbox"
+import { Textarea } from "../ui/textarea"
+
+interface QuestionOption {
+  id: string
+  text: string
+  value: string
+}
 
 interface Question {
   id: string
   text: string
-  type: "single" | "multiple"
-  options: string[]
+  type: "single" | "multiple" | "text"
+  options: QuestionOption[] | null
+  required: boolean
 }
 
 interface QuestionSectionProps {
@@ -172,7 +180,10 @@ export function QuestionSection({ questions, answers, onAnswerChange }: Question
                     {question.text}
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    {question.type === "multiple" ? "여러 개 선택 가능" : "하나만 선택"}
+                    {question.type === "multiple" ? "여러 개 선택 가능" : 
+                     question.type === "single" ? "하나만 선택" : 
+                     "텍스트로 답변해주세요"}
+                    {question.required && <span className="text-red-500 ml-1">*</span>}
                   </p>
                 </div>
               </div>
@@ -205,51 +216,59 @@ export function QuestionSection({ questions, answers, onAnswerChange }: Question
               </div>
 
               <div className="grid gap-3">
-                {question.options.map((option, optionIndex) => (
-                  <div key={option} className="transition-all duration-200">
+                {question.type === "text" ? (
+                  <Textarea
+                    placeholder="답변을 입력해주세요..."
+                    value={(answers[question.id] as string) || ""}
+                    onChange={(e) => onAnswerChange(question.id, e.target.value)}
+                    className="min-h-[100px] resize-none"
+                    required={question.required}
+                  />
+                ) : question.options?.map((option, optionIndex) => (
+                  <div key={option.id} className="transition-all duration-200">
                     {question.type === "single" ? (
                       <Button
-                        variant={answers[question.id] === option ? "default" : "outline"}
+                        variant={answers[question.id] === option.value ? "default" : "outline"}
                         className={`justify-start w-full h-auto p-4 text-left transition-all duration-200 focus-ring rounded-xl ${
-                          answers[question.id] === option
+                          answers[question.id] === option.value
                             ? "bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white border-blue-500"
                             : "bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl border border-white/40 dark:border-gray-700/40 text-foreground hover:bg-white/80 dark:hover:bg-gray-900/80 hover:border-blue-500/50"
                         }`}
-                        onClick={() => handleSingleAnswer(question.id, option)}
+                        onClick={() => handleSingleAnswer(question.id, option.value)}
                         role="radio"
-                        aria-checked={answers[question.id] === option}
+                        aria-checked={answers[question.id] === option.value}
                         aria-describedby={`option-help-${question.id}-${optionIndex}`}
                       >
                         <div className="flex items-center space-x-3">
-                          <Circle className={`w-4 h-4 ${answers[question.id] === option ? "fill-current" : ""}`} />
-                          <span className="font-medium">{option}</span>
+                          <Circle className={`w-4 h-4 ${answers[question.id] === option.value ? "fill-current" : ""}`} />
+                          <span className="font-medium">{option.text}</span>
                         </div>
                       </Button>
                     ) : (
                       <div
                         className={`flex items-center space-x-4 p-4 rounded-xl border transition-all duration-200 cursor-pointer backdrop-blur-xl ${
-                          ((answers[question.id] as string[]) || []).includes(option)
+                          ((answers[question.id] as string[]) || []).includes(option.value)
                             ? "border-blue-500/50 bg-blue-500/10"
                             : "border-white/40 dark:border-gray-700/40 bg-white/60 dark:bg-gray-900/60 hover:bg-white/80 dark:hover:bg-gray-900/80"
                         }`}
                       >
                         <Checkbox
-                          id={`${question.id}-${option}`}
-                          checked={((answers[question.id] as string[]) || []).includes(option)}
-                          onCheckedChange={() => handleMultipleAnswer(question.id, option)}
+                          id={`${question.id}-${option.id}`}
+                          checked={((answers[question.id] as string[]) || []).includes(option.value)}
+                          onCheckedChange={() => handleMultipleAnswer(question.id, option.value)}
                           aria-describedby={`option-help-${question.id}-${optionIndex}`}
                           className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
                         />
                         <label
-                          htmlFor={`${question.id}-${option}`}
+                          htmlFor={`${question.id}-${option.id}`}
                           className="text-foreground cursor-pointer flex-1 font-medium"
                         >
-                          {option}
+                          {option.text}
                         </label>
                       </div>
                     )}
                     <div id={`option-help-${question.id}-${optionIndex}`} className="sr-only">
-                      옵션 {optionIndex + 1}: {option}
+                      옵션 {optionIndex + 1}: {option.text}
                     </div>
                   </div>
                 ))}

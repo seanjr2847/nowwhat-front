@@ -289,11 +289,18 @@ export interface Intent {
     icon: string
 }
 
+export interface QuestionOption {
+    id: string
+    text: string
+    value: string
+}
+
 export interface Question {
     id: string
     text: string
-    type: "single" | "multiple"
-    options: string[]
+    type: "single" | "multiple" | "text"
+    options: QuestionOption[] | null
+    required: boolean
 }
 
 export interface IntentAnalysisResponse {
@@ -302,7 +309,7 @@ export interface IntentAnalysisResponse {
 }
 
 export interface QuestionGenerationResponse {
-    questionSetId: string
+    questionSetId?: string  // Optional로 변경
     questions: Question[]
 }
 

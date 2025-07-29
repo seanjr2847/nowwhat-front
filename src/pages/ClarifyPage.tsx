@@ -125,7 +125,10 @@ export default function ClarifyPage() {
           return
         }
         
-        setQuestionSetId(response.data.questionSetId)
+        // questionSetId가 없을 수 있으므로 옵셔널 체이닝 사용
+        if (response.data.questionSetId) {
+          setQuestionSetId(response.data.questionSetId)
+        }
         setQuestions(response.data.questions)
         setProgress(50)
 
