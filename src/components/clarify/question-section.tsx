@@ -67,11 +67,15 @@ export function QuestionSection({ questions, answers, onAnswerChange }: Question
     const currentIndex = questions.findIndex((q) => q.id === currentQuestionId)
     const nextIndex = currentIndex + 1
 
+    console.log('📜 스크롤 시도:', { currentQuestionId, currentIndex, nextIndex, totalQuestions: questions.length })
+
     if (nextIndex < questions.length) {
       const nextQuestionElement = questionRefs.current[nextIndex]
       if (nextQuestionElement) {
         const headerHeight = 120
         const targetPosition = nextQuestionElement.offsetTop - headerHeight
+
+        console.log('⬇️ 다음 질문으로 스크롤:', { targetPosition })
 
         setTimeout(() => {
           window.scrollTo({
@@ -79,18 +83,25 @@ export function QuestionSection({ questions, answers, onAnswerChange }: Question
             behavior: "smooth",
           })
         }, 200)
+      } else {
+        console.log('❌ 다음 질문 엘리먼트를 찾을 수 없음')
       }
     } else {
+      console.log('✅ 마지막 질문 - 생성 버튼으로 스크롤')
       setTimeout(() => {
         const createButtonElement = document.getElementById("create-button-section")
         if (createButtonElement) {
           const headerHeight = 100
           const targetPosition = createButtonElement.offsetTop - headerHeight
 
+          console.log('🔘 생성 버튼으로 스크롤:', { targetPosition })
+
           window.scrollTo({
             top: targetPosition,
             behavior: "smooth",
           })
+        } else {
+          console.log('❌ 생성 버튼 엘리먼트를 찾을 수 없음')
         }
       }, 500)
     }
@@ -126,6 +137,16 @@ export function QuestionSection({ questions, answers, onAnswerChange }: Question
     announcement.textContent = `${option} ${isSelected ? "선택됨" : "선택 해제됨"}`
     document.body.appendChild(announcement)
     setTimeout(() => document.body.removeChild(announcement), 1000)
+  }
+
+  const handleTextAnswer = (questionId: string, value: string) => {
+    onAnswerChange(questionId, value)
+    
+    // 텍스트가 입력되기 시작하면 다음 질문으로 스크롤 (한 번만)
+    const currentAnswer = answers[questionId] as string || ""
+    if (currentAnswer.length === 0 && value.length > 0) {
+      scrollToNextQuestion(questionId)
+    }
   }
 
   const getAnswerStatus = (questionId: string) => {
@@ -220,7 +241,7 @@ export function QuestionSection({ questions, answers, onAnswerChange }: Question
                   <Textarea
                     placeholder="답변을 입력해주세요..."
                     value={(answers[question.id] as string) || ""}
-                    onChange={(e) => onAnswerChange(question.id, e.target.value)}
+                    onChange={(e) => handleTextAnswer(question.id, e.target.value)}
                     className="min-h-[100px] resize-none"
                     required={question.required}
                   />
