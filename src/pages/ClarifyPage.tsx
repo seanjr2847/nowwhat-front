@@ -16,6 +16,7 @@ import {
   analyzeIntents,
   createChecklist,
   generateQuestions,
+  saveQuestionAnswer,
   type Intent,
   type Question
 } from "../lib/api"
@@ -186,7 +187,7 @@ export default function ClarifyPage() {
     }
   }
 
-  const handleAnswerChange = (questionId: string, answer: string | string[]) => {
+  const handleAnswerChange = async (questionId: string, answer: string | string[]) => {
     console.log('📝 답변 업데이트:', { questionId, answer })
     setAnswers((prev) => ({ ...prev, [questionId]: answer }))
 
@@ -194,6 +195,16 @@ export default function ClarifyPage() {
     const totalQuestions = questions.length
     const newProgress = 50 + (answeredCount / totalQuestions) * 40
     setProgress(newProgress)
+
+    // 백엔드에 개별 답변 저장 (비동기로 처리, 실패해도 UI 블록하지 않음)
+    if (sessionId && answer) {
+      try {
+        await saveQuestionAnswer(sessionId, questionId, answer)
+        console.log('✅ 개별 답변 저장 성공:', { questionId })
+      } catch (error) {
+        console.warn('⚠️ 개별 답변 저장 실패 (계속 진행):', error)
+      }
+    }
   }
 
   const handleCreateChecklist = async () => {
@@ -206,12 +217,15 @@ export default function ClarifyPage() {
       const selectedIntentObj = intents.find(i => i.id === selectedIntent)
       if (!selectedIntentObj) throw new Error('선택된 의도를 찾을 수 없습니다.')
 
-      const answersArray = questions.map(q => ({
-        questionId: q.id,
-        questionText: q.text,
-        questionType: q.type === 'single' ? 'multiple' : 'text',
-        answer: answers[q.id] || ''
-      }))
+      const answersArray = questions.map(q => {
+        const userAnswer = answers[q.id]
+        return {
+          questionId: q.id,
+          questionText: q.text,
+          questionType: q.type,
+          answer: userAnswer || (q.type === 'multiple' ? [] : '')
+        }
+      })
 
       console.log('📊 제출할 데이터:', { sessionId, questionSetId, goal, selectedIntent: selectedIntentObj.title, answersArray })
 
@@ -264,9 +278,17 @@ export default function ClarifyPage() {
 
   const isAllQuestionsAnswered =
     questions.length > 0 &&
-    questions.every(
-      (q) => answers[q.id] && (Array.isArray(answers[q.id]) ? (answers[q.id] as string[]).length > 0 : answers[q.id]),
-    )
+    questions.every((q) => {
+      const answer = answers[q.id]
+      if (!answer) return !q.required // 필수가 아니면 답변 없어도 OK
+      
+      if (Array.isArray(answer)) {
+        return answer.length > 0
+      } else if (typeof answer === 'string') {
+        return answer.trim().length > 0
+      }
+      return false
+    })
 
   useEffect(() => {
     // 인증 상태 확인

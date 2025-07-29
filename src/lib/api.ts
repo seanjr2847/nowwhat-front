@@ -346,6 +346,24 @@ export async function generateQuestions(
     })
 }
 
+// 개별 질문 답변 저장 API
+export async function saveQuestionAnswer(
+    sessionId: string,
+    questionId: string,
+    answer: string | string[]
+): Promise<ApiResponse<{ success: boolean }>> {
+    console.log('💾 개별 답변 저장 API 호출:', { sessionId, questionId, answer })
+
+    return authenticatedRequest<{ success: boolean }>('/api/v1/questions/save-answer', {
+        method: 'POST',
+        body: JSON.stringify({
+            sessionId,
+            questionId,
+            answer
+        })
+    })
+}
+
 // 체크리스트 생성 API
 export async function createChecklist(
     sessionId: string,

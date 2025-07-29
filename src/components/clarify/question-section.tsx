@@ -24,7 +24,7 @@ interface Question {
 interface QuestionSectionProps {
   questions: Question[]
   answers: Record<string, string | string[]>
-  onAnswerChange: (questionId: string, answer: string | string[]) => void
+  onAnswerChange: (questionId: string, answer: string | string[]) => Promise<void>
 }
 
 /**
@@ -107,8 +107,8 @@ export function QuestionSection({ questions, answers, onAnswerChange }: Question
     }
   }
 
-  const handleSingleAnswer = (questionId: string, option: string) => {
-    onAnswerChange(questionId, option)
+  const handleSingleAnswer = async (questionId: string, option: string) => {
+    await onAnswerChange(questionId, option)
     scrollToNextQuestion(questionId)
 
     const announcement = document.createElement("div")
@@ -119,12 +119,12 @@ export function QuestionSection({ questions, answers, onAnswerChange }: Question
     setTimeout(() => document.body.removeChild(announcement), 1000)
   }
 
-  const handleMultipleAnswer = (questionId: string, option: string) => {
+  const handleMultipleAnswer = async (questionId: string, option: string) => {
     const currentAnswers = (answers[questionId] as string[]) || []
     const newAnswers = currentAnswers.includes(option)
       ? currentAnswers.filter((a) => a !== option)
       : [...currentAnswers, option]
-    onAnswerChange(questionId, newAnswers)
+    await onAnswerChange(questionId, newAnswers)
 
     if (currentAnswers.length === 0 && newAnswers.length === 1) {
       scrollToNextQuestion(questionId)
@@ -139,8 +139,8 @@ export function QuestionSection({ questions, answers, onAnswerChange }: Question
     setTimeout(() => document.body.removeChild(announcement), 1000)
   }
 
-  const handleTextAnswer = (questionId: string, value: string) => {
-    onAnswerChange(questionId, value)
+  const handleTextAnswer = async (questionId: string, value: string) => {
+    await onAnswerChange(questionId, value)
     
     // 텍스트가 입력되기 시작하면 다음 질문으로 스크롤 (한 번만)
     const currentAnswer = answers[questionId] as string || ""
