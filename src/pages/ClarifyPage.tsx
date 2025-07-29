@@ -103,12 +103,22 @@ export default function ClarifyPage() {
     console.log('🎯 의도 선택:', selectedIntentObj)
     console.log('📌 현재 sessionId:', sessionId)
     
+    // 상태 업데이트 전
+    console.log('🔄 상태 업데이트 전:', { selectedIntent, isLoading })
+    
     setSelectedIntent(intentId)
     setIsLoading(true)
     setError("")
+    
+    // 상태 업데이트 직후 (실제로는 아직 적용 안됨)
+    console.log('🔄 상태 업데이트 호출 완료')
 
     try {
-      const response = await generateQuestions(sessionId, goal, selectedIntentObj.title)
+      // 최소 로딩 시간 보장 (500ms)
+      const [response] = await Promise.all([
+        generateQuestions(sessionId, goal, selectedIntentObj.title),
+        new Promise<void>(resolve => setTimeout(resolve, 500))
+      ])
 
       if (response.success && response.data) {
         console.log('✅ 질문 생성 성공:', response.data)
@@ -366,6 +376,16 @@ export default function ClarifyPage() {
             <LoadingSpinner message="맞춤 질문을 생성하고 있습니다..." />
           </div>
         )}
+        
+        {/* 디버그: 현재 상태 확인 */}
+        {console.log('🔍 렌더링 상태:', {
+          selectedIntent,
+          isLoading,
+          questionsLength: questions.length,
+          showIntentSelection: !selectedIntent && intents.length > 0,
+          showLoading: selectedIntent && isLoading,
+          showQuestions: selectedIntent && !isLoading && questions.length > 0
+        })}
 
         {/* 질문 표시 */}
         {selectedIntent && !isLoading && questions.length > 0 && (
