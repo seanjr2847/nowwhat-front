@@ -370,7 +370,7 @@ export async function createChecklist(
     questionSetId: string,
     goal: string,
     selectedIntent: string,
-    answers: { questionId: string, questionText: string, questionType: string, answer: string | string[] }[]
+    answers: { questionId: string, questionIndex: number, questionText: string, questionType: string, answer: string | string[] }[]
 ): Promise<ApiResponse<ChecklistCreationResponse>> {
     console.log('✅ 체크리스트 생성 API 호출:', { sessionId, questionSetId, goal, selectedIntent, answersCount: answers.length })
 

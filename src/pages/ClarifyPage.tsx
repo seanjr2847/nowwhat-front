@@ -218,10 +218,11 @@ export default function ClarifyPage() {
       const selectedIntentObj = intents.find(i => i.title === selectedIntent)
       if (!selectedIntentObj) throw new Error('선택된 의도를 찾을 수 없습니다.')
 
-      const answersArray = questions.map(q => {
+      const answersArray = questions.map((q, index) => {
         const userAnswer = answers[q.id]
         return {
           questionId: q.id,
+          questionIndex: index,
           questionText: q.text,
           questionType: q.type,
           answer: userAnswer || (q.type === 'multiple' ? [] : '')
