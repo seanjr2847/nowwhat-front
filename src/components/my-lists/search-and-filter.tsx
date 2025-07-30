@@ -41,11 +41,11 @@ export function SearchAndFilter({
   checklists,
 }: SearchAndFilterProps) {
   const categories = [
-    { id: "all", name: "전체", count: checklists.length },
-    ...Array.from(new Set(checklists.map((c) => c.category))).map((category) => ({
+    { id: "all", name: "전체", count: checklists?.length || 0 },
+    ...Array.from(new Set((checklists || []).map((c) => c.category))).map((category) => ({
       id: category,
       name: category,
-      count: checklists.filter((c) => c.category === category).length,
+      count: (checklists || []).filter((c) => c.category === category).length,
     })),
   ]
 

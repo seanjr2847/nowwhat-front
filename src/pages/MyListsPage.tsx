@@ -28,8 +28,9 @@ export default function MyListsPage() {
       const response = await getMyChecklists()
       
       if (response.success && response.data) {
-        setChecklists(response.data.checklists)
-        setFilteredChecklists(response.data.checklists)
+        const checklistsData = response.data.checklists || []
+        setChecklists(checklistsData)
+        setFilteredChecklists(checklistsData)
       } else {
         console.error("체크리스트 목록 로드 실패:", response.error)
         // 빈 배열로 설정하여 에러 상태 표시
@@ -107,7 +108,7 @@ export default function MyListsPage() {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-8 relative z-10">
-        <MyListsHeader onNewChecklist={handleNewChecklist} totalCount={checklists.length} />
+        <MyListsHeader onNewChecklist={handleNewChecklist} totalCount={checklists?.length || 0} />
 
         <SearchAndFilter
           searchQuery={searchQuery}
@@ -119,7 +120,7 @@ export default function MyListsPage() {
 
         {filteredChecklists.length === 0 ? (
           <EmptyState
-            hasChecklists={checklists.length > 0}
+            hasChecklists={(checklists?.length || 0) > 0}
             searchQuery={searchQuery}
             onNewChecklist={handleNewChecklist}
             onClearSearch={() => setSearchQuery("")}
