@@ -85,7 +85,7 @@ export default function LoginPage() {
           const pendingGoal = sessionStorage.getItem("pendingGoal")
           console.log('🔍 로그인 후 목표 확인:', { pendingGoal, length: pendingGoal?.length })
 
-          if (pendingGoal && pendingGoal.trim()) {
+          if ((pendingGoal != null) && pendingGoal.trim()) {
             const trimmedGoal = pendingGoal.trim()
             console.log('📝 임시 저장된 목표 발견, clarify 페이지로 이동:', { goal: trimmedGoal })
             sessionStorage.setItem("goal", trimmedGoal)

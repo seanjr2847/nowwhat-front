@@ -2,10 +2,10 @@
 
 import { ChevronDown, ChevronUp, DollarSign, ExternalLink, Lightbulb, Mail, MapPin, Phone } from "lucide-react"
 import { useState } from "react"
+import { toggleChecklistItem } from "../../lib/api"
 import { Button } from "../ui/button"
 import { Card, CardContent } from "../ui/card"
 import { Checkbox } from "../ui/checkbox"
-import { toggleChecklistItem } from "../../lib/api"
 
 interface ChecklistItemData {
   id: string
@@ -42,21 +42,21 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
   const [isUpdating, setIsUpdating] = useState(false)
 
   const hasDetails =
-    (item.details.tips?.length ?? 0) > 0 ||
-    (item.details.contacts?.length ?? 0) > 0 ||
-    (item.details.links?.length ?? 0) > 0 ||
-    (item.details.price != null && item.details.price !== '') ||
-    (item.details.location != null && item.details.location !== '')
+    (item.details?.tips?.length ?? 0) > 0 ||
+    (item.details?.contacts?.length ?? 0) > 0 ||
+    (item.details?.links?.length ?? 0) > 0 ||
+    (item.details?.price != null && item.details?.price !== '') ||
+    (item.details?.location != null && item.details?.location !== '')
 
   // 체크리스트 항목 토글 API 연결
   const handleToggle = async (itemId: string) => {
     if (checklistId == null || checklistId === '' || isUpdating) return
-    
+
     try {
       setIsUpdating(true)
       const newIsCompleted = !item.isCompleted
       const response = await toggleChecklistItem(checklistId, itemId, newIsCompleted)
-      
+
       if (response.success) {
         onToggle(itemId)
       } else {
@@ -127,34 +127,34 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
 
             {isExpanded && hasDetails && (
               <div className="mt-4 space-y-4 animate-slide-up">
-                {item.details.price && (
+                {item.details?.price && (
                   <div className="flex items-center space-x-3 p-3 bg-yellow-500/20 backdrop-blur-sm rounded-lg border border-yellow-500/30">
                     <DollarSign className="w-4 h-4 text-yellow-400" />
                     <div>
                       <span className="text-sm font-medium text-yellow-300">예상 비용</span>
-                      <p className="text-yellow-200">{item.details.price}</p>
+                      <p className="text-yellow-200">{item.details?.price}</p>
                     </div>
                   </div>
                 )}
 
-                {item.details.location && (
+                {item.details?.location && (
                   <div className="flex items-center space-x-3 p-3 bg-purple-500/20 backdrop-blur-sm rounded-lg border border-purple-500/30">
                     <MapPin className="w-4 h-4 text-purple-400" />
                     <div>
                       <span className="text-sm font-medium text-purple-300">위치</span>
-                      <p className="text-purple-200">{item.details.location}</p>
+                      <p className="text-purple-200">{item.details?.location}</p>
                     </div>
                   </div>
                 )}
 
-                {item.details.tips && item.details.tips.length > 0 && (
+                {item.details?.tips && item.details.tips.length > 0 && (
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
                       <Lightbulb className="w-4 h-4 text-orange-400" />
                       <span className="text-sm font-medium text-orange-300">유용한 팁</span>
                     </div>
                     <ul className="space-y-1 ml-6">
-                      {item.details.tips.map((tip, tipIndex) => (
+                      {item.details?.tips?.map((tip, tipIndex) => (
                         <li key={tipIndex} className="text-sm text-muted-foreground flex items-start">
                           <span className="text-orange-400 mr-2">•</span>
                           {tip}
@@ -164,14 +164,14 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
                   </div>
                 )}
 
-                {item.details.contacts && item.details.contacts.length > 0 && (
+                {item.details?.contacts && item.details.contacts.length > 0 && (
                   <div className="space-y-2">
                     <span className="text-sm font-medium text-blue-300 flex items-center">
                       <Phone className="w-4 h-4 mr-2" />
                       연락처
                     </span>
                     <div className="space-y-2 ml-6">
-                      {item.details.contacts.map((contact, contactIndex) => (
+                      {item.details?.contacts?.map((contact, contactIndex) => (
                         <div key={contactIndex} className="text-sm">
                           <div className="text-foreground font-medium">{contact.name}</div>
                           <div className="text-blue-400">{contact.phone}</div>
@@ -187,14 +187,14 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
                   </div>
                 )}
 
-                {item.details.links && item.details.links.length > 0 && (
+                {item.details?.links && item.details.links.length > 0 && (
                   <div className="space-y-2">
                     <span className="text-sm font-medium text-green-300 flex items-center">
                       <ExternalLink className="w-4 h-4 mr-2" />
                       유용한 링크
                     </span>
                     <div className="space-y-2 ml-6">
-                      {item.details.links.map((link, linkIndex) => (
+                      {item.details?.links?.map((link, linkIndex) => (
                         <a
                           key={linkIndex}
                           href={link.url}
