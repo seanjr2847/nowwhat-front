@@ -7,17 +7,7 @@ import { ChecklistCard } from "../components/my-lists/checklist-card"
 import { EmptyState } from "../components/my-lists/empty-state"
 import { MyListsHeader } from "../components/my-lists/my-lists-header"
 import { SearchAndFilter } from "../components/my-lists/search-and-filter"
-
-interface ChecklistSummary {
-  id: string
-  goal: string
-  createdAt: string
-  totalItems: number
-  completedItems: number
-  progress: number
-  lastUpdated: string
-  category: string
-}
+import { getMyChecklists, deleteChecklist, type ChecklistSummary } from "../lib/api"
 
 /**
  * 사용자가 생성한 모든 체크리스트를 보여주는 페이지 컴포넌트입니다.
@@ -35,73 +25,21 @@ export default function MyListsPage() {
   const fetchChecklists = async () => {
     try {
       setIsLoading(true)
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      // TODO: API 연결 - GET /checklists/my
-      // 내 체크리스트 목록 조회
-      // const response = await fetch('/api/checklists/my', {
-      //   headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
-      // });
-      // const { checklists } = await response.json();
-      // setChecklists(checklists);
-      // setFilteredChecklists(checklists);
-
-      const mockChecklists: ChecklistSummary[] = [
-        {
-          id: "1",
-          goal: "일본 여행 가고싶어",
-          createdAt: "2024-01-15T10:30:00Z",
-          totalItems: 8,
-          completedItems: 5,
-          progress: 62.5,
-          lastUpdated: "2024-01-16T14:20:00Z",
-          category: "여행",
-        },
-        {
-          id: "2",
-          goal: "취업 준비하기",
-          createdAt: "2024-01-10T09:15:00Z",
-          totalItems: 12,
-          completedItems: 3,
-          progress: 25,
-          lastUpdated: "2024-01-14T16:45:00Z",
-          category: "커리어",
-        },
-        {
-          id: "3",
-          goal: "새로운 언어 배우기",
-          createdAt: "2024-01-08T11:00:00Z",
-          totalItems: 10,
-          completedItems: 10,
-          progress: 100,
-          lastUpdated: "2024-01-12T18:30:00Z",
-          category: "학습",
-        },
-        {
-          id: "4",
-          goal: "건강한 생활 시작하기",
-          createdAt: "2024-01-05T08:45:00Z",
-          totalItems: 6,
-          completedItems: 2,
-          progress: 33.3,
-          lastUpdated: "2024-01-15T07:20:00Z",
-          category: "건강",
-        },
-        {
-          id: "5",
-          goal: "부업으로 온라인 쇼핑몰 창업하기",
-          createdAt: "2024-01-03T13:20:00Z",
-          totalItems: 15,
-          completedItems: 8,
-          progress: 53.3,
-          lastUpdated: "2024-01-16T20:10:00Z",
-          category: "비즈니스",
-        },
-      ]
-
-      setChecklists(mockChecklists)
-      setFilteredChecklists(mockChecklists)
+      const response = await getMyChecklists()
+      
+      if (response.success && response.data) {
+        setChecklists(response.data.checklists)
+        setFilteredChecklists(response.data.checklists)
+      } else {
+        console.error("체크리스트 목록 로드 실패:", response.error)
+        // 빈 배열로 설정하여 에러 상태 표시
+        setChecklists([])
+        setFilteredChecklists([])
+      }
     } catch (err) {
       console.error("Failed to fetch checklists:", err)
+      setChecklists([])
+      setFilteredChecklists([])
     } finally {
       setIsLoading(false)
     }
@@ -121,21 +59,21 @@ export default function MyListsPage() {
     setFilteredChecklists(filtered)
   }, [checklists, searchQuery, selectedCategory])
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm("정말로 이 체크리스트를 삭제하시겠습니까?")) {
-      // TODO: API 연결 - DELETE /checklists/{id}
-      // 체크리스트 삭제
-      // (async () => {
-      //   const response = await fetch(`/api/checklists/${id}`, {
-      //     method: 'DELETE',
-      //     headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
-      //   });
-      //   if (response.ok) {
-      //     setChecklists((prev) => prev.filter((item) => item.id !== id))
-      //   }
-      // })();
-
-      setChecklists((prev) => prev.filter((item) => item.id !== id))
+      try {
+        const response = await deleteChecklist(id)
+        
+        if (response.success) {
+          setChecklists((prev) => prev.filter((item) => item.id !== id))
+        } else {
+          console.error("체크리스트 삭제 실패:", response.error)
+          alert("체크리스트 삭제에 실패했습니다. 다시 시도해주세요.")
+        }
+      } catch (error) {
+        console.error("체크리스트 삭제 오류:", error)
+        alert("체크리스트 삭제 중 오류가 발생했습니다.")
+      }
     }
   }
 
@@ -193,7 +131,7 @@ export default function MyListsPage() {
                 key={checklist.id}
                 checklist={checklist}
                 onClick={() => handleChecklistClick(checklist.id)}
-                onDelete={() => handleDelete(checklist.id)}
+                onDelete={() => { void handleDelete(checklist.id) }}
               />
             ))}
           </div>

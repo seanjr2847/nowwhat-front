@@ -4,10 +4,12 @@ import { Heart, MessageCircle, ThumbsDown, ThumbsUp } from "lucide-react"
 import { useState } from "react"
 import { Button } from "../ui/button"
 import { Card, CardContent } from "../ui/card"
+import { submitFeedback } from "../../lib/api"
 
 interface FeedbackSectionProps {
   onFeedback: (isPositive: boolean) => void
   feedbackGiven: boolean
+  checklistId?: string
 }
 
 /**
@@ -17,29 +19,30 @@ interface FeedbackSectionProps {
  * @param {boolean} props.feedbackGiven - 피드백이 이미 제출되었는지 여부입니다.
  * @returns {JSX.Element} 렌더링된 피드백 섹션입니다.
  */
-export function FeedbackSection({ onFeedback, feedbackGiven }: FeedbackSectionProps) {
+export function FeedbackSection({ onFeedback, feedbackGiven, checklistId }: FeedbackSectionProps) {
   const [showThanks, setShowThanks] = useState(feedbackGiven)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleFeedback = (isPositive: boolean) => {
-    // TODO: API 연결 - POST /feedback
-    // 피드백 제출
-    // (async () => {
-    //   const response = await fetch('/api/feedback', {
-    //     method: 'POST',
-    //     headers: { 
-    //       'Content-Type': 'application/json',
-    //       'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-    //     },
-    //     body: JSON.stringify({ 
-    //       checklistId: checklistId, 
-    //       isPositive: isPositive,
-    //       timestamp: new Date().toISOString()
-    //     })
-    //   });
-    // })();
-
-    onFeedback(isPositive)
-    setShowThanks(true)
+  const handleFeedback = async (isPositive: boolean) => {
+    if (checklistId == null || checklistId === '' || isSubmitting) return
+    
+    try {
+      setIsSubmitting(true)
+      const response = await submitFeedback(checklistId, isPositive)
+      
+      if (response.success) {
+        onFeedback(isPositive)
+        setShowThanks(true)
+      } else {
+        console.error("피드백 제출 실패:", response.error)
+        alert("피드백 제출에 실패했습니다. 다시 시도해주세요.")
+      }
+    } catch (error) {
+      console.error("피드백 제출 오류:", error)
+      alert("피드백 제출 중 오류가 발생했습니다.")
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -70,20 +73,22 @@ export function FeedbackSection({ onFeedback, feedbackGiven }: FeedbackSectionPr
 
               <div className="flex justify-center space-x-4">
                 <Button
-                  onClick={() => handleFeedback(true)}
-                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl transition-all duration-300 hover:scale-105 group shadow-lg"
+                  onClick={() => { void handleFeedback(true) }}
+                  disabled={isSubmitting}
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl transition-all duration-300 hover:scale-105 group shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ThumbsUp className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-300" />
-                  도움됐어요
+                  {isSubmitting ? "제출 중..." : "도움됐어요"}
                 </Button>
 
                 <Button
-                  onClick={() => handleFeedback(false)}
+                  onClick={() => { void handleFeedback(false) }}
+                  disabled={isSubmitting}
                   variant="outline"
-                  className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl border border-white/40 dark:border-gray-700/40 text-muted-foreground hover:bg-red-500/20 hover:border-red-500/50 hover:text-red-400 px-6 py-3 rounded-xl transition-all duration-300 hover:scale-105 group shadow-lg"
+                  className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl border border-white/40 dark:border-gray-700/40 text-muted-foreground hover:bg-red-500/20 hover:border-red-500/50 hover:text-red-400 px-6 py-3 rounded-xl transition-all duration-300 hover:scale-105 group shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ThumbsDown className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-300" />
-                  아쉬워요
+                  {isSubmitting ? "제출 중..." : "아쉬워요"}
                 </Button>
               </div>
             </div>

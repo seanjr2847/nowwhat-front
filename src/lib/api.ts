@@ -392,5 +392,108 @@ export async function createChecklist(
     })
 }
 
+// 체크리스트 관련 타입 정의
+export interface ChecklistItemData {
+    id: string
+    title: string
+    description: string
+    details: {
+        tips?: string[]
+        contacts?: { name: string; phone: string; email?: string }[]
+        links?: { title: string; url: string }[]
+        price?: string
+        location?: string
+    }
+    isCompleted: boolean
+}
+
+export interface ChecklistData {
+    id: string
+    goal: string
+    createdAt: string
+    items: ChecklistItemData[]
+    progress: number
+    isSaved: boolean
+}
+
+export interface ChecklistSummary {
+    id: string
+    goal: string
+    createdAt: string
+    totalItems: number
+    completedItems: number
+    progress: number
+    lastUpdated: string
+    category: string
+}
+
+// 체크리스트 상세 조회 API
+export async function getChecklist(id: string): Promise<ApiResponse<ChecklistData>> {
+    console.log('📋 체크리스트 상세 조회 API 호출:', { id })
+
+    return authenticatedRequest<ChecklistData>(`/api/v1/checklists/${id}`, {
+        method: 'GET'
+    })
+}
+
+// 내 체크리스트 목록 조회 API  
+export async function getMyChecklists(): Promise<ApiResponse<{ checklists: ChecklistSummary[] }>> {
+    console.log('📑 내 체크리스트 목록 조회 API 호출')
+
+    return authenticatedRequest<{ checklists: ChecklistSummary[] }>('/api/v1/checklists/my', {
+        method: 'GET'
+    })
+}
+
+// 체크리스트 삭제 API
+export async function deleteChecklist(id: string): Promise<ApiResponse<{ success: boolean }>> {
+    console.log('🗑️ 체크리스트 삭제 API 호출:', { id })
+
+    return authenticatedRequest<{ success: boolean }>(`/api/v1/checklists/${id}`, {
+        method: 'DELETE'
+    })
+}
+
+// 체크리스트 항목 완료 상태 토글 API
+export async function toggleChecklistItem(
+    checklistId: string, 
+    itemId: string, 
+    isCompleted: boolean
+): Promise<ApiResponse<{ success: boolean }>> {
+    console.log('✅ 체크리스트 항목 토글 API 호출:', { checklistId, itemId, isCompleted })
+
+    return authenticatedRequest<{ success: boolean }>(`/api/v1/checklists/${checklistId}/items/${itemId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ isCompleted })
+    })
+}
+
+// 체크리스트 저장 API
+export async function saveChecklist(id: string): Promise<ApiResponse<{ success: boolean }>> {
+    console.log('💾 체크리스트 저장 API 호출:', { id })
+
+    return authenticatedRequest<{ success: boolean }>(`/api/v1/checklists/${id}/save`, {
+        method: 'POST'
+    })
+}
+
+// 피드백 제출 API
+export async function submitFeedback(
+    checklistId: string,
+    isPositive: boolean,
+    comment?: string
+): Promise<ApiResponse<{ success: boolean }>> {
+    console.log('📝 피드백 제출 API 호출:', { checklistId, isPositive, comment })
+
+    return authenticatedRequest<{ success: boolean }>('/api/v1/feedback', {
+        method: 'POST',
+        body: JSON.stringify({
+            checklistId,
+            isPositive,
+            comment
+        })
+    })
+}
+
 export { apiRequest, authenticatedRequest }
 

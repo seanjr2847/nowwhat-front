@@ -9,29 +9,7 @@ import { ChecklistItem } from "../components/result/checklist-item"
 import { CompletionCelebration } from "../components/result/completion-celebration"
 import { FeedbackSection } from "../components/result/feedback-section"
 import { ProgressBar } from "../components/result/progress-bar"
-
-interface ChecklistData {
-    id: string
-    goal: string
-    createdAt: string
-    items: ChecklistItemData[]
-    progress: number
-    isSaved: boolean
-}
-
-interface ChecklistItemData {
-    id: string
-    title: string
-    description: string
-    details: {
-        tips?: string[]
-        contacts?: { name: string; phone: string; email?: string }[]
-        links?: { title: string; url: string }[]
-        price?: string
-        location?: string
-    }
-    isCompleted: boolean
-}
+import { getChecklist, type ChecklistData } from "../lib/api"
 
 /**
  * 생성된 체크리스트를 표시하고 관리하는 결과 페이지 컴포넌트입니다.
@@ -45,58 +23,20 @@ export default function ResultPage() {
     const [isLoading, setIsLoading] = useState(true)
     const [feedbackGiven, setFeedbackGiven] = useState(false)
 
-    // TODO: API 연결 - GET /checklists/{id}
-    // 체크리스트 상세 정보 조회 (가장 중요한 누락된 API!)
+    // 체크리스트 상세 정보 조회 API 연결
     const fetchChecklist = async () => {
         if (id === undefined) return
 
         try {
             setIsLoading(true)
-            // const response = await fetch(`/api/checklists/${id}`, {
-            //   headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
-            // });
-            // 
-            // if (!response.ok) {
-            //   throw new Error('체크리스트를 불러올 수 없습니다.');
-            // }
-            // 
-            // const checklistData = await response.json();
-            // setChecklist(checklistData);
-
-            // Mock 데이터 (실제 API 연결 전까지 사용)
-            await new Promise(resolve => setTimeout(resolve, 1000))
-
-            const mockChecklist: ChecklistData = {
-                id,
-                goal: "일본 여행 가고싶어",
-                createdAt: "2024-01-15T10:30:00Z",
-                isSaved: false,
-                progress: 0,
-                items: [
-                    {
-                        id: "1",
-                        title: "여권 유효기간 확인",
-                        description: "여권 유효기간이 6개월 이상 남아있는지 확인하세요.",
-                        details: {
-                            tips: ["여권 유효기간은 입국일 기준 6개월 이상이어야 합니다."],
-                            links: [{ title: "외교부 여권안내", url: "https://passport.go.kr" }]
-                        },
-                        isCompleted: false
-                    },
-                    {
-                        id: "2",
-                        title: "항공권 예약",
-                        description: "왕복 항공권을 예약하고 좌석을 선택하세요.",
-                        details: {
-                            tips: ["최소 2주 전 예약시 더 저렴한 가격으로 예약 가능"],
-                            price: "300,000원 ~ 800,000원"
-                        },
-                        isCompleted: false
-                    }
-                ]
+            const response = await getChecklist(id)
+            
+            if (response.success && response.data) {
+                setChecklist(response.data)
+            } else {
+                console.error("체크리스트 로드 실패:", response.error)
+                void navigate("/404")
             }
-
-            setChecklist(mockChecklist)
         } catch (error) {
             console.error("체크리스트 로드 실패:", error)
             void navigate("/404")
@@ -189,6 +129,7 @@ export default function ResultPage() {
                     onNewChecklist={handleNewChecklist}
                     onSaveChecklist={handleSaveChecklist}
                     isSaved={checklist.isSaved}
+                    checklistId={checklist.id}
                 />
 
                 <div className="space-y-6 mb-8">
@@ -197,6 +138,7 @@ export default function ResultPage() {
                             key={item.id}
                             item={item}
                             index={index}
+                            checklistId={checklist.id}
                             onToggle={handleItemToggle}
                         />
                     ))}
@@ -204,7 +146,11 @@ export default function ResultPage() {
 
                 {isAllCompleted && <CompletionCelebration onClose={() => { }} goal={checklist.goal} />}
 
-                <FeedbackSection onFeedback={handleFeedback} feedbackGiven={feedbackGiven} />
+                <FeedbackSection 
+                    onFeedback={handleFeedback} 
+                    feedbackGiven={feedbackGiven}
+                    checklistId={checklist.id}
+                />
             </div>
         </div>
     )

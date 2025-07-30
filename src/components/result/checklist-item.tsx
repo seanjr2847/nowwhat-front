@@ -5,6 +5,7 @@ import { useState } from "react"
 import { Button } from "../ui/button"
 import { Card, CardContent } from "../ui/card"
 import { Checkbox } from "../ui/checkbox"
+import { toggleChecklistItem } from "../../lib/api"
 
 interface ChecklistItemData {
   id: string
@@ -23,6 +24,7 @@ interface ChecklistItemData {
 interface ChecklistItemProps {
   item: ChecklistItemData
   index: number
+  checklistId?: string
   onToggle: (itemId: string) => void
 }
 
@@ -35,31 +37,39 @@ interface ChecklistItemProps {
  * @param {(itemId: string) => void} props.onToggle - 항목의 완료 상태를 토글하는 함수입니다.
  * @returns {JSX.Element} 렌더링된 체크리스트 항목입니다.
  */
-export function ChecklistItem({ item, index, onToggle }: ChecklistItemProps) {
+export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistItemProps) {
   const [isExpanded, setIsExpanded] = useState(false)
+  const [isUpdating, setIsUpdating] = useState(false)
 
   const hasDetails =
-    item.details.tips?.length ||
-    item.details.contacts?.length ||
-    item.details.links?.length ||
-    item.details.price ||
-    item.details.location
+    (item.details.tips?.length ?? 0) > 0 ||
+    (item.details.contacts?.length ?? 0) > 0 ||
+    (item.details.links?.length ?? 0) > 0 ||
+    (item.details.price != null && item.details.price !== '') ||
+    (item.details.location != null && item.details.location !== '')
 
-  // TODO: API 연결 - PATCH /checklists/{id}/items/{itemId}
-  // 체크리스트 항목 체크/언체크 시 호출
-  // const handleToggle = async (itemId: string) => {
-  //   const response = await fetch(`/api/checklists/${checklistId}/items/${itemId}`, {
-  //     method: 'PATCH',
-  //     headers: { 
-  //       'Content-Type': 'application/json',
-  //       'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-  //     },
-  //     body: JSON.stringify({ isCompleted: !item.isCompleted })
-  //   });
-  //   if (response.ok) {
-  //     onToggle(itemId);
-  //   }
-  // };
+  // 체크리스트 항목 토글 API 연결
+  const handleToggle = async (itemId: string) => {
+    if (checklistId == null || checklistId === '' || isUpdating) return
+    
+    try {
+      setIsUpdating(true)
+      const newIsCompleted = !item.isCompleted
+      const response = await toggleChecklistItem(checklistId, itemId, newIsCompleted)
+      
+      if (response.success) {
+        onToggle(itemId)
+      } else {
+        console.error("체크리스트 항목 토글 실패:", response.error)
+        alert("항목 상태 변경에 실패했습니다. 다시 시도해주세요.")
+      }
+    } catch (error) {
+      console.error("체크리스트 항목 토글 오류:", error)
+      alert("항목 상태 변경 중 오류가 발생했습니다.")
+    } finally {
+      setIsUpdating(false)
+    }
+  }
 
   return (
     <Card
@@ -72,7 +82,8 @@ export function ChecklistItem({ item, index, onToggle }: ChecklistItemProps) {
             <Checkbox
               id={`item-${item.id}`}
               checked={item.isCompleted}
-              onCheckedChange={() => onToggle(item.id)}
+              onCheckedChange={() => handleToggle(item.id)}
+              disabled={isUpdating}
               className="w-5 h-5 data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
             />
           </div>
