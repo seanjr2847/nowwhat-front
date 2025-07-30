@@ -67,12 +67,12 @@ async function apiRequest<T>(
                 endpoint,
                 requestHeaders: options.headers
             })
-            
+
             // 422 에러의 경우 자세한 validation 에러 정보 출력
             if (response.status === 422 && data && typeof data === 'object') {
                 console.error('🔍 Validation 에러 상세:', JSON.stringify(data, null, 2))
             }
-            
+
             return {
                 success: false,
                 status: response.status,  // 상태 코드 포함
@@ -440,7 +440,7 @@ export async function getChecklist(id: string): Promise<ApiResponse<ChecklistDat
 export async function getMyChecklists(): Promise<ApiResponse<{ checklists: ChecklistSummary[] }>> {
     console.log('📑 내 체크리스트 목록 조회 API 호출')
 
-    return authenticatedRequest<{ checklists: ChecklistSummary[] }>('/api/v1/checklists/my', {
+    return authenticatedRequest<{ checklists: ChecklistSummary[] }>('/api/v1/checklists', {
         method: 'GET'
     })
 }
@@ -456,8 +456,8 @@ export async function deleteChecklist(id: string): Promise<ApiResponse<{ success
 
 // 체크리스트 항목 완료 상태 토글 API
 export async function toggleChecklistItem(
-    checklistId: string, 
-    itemId: string, 
+    checklistId: string,
+    itemId: string,
     isCompleted: boolean
 ): Promise<ApiResponse<{ success: boolean }>> {
     console.log('✅ 체크리스트 항목 토글 API 호출:', { checklistId, itemId, isCompleted })
