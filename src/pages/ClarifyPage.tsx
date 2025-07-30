@@ -66,7 +66,7 @@ export default function ClarifyPage() {
         console.log('✅ 의도 분석 성공:', response.data)
         
         // Intent에 id가 없는 경우 생성해주기
-        const intentsWithId = response.data.intents.map((intent, index) => ({
+        const intentsWithId = (response.data.intents || []).map((intent, index) => ({
           ...intent,
           id: intent.id || `intent_${index}_${Date.now()}`
         }))
@@ -79,7 +79,7 @@ export default function ClarifyPage() {
 
         toast({
           title: "분석 완료!",
-          description: `${response.data.intents.length}개의 방향을 찾았습니다.`,
+          description: `${response.data.intents?.length || 0}개의 방향을 찾았습니다.`,
           variant: "default",
         })
       } else {
@@ -155,12 +155,12 @@ export default function ClarifyPage() {
         if (response.data.questionSetId) {
           setQuestionSetId(response.data.questionSetId)
         }
-        setQuestions(response.data.questions)
+        setQuestions(response.data.questions || [])
         setProgress(50)
 
         toast({
           title: "질문 생성 완료!",
-          description: `${response.data.questions.length}개의 맞춤 질문을 준비했습니다.`,
+          description: `${response.data.questions?.length || 0}개의 맞춤 질문을 준비했습니다.`,
           variant: "default",
         })
       } else {
