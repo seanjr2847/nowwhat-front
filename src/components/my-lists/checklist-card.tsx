@@ -15,7 +15,7 @@ import {
   Building2,
 } from "lucide-react"
 import { useState } from "react"
-import { ChecklistSummary } from "../../lib/api"
+import type { ChecklistSummary } from "../../lib/api"
 
 interface ChecklistCardProps {
   checklist: ChecklistSummary
