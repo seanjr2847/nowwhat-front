@@ -15,17 +15,7 @@ import {
   Building2,
 } from "lucide-react"
 import { useState } from "react"
-
-interface ChecklistSummary {
-  id: string
-  goal: string
-  createdAt: string
-  totalItems: number
-  completedItems: number
-  progress: number
-  lastUpdated: string
-  category: string
-}
+import { ChecklistSummary } from "../../lib/api"
 
 interface ChecklistCardProps {
   checklist: ChecklistSummary
@@ -91,7 +81,7 @@ export function ChecklistCard({ checklist, onClick, onDelete }: ChecklistCardPro
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
-                    {checklist.goal}
+                    {checklist.title}
                   </h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{checklist.category}</p>
                 </div>

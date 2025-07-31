@@ -418,13 +418,14 @@ export interface ChecklistData {
 
 export interface ChecklistSummary {
     id: string
-    goal: string
+    title: string
     createdAt: string
     totalItems: number
     completedItems: number
     progress: number
     lastUpdated: string
     category: string
+    description?: string
 }
 
 // 체크리스트 상세 조회 API

@@ -4,16 +4,7 @@ import { Input } from "../ui/input"
 import { Button } from "../ui/button"
 import { Search, Filter } from "lucide-react"
 
-interface ChecklistSummary {
-  id: string
-  goal: string
-  createdAt: string
-  totalItems: number
-  completedItems: number
-  progress: number
-  lastUpdated: string
-  category: string
-}
+import { ChecklistSummary } from "../../lib/api"
 
 interface SearchAndFilterProps {
   searchQuery: string

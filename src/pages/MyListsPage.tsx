@@ -28,7 +28,8 @@ export default function MyListsPage() {
       const response = await getMyChecklists()
       
       if (response.success && response.data) {
-        const checklistsData = response.data.checklists || []
+        // API가 직접 배열을 반환하는 경우와 checklists 속성으로 반환하는 경우 모두 처리
+        const checklistsData = Array.isArray(response.data) ? response.data : (response.data.checklists || [])
         setChecklists(checklistsData)
         setFilteredChecklists(checklistsData)
       } else {
@@ -50,7 +51,7 @@ export default function MyListsPage() {
     let filtered = checklists
 
     if (searchQuery) {
-      filtered = filtered.filter((checklist) => checklist.goal.toLowerCase().includes(searchQuery.toLowerCase()))
+      filtered = filtered.filter((checklist) => checklist.title.toLowerCase().includes(searchQuery.toLowerCase()))
     }
 
     if (selectedCategory !== "all") {
