@@ -148,57 +148,19 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
                 )}
 
                 {item.details?.tips && item.details.tips.length > 0 && (
-                  <div className="relative space-y-3 p-4 rounded-xl bg-gradient-to-br from-amber-500/10 via-orange-500/10 to-yellow-500/10 border border-amber-500/20 backdrop-blur-sm">
-                    {/* 반짝이는 효과 배경 */}
-                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-amber-400/5 to-transparent animate-shimmer"></div>
-                    
-                    {/* 헤더 섹션 */}
-                    <div className="relative flex items-center space-x-3">
-                      <div className="relative">
-                        <div className="absolute inset-0 rounded-full bg-amber-400/20 animate-pulse"></div>
-                        <div className="relative p-2 rounded-full bg-gradient-to-br from-amber-400/20 to-orange-500/20 border border-amber-400/30">
-                          <Lightbulb className="w-4 h-4 text-amber-400" />
-                        </div>
-                      </div>
-                      <div className="relative">
-                        <span className="text-sm font-semibold bg-gradient-to-r from-amber-300 via-orange-300 to-yellow-300 bg-clip-text text-transparent">
-                          💡 유용한 팁
-                        </span>
-                        <div className="absolute -bottom-1 left-0 right-0 h-px bg-gradient-to-r from-amber-400/50 via-orange-400/50 to-yellow-400/50"></div>
-                      </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <Lightbulb className="w-4 h-4 text-orange-400" />
+                      <span className="text-sm font-medium text-orange-300">유용한 팁</span>
                     </div>
-                    
-                    {/* 팁 리스트 */}
-                    <div className="relative space-y-3">
+                    <ul className="space-y-1 ml-6">
                       {item.details?.tips?.map((tip, tipIndex) => (
-                        <div 
-                          key={tipIndex} 
-                          className="group flex items-start space-x-3 p-3 rounded-lg bg-gradient-to-r from-amber-500/5 to-orange-500/5 border border-amber-400/10 hover:border-amber-400/30 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/10"
-                        >
-                          {/* 팁 인덱스 번호 */}
-                          <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-amber-400/20 to-orange-500/20 border border-amber-400/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                            <span className="text-xs font-bold text-amber-300">{tipIndex + 1}</span>
-                          </div>
-                          
-                          {/* 팁 내용 */}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm text-amber-100 leading-relaxed group-hover:text-amber-50 transition-colors duration-300">
-                              {tip}
-                            </p>
-                          </div>
-                          
-                          {/* 호버 시 반짝이는 효과 */}
-                          <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                            <div className="w-1 h-1 rounded-full bg-amber-400 animate-ping"></div>
-                          </div>
-                        </div>
+                        <li key={tipIndex} className="text-sm text-muted-foreground flex items-start">
+                          <span className="text-orange-400 mr-2">•</span>
+                          {tip}
+                        </li>
                       ))}
-                    </div>
-                    
-                    {/* 하단 장식 효과 */}
-                    <div className="relative mt-2">
-                      <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-amber-400/30 to-transparent"></div>
-                    </div>
+                    </ul>
                   </div>
                 )}
 
