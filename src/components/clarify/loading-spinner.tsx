@@ -1,8 +1,20 @@
 import { Brain, Sparkles } from "lucide-react"
+import { useEffect, useState } from "react"
 
 interface LoadingSpinnerProps {
   message: string
 }
+
+// Playful한 로딩 메시지들
+const playfulMessages = [
+  "마법 같은 체크리스트를 만들고 있어요 ✨",
+  "AI가 열심히 생각하고 있어요 🤔",
+  "완벽한 계획을 세우는 중이에요 📝",
+  "당신만을 위한 특별한 리스트 준비 중 🎯",
+  "똑똑한 체크리스트가 완성되어가요 🧠",
+  "거의 다 왔어요! 조금만 더 기다려주세요 ⏳",
+  "최고의 결과를 위해 마무리 중이에요 🚀"
+]
 
 /**
  * 데이터 로딩 중임을 나타내는 스피너 및 메시지 컴포넌트입니다.
@@ -11,6 +23,29 @@ interface LoadingSpinnerProps {
  * @returns {JSX.Element} 렌더링된 로딩 스피너 컴포넌트입니다.
  */
 export function LoadingSpinner({ message }: LoadingSpinnerProps) {
+  const [currentMessageIndex, setCurrentMessageIndex] = useState(0)
+  const [displayMessage, setDisplayMessage] = useState(message)
+
+  useEffect(() => {
+    // 메인 메시지 표시 후 2초 뒤부터 playful 메시지 시작
+    const initialDelay = setTimeout(() => {
+      setDisplayMessage(playfulMessages[0])
+      setCurrentMessageIndex(0)
+      
+      // 3초마다 메시지 변경
+      const interval = setInterval(() => {
+        setCurrentMessageIndex((prev) => (prev + 1) % playfulMessages.length)
+      }, 3000)
+
+      return () => clearInterval(interval)
+    }, 2000)
+
+    return () => clearTimeout(initialDelay)
+  }, [])
+
+  useEffect(() => {
+    setDisplayMessage(playfulMessages[currentMessageIndex])
+  }, [currentMessageIndex])
   return (
     <div
       className="flex flex-col items-center space-y-8 animate-fade-in"
@@ -75,8 +110,8 @@ export function LoadingSpinner({ message }: LoadingSpinnerProps) {
 
       {/* 메시지 섹션 */}
       <div className="text-center space-y-4 max-w-md">
-        <p className="text-foreground text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          {message}
+        <p className="text-foreground text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent transition-all duration-500 ease-in-out">
+          {displayMessage}
         </p>
 
         {/* 진행 표시 점들 */}

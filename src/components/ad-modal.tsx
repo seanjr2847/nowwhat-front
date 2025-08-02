@@ -18,7 +18,7 @@ interface AdModalProps {
  * @returns {JSX.Element} 렌더링된 광고 모달 컴포넌트입니다.
  */
 export function AdModal({ onComplete, isCreating }: AdModalProps) {
-  const [timeLeft, setTimeLeft] = useState(15)
+  const [timeLeft, setTimeLeft] = useState(30)
   const modalRef = useRef<HTMLDivElement>(null)
   const previousFocusRef = useRef<HTMLElement | null>(null)
 
@@ -88,17 +88,33 @@ export function AdModal({ onComplete, isCreating }: AdModalProps) {
 
           <div className="mb-6">
             <div
-              className="w-full h-48 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center mb-4"
+              className="w-full h-48 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center mb-4 relative overflow-hidden"
               role="img"
               aria-label="광고 콘텐츠"
             >
-              <span className="text-white text-lg font-semibold">광고 영역</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-blue-600/20 animate-pulse"></div>
+              <div className="text-center z-10 p-6">
+                <span className="text-white text-2xl font-bold mb-2 block">NowWhat</span>
+                <span className="text-white/90 text-sm">당신의 목표를 위한 최고의 파트너</span>
+              </div>
             </div>
 
             {timeLeft > 0 ? (
-              <div>
-                <p id="ad-modal-description" className="text-gray-400">
-                  {timeLeft}초 후 건너뛸 수 있습니다
+              <div className="space-y-3">
+                <p className="text-xl font-bold text-white mb-2">
+                  🤖 AI가 열심히 체크리스트를 만들고 있어요!
+                </p>
+                <p className="text-gray-300 text-sm leading-relaxed">
+                  체크리스트 생성에는 약 30초가 걸려요.<br />
+                  그동안 광고를 보시면서 기다려주세요! 😊
+                </p>
+                <div className="mt-4 p-3 bg-purple-600/20 rounded-lg border border-purple-600/30">
+                  <p id="ad-modal-description" className="text-purple-300 font-medium">
+                    ⏰ {timeLeft}초 남았어요
+                  </p>
+                </div>
+                <p className="text-gray-400 text-xs mt-2">
+                  💡 Tip: 광고 수익은 더 좋은 서비스를 만드는데 사용돼요!
                 </p>
                 <div className="sr-only" aria-live="polite" aria-atomic="true">
                   광고 시청 중, {timeLeft}초 남음
