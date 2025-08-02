@@ -32,7 +32,13 @@ export default function ResultPage() {
             const response = await getChecklist(id)
             
             if (response.success && response.data) {
-                setChecklist(response.data)
+                // API 응답 데이터를 UI에 맞게 변환
+                const checklistData = {
+                    ...response.data,
+                    progress: response.data.progressPercentage,
+                    isSaved: false // 기본값
+                }
+                setChecklist(checklistData)
             } else {
                 console.error("체크리스트 로드 실패:", response.error)
                 void navigate("/404")
@@ -116,7 +122,7 @@ export default function ResultPage() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-slate-900">
             <div className="max-w-4xl mx-auto px-4 py-8">
-                <ChecklistHeader goal={checklist.goal} createdAt={checklist.createdAt} />
+                <ChecklistHeader goal={checklist.title} createdAt={checklist.createdAt} />
 
                 <ProgressBar
                     completed={completedCount}
@@ -144,7 +150,7 @@ export default function ResultPage() {
                     ))}
                 </div>
 
-                {isAllCompleted && <CompletionCelebration onClose={() => { }} goal={checklist.goal} />}
+                {isAllCompleted && <CompletionCelebration onClose={() => { }} goal={checklist.title} />}
 
                 <FeedbackSection 
                     onFeedback={handleFeedback} 

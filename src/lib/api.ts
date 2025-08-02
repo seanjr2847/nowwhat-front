@@ -409,9 +409,18 @@ export interface ChecklistItemData {
 
 export interface ChecklistData {
     id: string
-    goal: string
-    createdAt: string
+    title: string
+    category: string
+    description: string
+    totalItems: number
+    completedItems: number
+    progressPercentage: number
+    isCompleted: boolean
     items: ChecklistItemData[]
+    createdAt: string
+    updatedAt: string
+    completedAt: string | null
+    // 기존 호환성을 위한 계산된 속성들
     progress: number
     isSaved: boolean
 }
