@@ -72,10 +72,6 @@ export default function ResultPage() {
         })
     }
 
-    const handleSaveChecklist = () => {
-        if (!checklist) return
-        setChecklist({ ...checklist, isSaved: true })
-    }
 
     const handleShare = () => {
         const url = window.location.href
@@ -133,9 +129,6 @@ export default function ResultPage() {
                 <ActionButtons
                     onShare={handleShare}
                     onNewChecklist={handleNewChecklist}
-                    onSaveChecklist={handleSaveChecklist}
-                    isSaved={checklist.isSaved}
-                    checklistId={checklist.id}
                 />
 
                 <div className="space-y-6 mb-8">

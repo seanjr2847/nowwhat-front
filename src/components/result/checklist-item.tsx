@@ -128,21 +128,25 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
             {isExpanded && hasDetails && (
               <div className="mt-4 space-y-4 animate-slide-up">
                 {item.details?.price && (
-                  <div className="flex items-center space-x-3 p-3 bg-yellow-500/20 backdrop-blur-sm rounded-lg border border-yellow-500/30">
-                    <DollarSign className="w-4 h-4 text-yellow-400" />
-                    <div>
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <DollarSign className="w-4 h-4 text-yellow-400" />
                       <span className="text-sm font-medium text-yellow-300">예상 비용</span>
-                      <p className="text-yellow-200">{item.details?.price}</p>
+                    </div>
+                    <div className="ml-6">
+                      <span className="text-sm text-muted-foreground">💰 {item.details?.price}</span>
                     </div>
                   </div>
                 )}
 
                 {item.details?.location && (
-                  <div className="flex items-center space-x-3 p-3 bg-purple-500/20 backdrop-blur-sm rounded-lg border border-purple-500/30">
-                    <MapPin className="w-4 h-4 text-purple-400" />
-                    <div>
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <MapPin className="w-4 h-4 text-purple-400" />
                       <span className="text-sm font-medium text-purple-300">위치</span>
-                      <p className="text-purple-200">{item.details?.location}</p>
+                    </div>
+                    <div className="ml-6">
+                      <span className="text-sm text-muted-foreground">📍 {item.details?.location}</span>
                     </div>
                   </div>
                 )}
