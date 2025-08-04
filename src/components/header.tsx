@@ -179,17 +179,23 @@ export function Header() {
       <div className={`flex ${isMobile ? "flex-col space-y-4" : "items-center space-x-2"}`}>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="w-full justify-start px-3">
-              <Globe className="w-4 h-4 mr-2" />
-              <span className="flex items-center space-x-2">
+            <Button variant="ghost" className="w-full justify-start px-2 py-1 h-8">
+              <Globe className="w-3 h-3 mr-1" />
+              <span className="flex items-center space-x-1 text-sm">
                 <span>{SUPPORTED_LANGUAGES[localeSettings.language as keyof typeof SUPPORTED_LANGUAGES]?.flag}</span>
-                <span>{SUPPORTED_LANGUAGES[localeSettings.language as keyof typeof SUPPORTED_LANGUAGES]?.name}</span>
+                <span className="hidden sm:inline">{SUPPORTED_LANGUAGES[localeSettings.language as keyof typeof SUPPORTED_LANGUAGES]?.name}</span>
                 {localeSettings.autoDetect && <span className="text-xs text-green-500">AUTO</span>}
               </span>
               <ChevronDown className="w-3 h-3 ml-auto" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <DropdownMenuItem onSelect={handleAutoDetect} disabled={isDetecting}>
+              <RefreshCw className={`w-4 h-4 mr-2 ${isDetecting ? 'animate-spin' : ''}`} />
+              자동 감지
+              {localeSettings.autoDetect && <span className="ml-auto text-green-500">✓</span>}
+            </DropdownMenuItem>
+            <div className="h-px bg-border my-1"></div>
             {Object.entries(SUPPORTED_LANGUAGES).map(([code, info]) => (
               <DropdownMenuItem key={code} onSelect={() => handleLanguageChange(code)}>
                 <span className="mr-2">{info.flag}</span>
@@ -204,11 +210,11 @@ export function Header() {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="w-full justify-start px-3">
-              <MapPin className="w-4 h-4 mr-2" />
-              <span className="flex items-center space-x-2">
+            <Button variant="ghost" className="w-full justify-start px-2 py-1 h-8">
+              <MapPin className="w-3 h-3 mr-1" />
+              <span className="flex items-center space-x-1 text-sm">
                 <span>{SUPPORTED_REGIONS[localeSettings.region as keyof typeof SUPPORTED_REGIONS]?.flag}</span>
-                <span className="truncate">{SUPPORTED_REGIONS[localeSettings.region as keyof typeof SUPPORTED_REGIONS]?.name}</span>
+                <span className="hidden sm:inline truncate max-w-16">{SUPPORTED_REGIONS[localeSettings.region as keyof typeof SUPPORTED_REGIONS]?.name}</span>
                 {localeSettings.autoDetect && <span className="text-xs text-green-500">AUTO</span>}
               </span>
               <ChevronDown className="w-3 h-3 ml-auto" />
