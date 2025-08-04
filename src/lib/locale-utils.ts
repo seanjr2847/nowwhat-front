@@ -45,7 +45,6 @@ export function detectUserLocale(): UserLocale {
   
   try {
     const resolvedOptions = Intl.DateTimeFormat().resolvedOptions()
-    const timeZoneRegion = resolvedOptions.timeZone?.split('/')[0]
     
     // 타임존을 기반으로 지역 추측
     if (resolvedOptions.timeZone?.includes('Seoul') || resolvedOptions.timeZone?.includes('Asia/Seoul')) {

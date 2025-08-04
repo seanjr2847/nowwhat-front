@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronDown, Globe, List, LogOut, MapPin, Menu, RefreshCw, Settings, User } from "lucide-react"
+import { ChevronDown, Globe, List, LogOut, MapPin, Menu, RefreshCw, User } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useIsMobile } from "../hooks/use-mobile"
@@ -9,7 +9,6 @@ import { useAuth } from "../hooks/useAuth"
 import { 
   SUPPORTED_LANGUAGES,
   SUPPORTED_REGIONS,
-  getUserLocaleSettings,
   saveUserLocaleSettings,
   initializeUserLocale,
   detectLocationBasedRegion,
