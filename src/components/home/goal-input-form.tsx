@@ -124,14 +124,13 @@ export function GoalInputForm() {
       </form>
 
       <div className="suggestion-buttons mt-6 space-y-4">
-        {/* 항상 보이는 기본 추천 목표들 (5개) */}
+        {/* 항상 보이는 기본 추천 목표들 (4개) */}
         <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
           {[
             { icon: Dumbbell, text: "운동 시작하고 싶어", color: "from-red-500 to-red-600" },
             { icon: BookOpen, text: "책 읽는 습관 만들고 싶어", color: "from-blue-500 to-blue-600" },
             { icon: Languages, text: "영어공부 다시 시작하고 싶어", color: "from-green-500 to-green-600" },
             { icon: PiggyBank, text: "돈 관리 제대로 하고 싶어", color: "from-yellow-500 to-yellow-600" },
-            { icon: Trash2, text: "미니멀 라이프 시작하고 싶어", color: "from-gray-500 to-gray-600" },
           ].map((suggestion, index) => (
             <Button
               key={index}
@@ -154,13 +153,13 @@ export function GoalInputForm() {
             onClick={() => setShowAllSuggestions(!showAllSuggestions)}
             className="h-10 w-10 rounded-full bg-white/60 dark:bg-gray-800/60 backdrop-blur-md border border-white/30 dark:border-gray-700/50 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-white/80 dark:hover:bg-gray-800/80 transition-all duration-300 hover:scale-110 group shadow-lg"
           >
-            <MoreHorizontal 
-              className={`w-5 h-5 transition-transform duration-300 ${showAllSuggestions ? 'rotate-90' : ''}`} 
+            <MoreHorizontal
+              className={`w-5 h-5 transition-transform duration-300 ${showAllSuggestions ? 'rotate-90' : ''}`}
             />
           </Button>
         </div>
 
-        {/* 추가 추천 목표들 (5개 더) */}
+        {/* 추가 추천 목표들 (6개 더) */}
         {showAllSuggestions && (
           <div className="flex flex-wrap justify-center gap-2 sm:gap-3 animate-in slide-in-from-top-2 duration-300">
             {[
@@ -169,6 +168,7 @@ export function GoalInputForm() {
               { icon: Target, text: "부업 알아보고 싶어", color: "from-indigo-500 to-indigo-600" },
               { icon: Heart, text: "자기계발 시작하고 싶어", color: "from-purple-500 to-purple-600" },
               { icon: GraduationCap, text: "새 기술 배우고 싶어", color: "from-emerald-500 to-emerald-600" },
+              { icon: Trash2, text: "미니멀 라이프 시작하고 싶어", color: "from-gray-500 to-gray-600" },
             ].map((suggestion, index) => (
               <Button
                 key={`extra-${index}`}
