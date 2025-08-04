@@ -1,7 +1,21 @@
 "use client"
 
-import { Construction, Settings, X } from "lucide-react"
+import { Globe, Settings, X } from "lucide-react"
+import { useEffect, useState } from "react"
+import { 
+  getApiPersonalizationSettings, 
+  saveApiPersonalizationSettings, 
+  SUPPORTED_API_COUNTRIES,
+  SUPPORTED_API_LANGUAGES,
+  detectUserCountry,
+  detectUserLanguage,
+  type ApiPersonalizationSettings 
+} from "../../lib/locale-utils"
 import { Button } from "../ui/button"
+import { Label } from "../ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
+import { Switch } from "../ui/switch"
+import { useToast } from "../../hooks/use-toast"
 
 interface SettingsModalProps {
   isOpen: boolean
@@ -10,13 +24,57 @@ interface SettingsModalProps {
 
 /**
  * 설정 모달 컴포넌트입니다.
- * 현재는 준비중 상태를 표시합니다.
+ * API 개인화 설정을 관리합니다.
  * @param {SettingsModalProps} props - 설정 모달의 props입니다.
  * @param {boolean} props.isOpen - 모달이 열려있는지 여부입니다.
  * @param {() => void} props.onClose - 모달을 닫는 함수입니다.
  * @returns {JSX.Element | null} 렌더링된 설정 모달입니다.
  */
 export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
+  const { toast } = useToast()
+  const [settings, setSettings] = useState<ApiPersonalizationSettings>({
+    enabled: true,
+    userCountry: undefined,
+    userLanguage: undefined,
+    lastUpdated: new Date().toISOString()
+  })
+
+  // 설정 불러오기
+  useEffect(() => {
+    if (isOpen) {
+      const currentSettings = getApiPersonalizationSettings()
+      setSettings(currentSettings)
+    }
+  }, [isOpen])
+
+  // 자동 감지 함수
+  const handleAutoDetect = () => {
+    const detectedCountry = detectUserCountry()
+    const detectedLanguage = detectUserLanguage()
+    
+    setSettings(prev => ({
+      ...prev,
+      userCountry: detectedCountry || undefined,
+      userLanguage: detectedLanguage || undefined
+    }))
+
+    toast({
+      title: "자동 감지 완료",
+      description: `국가: ${detectedCountry ? SUPPORTED_API_COUNTRIES[detectedCountry as keyof typeof SUPPORTED_API_COUNTRIES] : '감지 실패'}, 언어: ${detectedLanguage ? SUPPORTED_API_LANGUAGES[detectedLanguage as keyof typeof SUPPORTED_API_LANGUAGES] : '감지 실패'}`,
+      variant: "default"
+    })
+  }
+
+  // 설정 저장
+  const handleSave = () => {
+    saveApiPersonalizationSettings(settings)
+    toast({
+      title: "설정 저장 완료",
+      description: "API 개인화 설정이 저장되었습니다.",
+      variant: "default"
+    })
+    onClose()
+  }
 
   if (!isOpen) return null
 
@@ -38,27 +96,109 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           </Button>
         </div>
 
-        <div className="text-center py-8">
-          <div className="mb-4">
-            <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Construction className="w-8 h-8 text-white" />
+        <div className="space-y-6">
+          {/* API 개인화 설정 섹션 */}
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <Globe className="w-5 h-5 text-blue-500" />
+              <h4 className="text-base font-medium text-foreground">API 개인화</h4>
             </div>
+            
+            <p className="text-sm text-muted-foreground">
+              AI가 당신의 국가와 언어에 맞는 더 정확한 답변을 제공합니다.
+            </p>
+
+            {/* 개인화 활성화/비활성화 */}
+            <div className="flex items-center justify-between">
+              <Label htmlFor="personalization-enabled" className="text-sm font-medium">
+                개인화 사용
+              </Label>
+              <Switch
+                id="personalization-enabled"
+                checked={settings.enabled}
+                onCheckedChange={(enabled) => setSettings(prev => ({ ...prev, enabled }))}
+              />
+            </div>
+
+            {/* 국가 선택 */}
+            {settings.enabled && (
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">국가</Label>
+                <Select
+                  value={settings.userCountry || ""}
+                  onValueChange={(value) => setSettings(prev => ({ 
+                    ...prev, 
+                    userCountry: value || undefined 
+                  }))}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="국가를 선택하세요" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(SUPPORTED_API_COUNTRIES).map(([code, name]) => (
+                      <SelectItem key={code} value={code}>
+                        {name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* 언어 선택 */}
+            {settings.enabled && (
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">언어</Label>
+                <Select
+                  value={settings.userLanguage || ""}
+                  onValueChange={(value) => setSettings(prev => ({ 
+                    ...prev, 
+                    userLanguage: value || undefined 
+                  }))}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="언어를 선택하세요" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(SUPPORTED_API_LANGUAGES).map(([code, name]) => (
+                      <SelectItem key={code} value={code}>
+                        {name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* 자동 감지 버튼 */}
+            {settings.enabled && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleAutoDetect}
+                className="w-full"
+              >
+                자동 감지
+              </Button>
+            )}
           </div>
 
-          <h4 className="text-xl font-semibold text-foreground mb-2">준비중입니다</h4>
-          <p className="text-muted-foreground mb-6 leading-relaxed">
-            설정 기능을 열심히 개발하고 있습니다.
-            <br />곧 더 많은 기능을 만나보실 수 있어요!
-          </p>
-
-
-
-          <Button
-            onClick={onClose}
-            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
-          >
-            확인
-          </Button>
+          {/* 버튼 그룹 */}
+          <div className="flex space-x-3">
+            <Button
+              variant="outline"
+              onClick={onClose}
+              className="flex-1"
+            >
+              취소
+            </Button>
+            <Button
+              onClick={handleSave}
+              className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+            >
+              저장
+            </Button>
+          </div>
         </div>
       </div>
     </div>

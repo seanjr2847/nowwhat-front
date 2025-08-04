@@ -219,3 +219,140 @@ export function getLocalizedText(key: string, locale?: UserLocaleSettings): stri
   
   return texts[key]?.[currentLocale.language] || texts[key]?.['en'] || key
 }
+
+// ============================================================================
+// API 개인화 설정 관련
+// ============================================================================
+
+const API_PERSONALIZATION_SETTINGS_KEY = 'api_personalization_settings'
+
+export interface ApiPersonalizationSettings {
+  /** API 호출 시 국가/언어 정보 전송 여부 */
+  enabled: boolean
+  /** 사용자 국가 코드 */
+  userCountry?: string
+  /** 사용자 언어 코드 */
+  userLanguage?: string
+  /** 마지막 업데이트 시간 */
+  lastUpdated: string
+}
+
+/**
+ * 지원되는 국가 목록 (API 문서 기준)
+ */
+export const SUPPORTED_API_COUNTRIES = {
+  "KR": "한국",
+  "US": "미국", 
+  "JP": "일본",
+  "CN": "중국"
+} as const
+
+/**
+ * 지원되는 언어 목록 (API 문서 기준)
+ */
+export const SUPPORTED_API_LANGUAGES = {
+  "ko": "한국어",
+  "en": "English",
+  "ja": "日本語", 
+  "zh": "中문",
+  "es": "Español",
+  "fr": "Français"
+} as const
+
+/**
+ * 브라우저에서 사용자 언어 코드 감지
+ */
+export function detectUserLanguage(): string | null {
+  try {
+    const browserLang = navigator.language.split('-')[0] // 'ko-KR' -> 'ko'
+    const supportedLangs = Object.keys(SUPPORTED_API_LANGUAGES)
+    return supportedLangs.includes(browserLang) ? browserLang : null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * 브라우저에서 사용자 국가 코드 감지
+ */
+export function detectUserCountry(): string | null {
+  try {
+    const locale = navigator.language // 'ko-KR', 'en-US' 등
+    if (locale.includes('-')) {
+      const countryCode = locale.split('-')[1] // 'KR', 'US' 등
+      const supportedCountries = Object.keys(SUPPORTED_API_COUNTRIES)
+      return supportedCountries.includes(countryCode) ? countryCode : null
+    }
+    return null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * API 개인화 설정 불러오기
+ */
+export function getApiPersonalizationSettings(): ApiPersonalizationSettings {
+  try {
+    const stored = sessionStorage.getItem(API_PERSONALIZATION_SETTINGS_KEY)
+    if (stored) {
+      return JSON.parse(stored)
+    }
+  } catch (error) {
+    console.warn('API 개인화 설정 불러오기 실패:', error)
+  }
+
+  // 기본값 - 자동 감지된 값으로 초기화하고 기본적으로 활성화
+  const detectedLanguage = detectUserLanguage()
+  const detectedCountry = detectUserCountry()
+  
+  const defaultSettings: ApiPersonalizationSettings = {
+    enabled: true, // 기본적으로 활성화
+    userLanguage: detectedLanguage || undefined,
+    userCountry: detectedCountry || undefined,
+    lastUpdated: new Date().toISOString()
+  }
+
+  // 기본값 저장
+  saveApiPersonalizationSettings(defaultSettings)
+  return defaultSettings
+}
+
+/**
+ * API 개인화 설정 저장
+ */
+export function saveApiPersonalizationSettings(settings: ApiPersonalizationSettings): void {
+  try {
+    const updatedSettings = {
+      ...settings,
+      lastUpdated: new Date().toISOString()
+    }
+    sessionStorage.setItem(API_PERSONALIZATION_SETTINGS_KEY, JSON.stringify(updatedSettings))
+    console.log('✅ API 개인화 설정 저장:', updatedSettings)
+  } catch (error) {
+    console.error('API 개인화 설정 저장 실패:', error)
+  }
+}
+
+/**
+ * API 호출용 사용자 정보 반환 (설정이 활성화된 경우에만)
+ */
+export function getApiUserInfo(): { userCountry?: string; userLanguage?: string } {
+  const settings = getApiPersonalizationSettings()
+  
+  if (!settings.enabled) {
+    return {} // 비활성화된 경우 빈 객체 반환
+  }
+
+  const result: { userCountry?: string; userLanguage?: string } = {}
+  
+  if (settings.userCountry) {
+    result.userCountry = settings.userCountry
+  }
+  
+  if (settings.userLanguage) {
+    result.userLanguage = settings.userLanguage
+  }
+  
+  return result
+}

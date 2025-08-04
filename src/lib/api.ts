@@ -34,7 +34,7 @@ async function apiRequest<T>(
     options: RequestInit = {}
 ): Promise<ApiResponse<T>> {
     const url = `${API_BASE_URL}${endpoint}`
-    
+
     // 사용자 언어/지역 정보 자동 추가
     const localeSettings = getUserLocaleSettings()
     const enhancedHeaders = {
@@ -341,7 +341,7 @@ export async function analyzeIntents(goal: string): Promise<ApiResponse<IntentAn
 
     return authenticatedRequest<IntentAnalysisResponse>('/api/v1/intents/analyze', {
         method: 'POST',
-        body: JSON.stringify({ 
+        body: JSON.stringify({
             goal,
             language: localeSettings.language,
             region: localeSettings.region,
