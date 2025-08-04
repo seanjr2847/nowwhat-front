@@ -10,6 +10,7 @@ import { IntentSelection } from "../components/clarify/intent-selection"
 import { LoadingSpinner } from "../components/clarify/loading-spinner"
 import { ProgressBar } from "../components/clarify/progress-bar"
 import { QuestionSection } from "../components/clarify/question-section"
+import { QuestionSkeletonCompact } from "../components/clarify/question-skeleton"
 import { useToast } from "../hooks/use-toast"
 import { useAuth } from "../hooks/useAuth"
 import {
@@ -366,7 +367,7 @@ export default function ClarifyPage() {
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-slate-900">
-        <LoadingSpinner message="인증 상태 확인 중..." />
+        <LoadingSpinner stage="auth-check" />
       </div>
     )
   }
@@ -375,7 +376,7 @@ export default function ClarifyPage() {
   if (isLoading && intents.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-slate-900">
-        <LoadingSpinner message="AI가 목표를 분석 중입니다..." />
+        <LoadingSpinner stage="goal-analysis" />
       </div>
     )
   }
@@ -442,9 +443,7 @@ export default function ClarifyPage() {
 
         {/* 질문 생성 중 */}
         {selectedIntent && isLoading && (
-          <div className="flex justify-center py-20">
-            <LoadingSpinner message="맞춤 질문을 생성하고 있습니다..." />
-          </div>
+          <QuestionSkeletonCompact />
         )}
 
         {/* 질문 표시 */}

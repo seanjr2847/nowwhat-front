@@ -106,7 +106,7 @@ export function AdModal({ onComplete, isCreating }: AdModalProps) {
               </div>
             ) : isCreating ? (
               <div className="flex flex-col items-center">
-                <LoadingSpinner message="체크리스트를 생성하고 있습니다..." />
+                <LoadingSpinner stage="checklist-creation" />
                 <div className="sr-only" aria-live="polite">
                   체크리스트 생성 중입니다. 잠시만 기다려주세요.
                 </div>
