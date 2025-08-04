@@ -6,13 +6,13 @@ import { useNavigate } from "react-router-dom"
 import { useIsMobile } from "../hooks/use-mobile"
 import { useToast } from "../hooks/use-toast"
 import { useAuth } from "../hooks/useAuth"
-import { 
+import {
   SUPPORTED_LANGUAGES,
-  SUPPORTED_REGIONS,
-  saveUserLocaleSettings,
-  initializeUserLocale,
   detectLocationBasedRegion,
-  type UserLocaleSettings 
+  getSupportedRegions,
+  initializeUserLocale,
+  saveUserLocaleSettings,
+  type UserLocaleSettings
 } from "../lib/locale-utils"
 import { ThemeToggle } from "./theme-toggle"
 import {
@@ -51,8 +51,11 @@ export function Header() {
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false)
   const [isDetecting, setIsDetecting] = useState(false)
 
+  // 지원되는 지역 목록 가져오기
+  const supportedRegions = getSupportedRegions()
+
   // 인증 상태 변화 로깅
-  console.log('🔍 Header 렌더링 - 인증 상태:', { isAuthenticated, isLoading, user: user?.name || 'None' })
+  console.log('🔍 Header 렌더링 - 인증 상태:', { isAuthenticated, isLoading, user: (user?.name !== undefined && user.name.length > 0) ? user.name : 'None' })
 
   // 컴포넌트 마운트 시 사용자 로케일 설정 초기화
   useEffect(() => {
@@ -65,7 +68,7 @@ export function Header() {
         console.error('로케일 초기화 실패:', error)
       }
     }
-    
+
     void initLocale()
   }, [])
 
@@ -114,7 +117,7 @@ export function Header() {
     }
     setLocaleSettings(updatedSettings)
     saveUserLocaleSettings(updatedSettings)
-    
+
     toast({
       title: "언어 변경됨",
       description: `언어가 ${SUPPORTED_LANGUAGES[newLanguage as keyof typeof SUPPORTED_LANGUAGES]?.name}(으)로 변경되었습니다.`,
@@ -131,10 +134,10 @@ export function Header() {
     }
     setLocaleSettings(updatedSettings)
     saveUserLocaleSettings(updatedSettings)
-    
+
     toast({
       title: "지역 변경됨",
-      description: `지역이 ${SUPPORTED_REGIONS[newRegion as keyof typeof SUPPORTED_REGIONS]?.name}(으)로 변경되었습니다.`,
+      description: `지역이 ${supportedRegions[newRegion]?.name}(으)로 변경되었습니다.`,
       variant: "default",
     })
   }
@@ -145,21 +148,21 @@ export function Header() {
     try {
       // 위치 기반 지역 감지 시도
       const locationRegion = await detectLocationBasedRegion()
-      
+
       const updatedSettings = await initializeUserLocale()
-      if (locationRegion) {
+      if (locationRegion !== null && locationRegion.length > 0) {
         updatedSettings.region = locationRegion
         saveUserLocaleSettings(updatedSettings)
       }
-      
+
       setLocaleSettings({
         ...updatedSettings,
         autoDetect: true
       })
-      
+
       toast({
         title: "자동 감지 완료",
-        description: `언어: ${SUPPORTED_LANGUAGES[updatedSettings.language as keyof typeof SUPPORTED_LANGUAGES]?.name}, 지역: ${SUPPORTED_REGIONS[updatedSettings.region as keyof typeof SUPPORTED_REGIONS]?.name}`,
+        description: `언어: ${SUPPORTED_LANGUAGES[updatedSettings.language as keyof typeof SUPPORTED_LANGUAGES]?.name}, 지역: ${supportedRegions[updatedSettings.region]?.name}`,
         variant: "default",
       })
     } catch (error) {
@@ -190,7 +193,7 @@ export function Header() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onSelect={handleAutoDetect} disabled={isDetecting}>
+            <DropdownMenuItem onSelect={() => void handleAutoDetect()} disabled={isDetecting}>
               <RefreshCw className={`w-4 h-4 mr-2 ${isDetecting ? 'animate-spin' : ''}`} />
               자동 감지
               {localeSettings.autoDetect && <span className="ml-auto text-green-500">✓</span>}
@@ -213,27 +216,30 @@ export function Header() {
             <Button variant="ghost" className="w-full justify-start px-2 py-1 h-8">
               <MapPin className="w-3 h-3 mr-1" />
               <span className="flex items-center space-x-1 text-sm">
-                <span>{SUPPORTED_REGIONS[localeSettings.region as keyof typeof SUPPORTED_REGIONS]?.flag}</span>
-                <span className="hidden sm:inline truncate max-w-16">{SUPPORTED_REGIONS[localeSettings.region as keyof typeof SUPPORTED_REGIONS]?.name}</span>
+                <span>{supportedRegions[localeSettings.region]?.flag}</span>
+                <span className="hidden sm:inline truncate max-w-16">{supportedRegions[localeSettings.region]?.name}</span>
                 {localeSettings.autoDetect && <span className="text-xs text-green-500">AUTO</span>}
               </span>
               <ChevronDown className="w-3 h-3 ml-auto" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onSelect={handleAutoDetect} disabled={isDetecting}>
+            <DropdownMenuItem onSelect={() => void handleAutoDetect()} disabled={isDetecting}>
               <RefreshCw className={`w-4 h-4 mr-2 ${isDetecting ? 'animate-spin' : ''}`} />
               자동 감지
               {localeSettings.autoDetect && <span className="ml-auto text-green-500">✓</span>}
             </DropdownMenuItem>
             <div className="h-px bg-border my-1"></div>
-            {Object.entries(SUPPORTED_REGIONS).map(([code, info]) => (
-              <DropdownMenuItem key={code} onSelect={() => handleRegionChange(code)}>
-                <span className="mr-2">{info.flag}</span>
-                <span className="truncate">{info.name}</span>
-                {localeSettings.region === code && <span className="ml-auto text-blue-500">✓</span>}
-              </DropdownMenuItem>
-            ))}
+            {Object.entries(supportedRegions).map(([code, info]) => {
+              const regionInfo = info
+              return (
+                <DropdownMenuItem key={code} onSelect={() => handleRegionChange(code)}>
+                  <span className="mr-2">{regionInfo.flag}</span>
+                  <span className="truncate">{regionInfo.name}</span>
+                  {localeSettings.region === code && <span className="ml-auto text-blue-500">✓</span>}
+                </DropdownMenuItem>
+              )
+            })}
           </DropdownMenuContent>
         </DropdownMenu>
 
@@ -251,11 +257,11 @@ export function Header() {
           <div className={`flex items-center ${isMobile ? "px-3 py-2 mb-2" : "px-3"}`}>
             <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-3">
               <span className="text-white text-sm font-medium">
-                {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+                {(user?.name !== undefined && user.name.length > 0) ? user.name.charAt(0).toUpperCase() : 'U'}
               </span>
             </div>
             <div className="flex flex-col">
-              <span className="text-sm font-medium">{user?.name || '사용자'}</span>
+              <span className="text-sm font-medium">{(user?.name !== undefined && user.name.length > 0) ? user.name : '사용자'}</span>
               <span className="text-xs text-muted-foreground">{user?.email}</span>
             </div>
           </div>
