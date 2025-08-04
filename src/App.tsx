@@ -1,17 +1,18 @@
-import { Analytics } from '@vercel/analytics/react'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import './App.css'
-import { AuthProvider } from './components/AuthProvider'
-import { KakaoRedirect } from './components/kakao-redirect'
-import { ProtectedRoute } from './components/ProtectedRoute'
-import { ThemeProvider } from './components/theme-provider'
-import { Toaster } from './components/ui/toaster'
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import './App.css';
+import { AuthProvider } from './components/AuthProvider';
+import { KakaoRedirect } from './components/kakao-redirect';
+import { ProtectedRoute } from './components/ProtectedRoute';
+import { ThemeProvider } from './components/theme-provider';
+import { Toaster } from './components/ui/toaster';
 
-import ClarifyPage from './pages/ClarifyPage'
-import HomePage from './pages/HomePage'
-import LoginPage from './pages/LoginPage'
-import MyListsPage from './pages/MyListsPage'
-import ResultPage from './pages/ResultPage'
+import ClarifyPage from './pages/ClarifyPage';
+import HomePage from './pages/HomePage';
+import LoginPage from './pages/LoginPage';
+import MyListsPage from './pages/MyListsPage';
+import ResultPage from './pages/ResultPage';
 
 function App() {
   // 애플리케이션 초기화
@@ -36,6 +37,7 @@ function App() {
         </BrowserRouter>
       </AuthProvider>
       <Analytics />
+      <SpeedInsights />
     </ThemeProvider>
   )
 }
