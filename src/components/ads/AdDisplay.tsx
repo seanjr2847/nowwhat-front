@@ -1,4 +1,4 @@
-import { AdSenseAd } from "./AdSenseAd"
+import { PropellerAd } from "./PropellerAd"
 import { MockAd } from "./MockAd"
 
 interface AdDisplayProps {
@@ -7,7 +7,7 @@ interface AdDisplayProps {
 }
 
 /**
- * 환경에 따라 실제 AdSense 광고 또는 Mock 광고를 표시하는 컴포넌트입니다.
+ * 환경에 따라 실제 PropellerAds 광고 또는 Mock 광고를 표시하는 컴포넌트입니다.
  * @param {AdDisplayProps} props - 광고 표시 컴포넌트의 props입니다.
  * @param {'banner' | 'square' | 'vertical'} props.type - 광고 레이아웃 타입입니다.
  * @param {string} props.className - 추가 CSS 클래스입니다.
@@ -15,29 +15,33 @@ interface AdDisplayProps {
  */
 export function AdDisplay({ type = 'banner', className = '' }: AdDisplayProps) {
   const useMockAds = import.meta.env.VITE_USE_MOCK_ADS === 'true'
-  const publisherId = import.meta.env.VITE_ADSENSE_PUBLISHER_ID
+  const zoneId = import.meta.env.VITE_PROPELLER_ZONE_ID
   
-  // AdSense 설정이 없거나 개발 환경에서는 Mock 광고 사용
-  if (useMockAds || !publisherId || publisherId === 'ca-pub-YOUR_PUBLISHER_ID') {
+  // PropellerAds 설정이 없거나 개발 환경에서는 Mock 광고 사용
+  if (useMockAds || !zoneId || zoneId === 'YOUR_ZONE_ID') {
     return <MockAd type={type} className={className} />
   }
 
-  // 광고 슬롯 ID 결정
-  const getAdSlot = () => {
+  // 광고 크기 결정
+  const getAdSize = () => {
     switch (type) {
       case 'square':
-        return import.meta.env.VITE_ADSENSE_AD_SLOT_SQUARE
+        return { width: 300, height: 300 }
       case 'vertical':
-        return import.meta.env.VITE_ADSENSE_AD_SLOT_SQUARE // 세로형도 사각형 슬롯 사용
+        return { width: 160, height: 600 }
       default:
-        return import.meta.env.VITE_ADSENSE_AD_SLOT_BANNER
+        return { width: 728, height: 90 } // 배너
     }
   }
 
+  const { width, height } = getAdSize()
+
   return (
-    <AdSenseAd 
-      adSlot={getAdSlot()} 
-      adFormat={type === 'banner' ? 'horizontal' : 'rectangle'}
+    <PropellerAd 
+      zoneId={zoneId}
+      adType="banner"
+      width={width}
+      height={height}
       className={className}
     />
   )
