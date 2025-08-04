@@ -1,11 +1,20 @@
 "use client"
 
-import { ChevronDown, Globe, List, LogOut, MapPin, Menu, User } from "lucide-react"
-import { useState } from "react"
+import { ChevronDown, Globe, List, LogOut, MapPin, Menu, RefreshCw, Settings, User } from "lucide-react"
+import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useIsMobile } from "../hooks/use-mobile"
 import { useToast } from "../hooks/use-toast"
 import { useAuth } from "../hooks/useAuth"
+import { 
+  SUPPORTED_LANGUAGES,
+  SUPPORTED_REGIONS,
+  getUserLocaleSettings,
+  saveUserLocaleSettings,
+  initializeUserLocale,
+  detectLocationBasedRegion,
+  type UserLocaleSettings 
+} from "../lib/locale-utils"
 import { ThemeToggle } from "./theme-toggle"
 import {
   AlertDialog,
@@ -34,12 +43,32 @@ export function Header() {
   const { isAuthenticated, logout, user, isLoading } = useAuth()
   const { toast } = useToast()
   const [isSheetOpen, setIsSheetOpen] = useState(false)
-  const [language, setLanguage] = useState("EN")
-  const [region, setRegion] = useState("KR")
+  const [localeSettings, setLocaleSettings] = useState<UserLocaleSettings>({
+    language: 'en',
+    region: 'US',
+    autoDetect: true,
+    lastUpdated: new Date().toISOString()
+  })
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false)
+  const [isDetecting, setIsDetecting] = useState(false)
 
   // 인증 상태 변화 로깅
   console.log('🔍 Header 렌더링 - 인증 상태:', { isAuthenticated, isLoading, user: user?.name || 'None' })
+
+  // 컴포넌트 마운트 시 사용자 로케일 설정 초기화
+  useEffect(() => {
+    const initLocale = async () => {
+      try {
+        const settings = await initializeUserLocale()
+        setLocaleSettings(settings)
+        console.log('🌍 사용자 로케일 설정 초기화:', settings)
+      } catch (error) {
+        console.error('로케일 초기화 실패:', error)
+      }
+    }
+    
+    void initLocale()
+  }, [])
 
   const handleNavigation = (path: string) => {
     void router(path)
@@ -77,6 +106,75 @@ export function Header() {
     }
   }
 
+  // 언어 변경 핸들러
+  const handleLanguageChange = (newLanguage: string) => {
+    const updatedSettings = {
+      ...localeSettings,
+      language: newLanguage,
+      autoDetect: false // 수동 설정으로 변경
+    }
+    setLocaleSettings(updatedSettings)
+    saveUserLocaleSettings(updatedSettings)
+    
+    toast({
+      title: "언어 변경됨",
+      description: `언어가 ${SUPPORTED_LANGUAGES[newLanguage as keyof typeof SUPPORTED_LANGUAGES]?.name}(으)로 변경되었습니다.`,
+      variant: "default",
+    })
+  }
+
+  // 지역 변경 핸들러
+  const handleRegionChange = (newRegion: string) => {
+    const updatedSettings = {
+      ...localeSettings,
+      region: newRegion,
+      autoDetect: false // 수동 설정으로 변경
+    }
+    setLocaleSettings(updatedSettings)
+    saveUserLocaleSettings(updatedSettings)
+    
+    toast({
+      title: "지역 변경됨",
+      description: `지역이 ${SUPPORTED_REGIONS[newRegion as keyof typeof SUPPORTED_REGIONS]?.name}(으)로 변경되었습니다.`,
+      variant: "default",
+    })
+  }
+
+  // 자동 감지 활성화 핸들러
+  const handleAutoDetect = async () => {
+    setIsDetecting(true)
+    try {
+      // 위치 기반 지역 감지 시도
+      const locationRegion = await detectLocationBasedRegion()
+      
+      const updatedSettings = await initializeUserLocale()
+      if (locationRegion) {
+        updatedSettings.region = locationRegion
+        saveUserLocaleSettings(updatedSettings)
+      }
+      
+      setLocaleSettings({
+        ...updatedSettings,
+        autoDetect: true
+      })
+      
+      toast({
+        title: "자동 감지 완료",
+        description: `언어: ${SUPPORTED_LANGUAGES[updatedSettings.language as keyof typeof SUPPORTED_LANGUAGES]?.name}, 지역: ${SUPPORTED_REGIONS[updatedSettings.region as keyof typeof SUPPORTED_REGIONS]?.name}`,
+        variant: "default",
+      })
+    } catch (error) {
+      console.error('자동 감지 실패:', error)
+      toast({
+        title: "자동 감지 실패",
+        description: "브라우저 설정을 확인할 수 없습니다.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsDetecting(false)
+    }
+  }
+
   const renderNavContent = () => (
     <div className={`flex ${isMobile ? "flex-col space-y-4 p-4" : "items-center space-x-3"}`}>
       <div className={`flex ${isMobile ? "flex-col space-y-4" : "items-center space-x-2"}`}>
@@ -84,13 +182,22 @@ export function Header() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="w-full justify-start px-3">
               <Globe className="w-4 h-4 mr-2" />
-              <span>{language}</span>
+              <span className="flex items-center space-x-2">
+                <span>{SUPPORTED_LANGUAGES[localeSettings.language as keyof typeof SUPPORTED_LANGUAGES]?.flag}</span>
+                <span>{SUPPORTED_LANGUAGES[localeSettings.language as keyof typeof SUPPORTED_LANGUAGES]?.name}</span>
+                {localeSettings.autoDetect && <span className="text-xs text-green-500">AUTO</span>}
+              </span>
               <ChevronDown className="w-3 h-3 ml-auto" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onSelect={() => setLanguage("EN")}>English</DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => setLanguage("KO")}>한국어</DropdownMenuItem>
+            {Object.entries(SUPPORTED_LANGUAGES).map(([code, info]) => (
+              <DropdownMenuItem key={code} onSelect={() => handleLanguageChange(code)}>
+                <span className="mr-2">{info.flag}</span>
+                {info.name}
+                {localeSettings.language === code && <span className="ml-auto text-blue-500">✓</span>}
+              </DropdownMenuItem>
+            ))}
           </DropdownMenuContent>
         </DropdownMenu>
 
@@ -100,14 +207,28 @@ export function Header() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="w-full justify-start px-3">
               <MapPin className="w-4 h-4 mr-2" />
-              <span>{region}</span>
+              <span className="flex items-center space-x-2">
+                <span>{SUPPORTED_REGIONS[localeSettings.region as keyof typeof SUPPORTED_REGIONS]?.flag}</span>
+                <span className="truncate">{SUPPORTED_REGIONS[localeSettings.region as keyof typeof SUPPORTED_REGIONS]?.name}</span>
+                {localeSettings.autoDetect && <span className="text-xs text-green-500">AUTO</span>}
+              </span>
               <ChevronDown className="w-3 h-3 ml-auto" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onSelect={() => setRegion("KR")}>South Korea</DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => setRegion("US")}>United States</DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => setRegion("JP")}>Japan</DropdownMenuItem>
+            <DropdownMenuItem onSelect={handleAutoDetect} disabled={isDetecting}>
+              <RefreshCw className={`w-4 h-4 mr-2 ${isDetecting ? 'animate-spin' : ''}`} />
+              자동 감지
+              {localeSettings.autoDetect && <span className="ml-auto text-green-500">✓</span>}
+            </DropdownMenuItem>
+            <div className="h-px bg-border my-1"></div>
+            {Object.entries(SUPPORTED_REGIONS).map(([code, info]) => (
+              <DropdownMenuItem key={code} onSelect={() => handleRegionChange(code)}>
+                <span className="mr-2">{info.flag}</span>
+                <span className="truncate">{info.name}</span>
+                {localeSettings.region === code && <span className="ml-auto text-blue-500">✓</span>}
+              </DropdownMenuItem>
+            ))}
           </DropdownMenuContent>
         </DropdownMenu>
 

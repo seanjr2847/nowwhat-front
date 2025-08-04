@@ -1,3 +1,5 @@
+import { getUserLocaleSettings } from './locale-utils'
+
 // API 클라이언트 설정
 const API_BASE_URL = 'https://nowwhat-back.vercel.app'
 
@@ -32,20 +34,29 @@ async function apiRequest<T>(
     options: RequestInit = {}
 ): Promise<ApiResponse<T>> {
     const url = `${API_BASE_URL}${endpoint}`
+    
+    // 사용자 언어/지역 정보 자동 추가
+    const localeSettings = getUserLocaleSettings()
+    const enhancedHeaders = {
+        'Content-Type': 'application/json',
+        'Accept-Language': `${localeSettings.language}-${localeSettings.region}`,
+        'X-User-Locale': localeSettings.language,
+        'X-User-Region': localeSettings.region,
+        'X-User-Timezone': Intl.DateTimeFormat().resolvedOptions().timeZone,
+        ...options.headers,
+    }
 
     console.log('🌐 API 요청 시작:', {
         endpoint,
         method: options.method || 'GET',
         url,
-        headers: options.headers
+        headers: enhancedHeaders,
+        locale: localeSettings
     })
 
     try {
         const response = await fetch(url, {
-            headers: {
-                'Content-Type': 'application/json',
-                ...options.headers,
-            },
+            headers: enhancedHeaders,
             ...options,
         })
 
@@ -200,9 +211,8 @@ async function authenticatedRequest<T>(
     const response = await apiRequest<T>(endpoint, {
         ...options,
         headers: {
-            'Content-Type': 'application/json',  // 기본 Content-Type 보장
             Authorization: `Bearer ${token}`,
-            ...options.headers,  // 사용자 정의 헤더가 있으면 덮어씀
+            ...options.headers,  // 사용자 정의 헤더가 있으면 덮어씀 (언어/지역 정보는 apiRequest에서 자동 추가)
         },
     })
 
@@ -326,11 +336,17 @@ export interface ChecklistCreationResponse {
 
 // Intent 분석 API
 export async function analyzeIntents(goal: string): Promise<ApiResponse<IntentAnalysisResponse>> {
-    console.log('🧠 의도 분석 API 호출:', { goal })
+    const localeSettings = getUserLocaleSettings()
+    console.log('🧠 의도 분석 API 호출:', { goal, locale: localeSettings })
 
     return authenticatedRequest<IntentAnalysisResponse>('/api/v1/intents/analyze', {
         method: 'POST',
-        body: JSON.stringify({ goal })
+        body: JSON.stringify({ 
+            goal,
+            language: localeSettings.language,
+            region: localeSettings.region,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+        })
     })
 }
 
@@ -340,14 +356,18 @@ export async function generateQuestions(
     goal: string,
     intentTitle: string
 ): Promise<ApiResponse<QuestionGenerationResponse>> {
-    console.log('❓ 질문 생성 API 호출:', { sessionId, goal, intentTitle })
+    const localeSettings = getUserLocaleSettings()
+    console.log('❓ 질문 생성 API 호출:', { sessionId, goal, intentTitle, locale: localeSettings })
 
     return authenticatedRequest<QuestionGenerationResponse>('/api/v1/questions/generate', {
         method: 'POST',
         body: JSON.stringify({
             sessionId,
             goal,
-            intentTitle
+            intentTitle,
+            language: localeSettings.language,
+            region: localeSettings.region,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
         })
     })
 }
@@ -378,7 +398,8 @@ export async function createChecklist(
     selectedIntent: string,
     answers: { questionId: string, questionIndex: number, questionText: string, questionType: string, answer: string | string[] }[]
 ): Promise<ApiResponse<ChecklistCreationResponse>> {
-    console.log('✅ 체크리스트 생성 API 호출:', { sessionId, questionSetId, goal, selectedIntent, answersCount: answers.length })
+    const localeSettings = getUserLocaleSettings()
+    console.log('✅ 체크리스트 생성 API 호출:', { sessionId, questionSetId, goal, selectedIntent, answersCount: answers.length, locale: localeSettings })
 
     return authenticatedRequest<ChecklistCreationResponse>('/api/v1/questions/answer', {
         method: 'POST',
@@ -387,7 +408,10 @@ export async function createChecklist(
             questionSetId,
             goal,
             selectedIntent,
-            answers
+            answers,
+            language: localeSettings.language,
+            region: localeSettings.region,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
         })
     })
 }
