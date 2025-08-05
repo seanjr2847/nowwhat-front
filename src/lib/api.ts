@@ -343,7 +343,7 @@ export async function analyzeIntents(goal: string): Promise<ApiResponse<IntentAn
         goal,
         userLanguage: localeSettings.userLanguage,
         userCountry: localeSettings.userCountry,
-        country_option: localeSettings.country_option
+        countryOption: localeSettings.countryOption
     }
     console.log('🧠 의도 분석 API 호출:', { goal, locale: localeSettings, requestBody })
     console.log('🔍 Request body JSON:', JSON.stringify(requestBody))
@@ -383,7 +383,7 @@ export async function generateQuestions(
             intentTitle,
             userLanguage: localeSettings.userLanguage,
             userCountry: localeSettings.userCountry,
-            country_option: localeSettings.country_option,
+            countryOption: localeSettings.countryOption,
             // API 개인화 설정으로 오버라이드 (활성화된 경우)
             ...apiUserInfo
         })
@@ -437,7 +437,7 @@ export async function generateQuestionsStream(
             // 기존 필드 (하위 호환성)
             userLanguage: localeSettings.userLanguage,
             userCountry: localeSettings.userCountry,
-            country_option: localeSettings.country_option,
+            countryOption: localeSettings.countryOption,
             // 새로운 API 필드 (선택적)
             ...apiUserInfo
         }
@@ -540,19 +540,19 @@ export async function createChecklist(
 ): Promise<ApiResponse<ChecklistCreationResponse>> {
     // 기존 로케일 설정 (헤더 UI용) 
     const localeSettings = getUserLocaleSettings()
-    
+
     // API 개인화 설정 (API 요청용)
     const { getApiUserInfo } = await import('./locale-utils')
     const apiUserInfo = getApiUserInfo()
-    
-    console.log('✅ 체크리스트 생성 API 호출:', { 
-        sessionId, 
-        questionSetId, 
-        goal, 
-        selectedIntent, 
-        answersCount: answers.length, 
+
+    console.log('✅ 체크리스트 생성 API 호출:', {
+        sessionId,
+        questionSetId,
+        goal,
+        selectedIntent,
+        answersCount: answers.length,
         locale: localeSettings,
-        apiUserInfo 
+        apiUserInfo
     })
 
     return authenticatedRequest<ChecklistCreationResponse>('/api/v1/questions/answer', {
@@ -565,7 +565,7 @@ export async function createChecklist(
             answers,
             userLanguage: localeSettings.userLanguage,
             userCountry: localeSettings.userCountry,
-            country_option: localeSettings.country_option,
+            countryOption: localeSettings.countryOption,
             // API 개인화 설정으로 오버라이드 (활성화된 경우)
             ...apiUserInfo
         })
@@ -687,41 +687,41 @@ export async function submitFeedback(
 
 // 에러 메시지 포맷팅 유틸리티
 export function formatApiError(error: unknown): string {
-  if (typeof error === 'string') {
-    return error
-  }
-  
-  if (Array.isArray(error)) {
-    // Validation error array
-    return error.map(err => {
-      if (typeof err === 'object' && err !== null && 'msg' in err) {
-        return (err as { msg: string }).msg
-      }
-      return String(err)
-    }).join(', ')
-  }
-  
-  if (typeof error === 'object' && error !== null) {
-    if ('message' in error) {
-      return String((error as { message: unknown }).message)
+    if (typeof error === 'string') {
+        return error
     }
-    if ('detail' in error) {
-      const detail = (error as { detail: unknown }).detail
-      if (typeof detail === 'string') {
-        return detail
-      }
-      if (Array.isArray(detail)) {
-        return detail.map(d => {
-          if (typeof d === 'object' && d !== null && 'msg' in d) {
-            return (d as { msg: string }).msg
-          }
-          return String(d)
+
+    if (Array.isArray(error)) {
+        // Validation error array
+        return error.map(err => {
+            if (typeof err === 'object' && err !== null && 'msg' in err) {
+                return (err as { msg: string }).msg
+            }
+            return String(err)
         }).join(', ')
-      }
     }
-  }
-  
-  return String(error)
+
+    if (typeof error === 'object' && error !== null) {
+        if ('message' in error) {
+            return String((error as { message: unknown }).message)
+        }
+        if ('detail' in error) {
+            const detail = (error as { detail: unknown }).detail
+            if (typeof detail === 'string') {
+                return detail
+            }
+            if (Array.isArray(detail)) {
+                return detail.map(d => {
+                    if (typeof d === 'object' && d !== null && 'msg' in d) {
+                        return (d as { msg: string }).msg
+                    }
+                    return String(d)
+                }).join(', ')
+            }
+        }
+    }
+
+    return String(error)
 }
 
 export { apiRequest, authenticatedRequest }

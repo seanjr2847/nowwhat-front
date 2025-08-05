@@ -44,7 +44,7 @@ export function Header() {
     userLanguage: 'en',
     userCountry: 'US',
     autoDetect: true,
-    country_option: true,
+    countryOption: true,
     lastUpdated: new Date().toISOString()
   })
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false)

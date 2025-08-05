@@ -2,20 +2,20 @@
 
 import { Check, ChevronsUpDown, Globe, Settings, X } from "lucide-react"
 import { useEffect, useState } from "react"
-import { 
+import { useToast } from "../../hooks/use-toast"
+import {
+  fetchAllCountries,
   getUserLocaleSettings,
   saveUserLocaleSettings,
-  fetchAllCountries,
-  type UserLocaleSettings,
-  type RegionInfo
+  type RegionInfo,
+  type UserLocaleSettings
 } from "../../lib/locale-utils"
-import { Button } from "../ui/button"
-import { Label } from "../ui/label" 
-import { Switch } from "../ui/switch"
-import { useToast } from "../../hooks/use-toast"
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "../ui/command"
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
 import { cn } from "../../lib/utils"
+import { Button } from "../ui/button"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "../ui/command"
+import { Label } from "../ui/label"
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
+import { Switch } from "../ui/switch"
 
 interface SettingsModalProps {
   isOpen: boolean
@@ -36,10 +36,10 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     userLanguage: 'ko',
     userCountry: 'KR',
     autoDetect: true,
-    country_option: true,
+    countryOption: true,
     lastUpdated: new Date().toISOString()
   })
-  
+
   // 국가 관련 상태
   const [countries, setCountries] = useState<Record<string, RegionInfo>>({})
   const [countryPopoverOpen, setCountryPopoverOpen] = useState(false)
@@ -56,7 +56,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   // 모든 국가 데이터 로드
   useEffect(() => {
     if (isOpen && Object.keys(countries).length === 0) {
-      loadCountries()
+      void loadCountries()
     }
   }, [isOpen])
 
@@ -107,7 +107,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               <Globe className="w-5 h-5 text-blue-500" />
               <h4 className="text-base font-medium text-foreground">API 개인화</h4>
             </div>
-            
+
             <p className="text-sm text-muted-foreground">
               AI가 당신의 국가와 언어에 맞는 더 정확한 답변을 제공합니다.
             </p>
@@ -119,21 +119,21 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               </Label>
               <Switch
                 id="country-option"
-                checked={settings.country_option}
-                onCheckedChange={(country_option) => {
-                  const updatedSettings = { ...settings, country_option }
+                checked={settings.countryOption}
+                onCheckedChange={(countryOption) => {
+                  const updatedSettings = { ...settings, countryOption }
                   setSettings(updatedSettings)
                   // 즉시 저장
                   saveUserLocaleSettings(updatedSettings)
                   toast({
                     title: "설정 변경됨",
-                    description: `국가별 맞춤화가 ${country_option ? '활성화' : '비활성화'}되었습니다.`,
+                    description: `국가별 맞춤화가 ${countryOption ? '활성화' : '비활성화'}되었습니다.`,
                     variant: "default"
                   })
                 }}
               />
             </div>
-            
+
             <p className="text-xs text-muted-foreground">
               국가별 맞춤화를 활성화하면 해당 국가의 법률, 가격, 연락처 등이 포함된 더 정확한 답변을 받을 수 있습니다.
             </p>
@@ -152,12 +152,12 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   >
                     {settings.userCountry && countries[settings.userCountry]
                       ? (
-                          <span className="flex items-center">
-                            <span className="mr-2">{countries[settings.userCountry].flag}</span>
-                            {countries[settings.userCountry].name}
-                          </span>
-                        )
-                      : isLoadingCountries 
+                        <span className="flex items-center">
+                          <span className="mr-2">{countries[settings.userCountry].flag}</span>
+                          {countries[settings.userCountry].name}
+                        </span>
+                      )
+                      : isLoadingCountries
                         ? "국가 로딩 중..."
                         : "국가를 선택하세요"
                     }
@@ -177,8 +177,8 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                               key={code}
                               value={`${code} ${country.name}`}
                               onSelect={() => {
-                                const updatedSettings = { 
-                                  ...settings, 
+                                const updatedSettings = {
+                                  ...settings,
                                   userCountry: code
                                 }
                                 setSettings(updatedSettings)
