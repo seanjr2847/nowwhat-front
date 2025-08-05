@@ -130,7 +130,12 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               <Switch
                 id="country-option"
                 checked={settings.country_option}
-                onCheckedChange={(country_option) => setSettings(prev => ({ ...prev, country_option }))}
+                onCheckedChange={(country_option) => {
+                  const updatedSettings = { ...settings, country_option }
+                  setSettings(updatedSettings)
+                  // 즉시 저장
+                  saveUserLocaleSettings(updatedSettings)
+                }}
               />
             </div>
             
@@ -177,10 +182,13 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                               key={code}
                               value={`${code} ${country.name}`}
                               onSelect={() => {
-                                setSettings(prev => ({ 
-                                  ...prev, 
+                                const updatedSettings = { 
+                                  ...settings, 
                                   userCountry: code
-                                }))
+                                }
+                                setSettings(updatedSettings)
+                                // 즉시 저장
+                                saveUserLocaleSettings(updatedSettings)
                                 setCountryPopoverOpen(false)
                               }}
                             >
