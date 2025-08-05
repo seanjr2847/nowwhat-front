@@ -36,7 +36,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     userLanguage: 'ko',
     userCountry: 'KR',
     autoDetect: true,
-    countryOption: true,
+    countryOption: false,
     lastUpdated: new Date().toISOString()
   })
 

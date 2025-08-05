@@ -277,14 +277,21 @@ export function saveUserLocaleSettings(settings: Partial<UserLocaleSettings>): v
   }
 
   localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedSettings))
-  console.log('🌍 사용자 언어/지역 설정 저장:', updatedSettings)
+  console.log('💾 사용자 언어/지역 설정 저장:', { 
+    key: STORAGE_KEY, 
+    settings: updatedSettings, 
+    serialized: JSON.stringify(updatedSettings) 
+  })
 }
 
 export function getUserLocaleSettings(): UserLocaleSettings {
   try {
     const stored = localStorage.getItem(STORAGE_KEY)
+    console.log('🔍 localStorage에서 설정 불러오기:', { stored, key: STORAGE_KEY })
     if (stored !== null && stored.length > 0) {
-      return JSON.parse(stored) as UserLocaleSettings
+      const parsed = JSON.parse(stored) as UserLocaleSettings
+      console.log('✅ 저장된 설정 불러옴:', parsed)
+      return parsed
     }
   } catch (error) {
     console.warn('사용자 설정 불러오기 실패:', error)
@@ -292,13 +299,15 @@ export function getUserLocaleSettings(): UserLocaleSettings {
 
   // 기본값으로 자동 감지된 값 사용
   const detected = detectUserLocale()
-  return {
+  const defaultSettings = {
     userLanguage: detected.language,
     userCountry: detected.region,
     autoDetect: true,
-    countryOption: true, // 기본값: 국가별 맞춤화 활성화
+    countryOption: false, // 기본값: 국가별 맞춤화 비활성화
     lastUpdated: new Date().toISOString()
   }
+  console.log('🆕 기본 설정 사용:', defaultSettings)
+  return defaultSettings
 }
 
 // 초기화 함수 - 앱 시작 시 호출
