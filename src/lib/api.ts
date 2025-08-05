@@ -46,16 +46,15 @@ async function apiRequest<T>(
         'X-User-Timezone': Intl.DateTimeFormat().resolvedOptions().timeZone,
     }
 
-    // POST/PUT/PATCH 요청이고 body가 있으면서 Content-Type이 없는 경우 JSON으로 설정
+    // POST/PUT/PATCH 요청이고 body가 있으면 항상 JSON으로 설정
     const method = options.method?.toUpperCase() || 'GET'
     const hasBody = !!options.body
-    const hasContentType = !!(options.headers && 'Content-Type' in options.headers)
 
     const enhancedHeaders = {
         ...defaultHeaders,
         ...options.headers,
-        // JSON body가 있고 Content-Type이 명시되지 않은 경우에만 설정
-        ...(hasBody && !hasContentType && ['POST', 'PUT', 'PATCH'].includes(method) && {
+        // JSON body가 있는 POST/PUT/PATCH 요청에는 강제로 application/json 설정
+        ...(hasBody && ['POST', 'PUT', 'PATCH'].includes(method) && {
             'Content-Type': 'application/json'
         })
     }
@@ -69,8 +68,8 @@ async function apiRequest<T>(
         body: options.body,
         bodyType: typeof options.body,
         hasBody,
-        hasContentType,
-        contentTypeCheck: enhancedHeaders['Content-Type']
+        shouldSetContentType: hasBody && ['POST', 'PUT', 'PATCH'].includes(method),
+        finalContentType: enhancedHeaders['Content-Type']
     })
 
     try {
