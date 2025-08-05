@@ -82,7 +82,7 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
             <Checkbox
               id={`item-${item.id}`}
               checked={item.isCompleted}
-              onCheckedChange={() => handleToggle(item.id)}
+              onCheckedChange={() => void handleToggle(item.id)}
               disabled={isUpdating}
               className="w-5 h-5 data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
             />

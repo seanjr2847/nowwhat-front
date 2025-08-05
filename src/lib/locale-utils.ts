@@ -261,8 +261,8 @@ export async function detectLocationBasedRegion(): Promise<string | null> {
 const STORAGE_KEY = 'userLocaleSettings'
 
 export interface UserLocaleSettings {
-  language: string
-  region: string
+  userLanguage: string
+  userCountry: string
   autoDetect: boolean
   lastUpdated: string
 }
@@ -292,8 +292,8 @@ export function getUserLocaleSettings(): UserLocaleSettings {
   // 기본값으로 자동 감지된 값 사용
   const detected = detectUserLocale()
   return {
-    language: detected.language,
-    region: detected.region,
+    userLanguage: detected.language,
+    userCountry: detected.region,
     autoDetect: true,
     lastUpdated: new Date().toISOString()
   }
@@ -317,13 +317,13 @@ export async function initializeUserLocale(): Promise<UserLocaleSettings> {
 
     const updatedSettings: UserLocaleSettings = {
       ...settings,
-      language: detected.language,
-      region: locationBasedRegion || detected.region,
+      userLanguage: detected.language,
+      userCountry: locationBasedRegion || detected.region,
       lastUpdated: new Date().toISOString()
     }
 
     // 변경사항이 있으면 저장
-    if (updatedSettings.language !== settings.language || updatedSettings.region !== settings.region) {
+    if (updatedSettings.userLanguage !== settings.userLanguage || updatedSettings.userCountry !== settings.userCountry) {
       saveUserLocaleSettings(updatedSettings)
       return updatedSettings
     }
@@ -356,7 +356,7 @@ export function getLocalizedText(key: string, locale?: UserLocaleSettings): stri
     }
   }
 
-  return texts[key]?.[currentLocale.language] || texts[key]?.['en'] || key
+  return texts[key]?.[currentLocale.userLanguage] || texts[key]?.['en'] || key
 }
 
 // ============================================================================
@@ -552,15 +552,15 @@ export function validateAndFixUserSettings(): void {
 
   // 1. 사용자 로케일 설정 검증
   const userSettings = getUserLocaleSettings()
-  if (!Object.keys(supportedRegions).includes(userSettings.region)) {
-    console.warn(`⚠️ 설정된 지역 '${userSettings.region}'이 더 이상 지원되지 않습니다. 기본값으로 변경합니다.`)
+  if (!Object.keys(supportedRegions).includes(userSettings.userCountry)) {
+    console.warn(`⚠️ 설정된 지역 '${userSettings.userCountry}'이 더 이상 지원되지 않습니다. 기본값으로 변경합니다.`)
 
     // 자동 감지 시도, 실패하면 US로 fallback
     const detected = detectUserLocale()
     const fallbackRegion = Object.keys(supportedRegions).includes(detected.region) ? detected.region : 'US'
 
     saveUserLocaleSettings({
-      region: fallbackRegion
+      userCountry: fallbackRegion
     })
   }
 

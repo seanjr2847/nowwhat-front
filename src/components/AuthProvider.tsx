@@ -104,7 +104,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             } else {
                 // 사용자 정보 조회 실패 시 (토큰 만료 등)
                 console.log('❌ 사용자 정보 조회 실패, 로그아웃 처리:', response.error)
-                if (response.error?.includes('인증') || response.error?.includes('만료')) {
+                if (response.error !== undefined && (response.error.includes('인증') || response.error.includes('만료'))) {
                     // 인증 에러인 경우 자동 로그아웃
                     await logout()
                 }

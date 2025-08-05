@@ -43,8 +43,8 @@ export function Header() {
   const { toast } = useToast()
   const [isSheetOpen, setIsSheetOpen] = useState(false)
   const [localeSettings, setLocaleSettings] = useState<UserLocaleSettings>({
-    language: 'en',
-    region: 'US',
+    userLanguage: 'en',
+    userCountry: 'US',
     autoDetect: true,
     lastUpdated: new Date().toISOString()
   })
@@ -151,7 +151,7 @@ export function Header() {
 
       const updatedSettings = await initializeUserLocale()
       if (locationRegion !== null && locationRegion.length > 0) {
-        updatedSettings.region = locationRegion
+        updatedSettings.userCountry = locationRegion
         saveUserLocaleSettings(updatedSettings)
       }
 
@@ -162,7 +162,7 @@ export function Header() {
 
       toast({
         title: "자동 감지 완료",
-        description: `언어: ${SUPPORTED_LANGUAGES[updatedSettings.language as keyof typeof SUPPORTED_LANGUAGES]?.name}, 지역: ${supportedRegions[updatedSettings.region]?.name}`,
+        description: `언어: ${SUPPORTED_LANGUAGES[updatedSettings.userCountry as keyof typeof SUPPORTED_LANGUAGES]?.name}, 지역: ${supportedRegions[updatedSettings.userCountry]?.name}`,
         variant: "default",
       })
     } catch (error) {
@@ -185,8 +185,8 @@ export function Header() {
             <Button variant="ghost" className="w-full justify-start px-2 py-1 h-8">
               <Globe className="w-3 h-3 mr-1" />
               <span className="flex items-center space-x-1 text-sm">
-                <span>{SUPPORTED_LANGUAGES[localeSettings.language as keyof typeof SUPPORTED_LANGUAGES]?.flag}</span>
-                <span className="hidden sm:inline">{SUPPORTED_LANGUAGES[localeSettings.language as keyof typeof SUPPORTED_LANGUAGES]?.name}</span>
+                <span>{SUPPORTED_LANGUAGES[localeSettings.userLanguage as keyof typeof SUPPORTED_LANGUAGES]?.flag}</span>
+                <span className="hidden sm:inline">{SUPPORTED_LANGUAGES[localeSettings.userLanguage as keyof typeof SUPPORTED_LANGUAGES]?.name}</span>
                 {localeSettings.autoDetect && <span className="text-xs text-green-500">AUTO</span>}
               </span>
               <ChevronDown className="w-3 h-3 ml-auto" />
@@ -203,7 +203,7 @@ export function Header() {
               <DropdownMenuItem key={code} onSelect={() => handleLanguageChange(code)}>
                 <span className="mr-2">{info.flag}</span>
                 {info.name}
-                {localeSettings.language === code && <span className="ml-auto text-blue-500">✓</span>}
+                {localeSettings.userLanguage === code && <span className="ml-auto text-blue-500">✓</span>}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
@@ -216,8 +216,8 @@ export function Header() {
             <Button variant="ghost" className="w-full justify-start px-2 py-1 h-8">
               <MapPin className="w-3 h-3 mr-1" />
               <span className="flex items-center space-x-1 text-sm">
-                <span>{supportedRegions[localeSettings.region]?.flag}</span>
-                <span className="hidden sm:inline truncate max-w-16">{supportedRegions[localeSettings.region]?.name}</span>
+                <span>{supportedRegions[localeSettings.userCountry]?.flag}</span>
+                <span className="hidden sm:inline truncate max-w-16">{supportedRegions[localeSettings.userCountry]?.name}</span>
                 {localeSettings.autoDetect && <span className="text-xs text-green-500">AUTO</span>}
               </span>
               <ChevronDown className="w-3 h-3 ml-auto" />
@@ -236,7 +236,7 @@ export function Header() {
                 <DropdownMenuItem key={code} onSelect={() => handleRegionChange(code)}>
                   <span className="mr-2">{regionInfo.flag}</span>
                   <span className="truncate">{regionInfo.name}</span>
-                  {localeSettings.region === code && <span className="ml-auto text-blue-500">✓</span>}
+                  {localeSettings.userCountry === code && <span className="ml-auto text-blue-500">✓</span>}
                 </DropdownMenuItem>
               )
             })}

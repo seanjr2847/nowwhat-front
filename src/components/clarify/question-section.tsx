@@ -241,7 +241,7 @@ export function QuestionSection({ questions, answers, onAnswerChange }: Question
                   <Textarea
                     placeholder="답변을 입력해주세요..."
                     value={(answers[question.id] as string) || ""}
-                    onChange={(e) => handleTextAnswer(question.id, e.target.value)}
+                    onChange={(e) => void handleTextAnswer(question.id, e.target.value)}
                     className="min-h-[100px] resize-none"
                     required={question.required}
                   />
@@ -255,7 +255,7 @@ export function QuestionSection({ questions, answers, onAnswerChange }: Question
                             ? "bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white border-blue-500"
                             : "bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl border border-white/40 dark:border-gray-700/40 text-foreground hover:bg-white/80 dark:hover:bg-gray-900/80 hover:border-blue-500/50"
                         }`}
-                        onClick={() => handleSingleAnswer(question.id, option.value)}
+                        onClick={() => void handleSingleAnswer(question.id, option.value)}
                         role="radio"
                         aria-checked={answers[question.id] === option.value}
                         aria-describedby={`option-help-${question.id}-${optionIndex}`}
@@ -276,7 +276,7 @@ export function QuestionSection({ questions, answers, onAnswerChange }: Question
                         <Checkbox
                           id={`${question.id}-${option.id}`}
                           checked={((answers[question.id] as string[]) || []).includes(option.value)}
-                          onCheckedChange={() => handleMultipleAnswer(question.id, option.value)}
+                          onCheckedChange={() => void handleMultipleAnswer(question.id, option.value)}
                           aria-describedby={`option-help-${question.id}-${optionIndex}`}
                           className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
                         />

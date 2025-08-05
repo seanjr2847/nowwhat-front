@@ -39,9 +39,9 @@ async function apiRequest<T>(
     const localeSettings = getUserLocaleSettings()
     const enhancedHeaders = {
         'Content-Type': 'application/json',
-        'Accept-Language': `${localeSettings.language}-${localeSettings.region}`,
-        'X-User-Locale': localeSettings.language,
-        'X-User-Region': localeSettings.region,
+        'Accept-Language': `${localeSettings.userLanguage}-${localeSettings.userCountry}`,
+        'X-User-Locale': localeSettings.userLanguage,
+        'X-User-Region': localeSettings.userCountry,
         'X-User-Timezone': Intl.DateTimeFormat().resolvedOptions().timeZone,
         ...options.headers,
     }
@@ -253,7 +253,7 @@ async function authenticatedRequest<T>(
                 return {
                     success: false,
                     status: 401,
-                    error: '�� [디버깅] 인증이 만료되었습니다. 네트워크 탭을 확인 후 수동으로 로그인해주세요.',
+                    error: ' [디버깅] 인증이 만료되었습니다. 네트워크 탭을 확인 후 수동으로 로그인해주세요.',
                 }
             }
         } else {
@@ -343,9 +343,8 @@ export async function analyzeIntents(goal: string): Promise<ApiResponse<IntentAn
         method: 'POST',
         body: JSON.stringify({
             goal,
-            language: localeSettings.language,
-            region: localeSettings.region,
-            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+            userLanguage: localeSettings.userLanguage,
+            userCountry: localeSettings.userCountry,
         })
     })
 }
@@ -356,8 +355,20 @@ export async function generateQuestions(
     goal: string,
     intentTitle: string
 ): Promise<ApiResponse<QuestionGenerationResponse>> {
+    // 기존 로케일 설정 (헤더 UI용)
     const localeSettings = getUserLocaleSettings()
-    console.log('❓ 질문 생성 API 호출:', { sessionId, goal, intentTitle, locale: localeSettings })
+
+    // API 개인화 설정 (API 요청용)
+    const { getApiUserInfo } = await import('./locale-utils')
+    const apiUserInfo = getApiUserInfo()
+
+    console.log('❓ 질문 생성 API 호출:', {
+        sessionId,
+        goal,
+        intentTitle,
+        locale: localeSettings,
+        apiUserInfo
+    })
 
     return authenticatedRequest<QuestionGenerationResponse>('/api/v1/questions/generate', {
         method: 'POST',
@@ -365,11 +376,134 @@ export async function generateQuestions(
             sessionId,
             goal,
             intentTitle,
-            language: localeSettings.language,
-            region: localeSettings.region,
-            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+            // 기존 필드 (하위 호환성)
+            userLanguage: localeSettings.userLanguage,
+            userCountry: localeSettings.userCountry,
+            // 새로운 API 필드 (선택적)
+            ...apiUserInfo
         })
     })
+}
+
+// 스트리밍 타입 정의
+export interface StreamResponse {
+    status: 'started' | 'generating' | 'completed' | 'error'
+    message?: string
+    chunk?: string
+    error?: string
+    questions?: Question[]
+}
+
+// 스트리밍 질문 생성 API
+export async function generateQuestionsStream(
+    sessionId: string,
+    goal: string,
+    intentTitle: string,
+    onData: (data: StreamResponse) => void,
+    onComplete: (questions: Question[]) => void,
+    onError: (error: string) => void
+): Promise<void> {
+    try {
+        // 기존 로케일 설정 (헤더 UI용)
+        const localeSettings = getUserLocaleSettings()
+
+        // API 개인화 설정 (API 요청용)
+        const { getApiUserInfo } = await import('./locale-utils')
+        const apiUserInfo = getApiUserInfo()
+
+        console.log('🔄 스트리밍 질문 생성 API 호출:', {
+            sessionId,
+            goal,
+            intentTitle,
+            locale: localeSettings,
+            apiUserInfo
+        })
+
+        // 토큰 가져오기
+        const token = localStorage.getItem('accessToken')
+        if (!token || token === null) {
+            throw new Error('인증이 필요합니다.')
+        }
+
+        const requestBody = {
+            sessionId,
+            goal,
+            intentTitle,
+            // 기존 필드 (하위 호환성)
+            userLanguage: localeSettings.userLanguage,
+            userCountry: localeSettings.userCountry,
+            // 새로운 API 필드 (선택적)
+            ...apiUserInfo
+        }
+
+        const response = await fetch(`${API_BASE_URL}/api/v1/questions/generate/stream`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                'Accept-Language': `${localeSettings.userLanguage}-${localeSettings.userCountry}`,
+                'X-User-Locale': localeSettings.userLanguage,
+                'X-User-Region': localeSettings.userCountry,
+                'X-User-Timezone': Intl.DateTimeFormat().resolvedOptions().timeZone,
+            },
+            body: JSON.stringify(requestBody)
+        })
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`)
+        }
+
+        // ReadableStream으로 응답 처리
+        const reader = response.body?.getReader()
+        if (!reader) {
+            throw new Error('스트림을 읽을 수 없습니다.')
+        }
+
+        const decoder = new TextDecoder()
+        let accumulatedQuestions: Question[] = []
+
+        while (true) {
+            const { done, value } = await reader.read()
+
+            if (done) break
+
+            // 청크 데이터 디코딩
+            const chunk = decoder.decode(value)
+            const lines = chunk.split('\n')
+
+            for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                    const data = line.slice(6) // 'data: ' 제거
+
+                    if (data === '[DONE]') {
+                        console.log('✅ 스트리밍 완료')
+                        onComplete(accumulatedQuestions)
+                        return
+                    }
+
+                    try {
+                        const parsed = JSON.parse(data) as StreamResponse
+                        onData(parsed)
+
+                        // 완료된 질문들 수집
+                        if (parsed.status === 'completed' && parsed.questions) {
+                            accumulatedQuestions = parsed.questions
+                        }
+                    } catch {
+                        // JSON이 아닌 텍스트 청크 처리 (타이핑 효과용)
+                        onData({
+                            status: 'generating',
+                            chunk: data
+                        })
+                    }
+                }
+            }
+        }
+    } catch (error) {
+        console.error('💥 스트리밍 에러:', error)
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+        onError(errorMessage)
+    }
 }
 
 // 개별 질문 답변 저장 API
@@ -409,8 +543,8 @@ export async function createChecklist(
             goal,
             selectedIntent,
             answers,
-            language: localeSettings.language,
-            region: localeSettings.region,
+            userLanguage: localeSettings.userLanguage,
+            userCountry: localeSettings.userCountry,
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
         })
     })

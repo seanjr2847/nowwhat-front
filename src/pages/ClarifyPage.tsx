@@ -11,6 +11,8 @@ import { LoadingSpinner } from "../components/clarify/loading-spinner"
 import { ProgressBar } from "../components/clarify/progress-bar"
 import { QuestionSection } from "../components/clarify/question-section"
 import { QuestionSkeletonCompact } from "../components/clarify/question-skeleton"
+import { StreamingQuestionGenerator } from "../components/streaming/streaming-question-generator"
+import { Button } from "../components/ui/button"
 import { useToast } from "../hooks/use-toast"
 import { useAuth } from "../hooks/useAuth"
 import {
@@ -42,6 +44,7 @@ export default function ClarifyPage() {
   const [error, setError] = useState<string>("")
   const [showAdModal, setShowAdModal] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
+  const [useStreaming, setUseStreaming] = useState(false)
 
   // 세션 정보
   const [sessionId, setSessionId] = useState<string>("")
@@ -186,6 +189,31 @@ export default function ClarifyPage() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  // 스트리밍 질문 생성 완료 핸들러
+  const handleStreamingQuestionsComplete = (streamedQuestions: Question[]) => {
+    console.log('✅ 스트리밍 질문 생성 완료:', streamedQuestions)
+    setQuestions(streamedQuestions)
+    setProgress(50)
+    
+    toast({
+      title: "질문 생성 완료!",
+      description: `${streamedQuestions.length}개의 맞춤 질문을 준비했습니다.`,
+      variant: "default",
+    })
+  }
+
+  // 스트리밍 에러 핸들러
+  const handleStreamingError = (streamError: string) => {
+    console.error('❌ 스트리밍 에러:', streamError)
+    setError(streamError)
+    
+    toast({
+      title: "질문 생성 실패",
+      description: streamError,
+      variant: "destructive",
+    })
   }
 
   const handleAnswerChange = async (questionId: string, answer: string | string[]) => {
@@ -438,12 +466,62 @@ export default function ClarifyPage() {
 
         {/* 의도 선택 단계 */}
         {!selectedIntent && intents.length > 0 && (
-          <IntentSelection intents={intents} onSelect={(id) => void handleIntentSelect(id)} />
+          <>
+            <IntentSelection intents={intents} onSelect={(id) => void handleIntentSelect(id)} />
+            
+            {/* 스트리밍 모드 토글 */}
+            <div className="flex justify-center mb-6">
+              <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-white/20 dark:border-gray-700/50 rounded-2xl p-4">
+                <div className="flex items-center space-x-3">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    질문 생성 방식:
+                  </span>
+                  <Button
+                    variant={useStreaming ? "outline" : "default"}
+                    size="sm"
+                    onClick={() => setUseStreaming(false)}
+                    className="text-xs"
+                  >
+                    일반 모드
+                  </Button>
+                  <Button
+                    variant={useStreaming ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setUseStreaming(true)}
+                    className="text-xs bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0"
+                  >
+                    🚀 실시간 스트리밍
+                  </Button>
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
+                  {useStreaming 
+                    ? "ChatGPT 스타일로 실시간 질문 생성을 확인할 수 있습니다" 
+                    : "완성된 질문을 한번에 받아볼 수 있습니다"
+                  }
+                </p>
+              </div>
+            </div>
+          </>
         )}
 
-        {/* 질문 생성 중 */}
-        {selectedIntent && isLoading && (
+        {/* 질문 생성 중 - 일반 모드 */}
+        {selectedIntent && isLoading && !useStreaming && (
           <QuestionSkeletonCompact />
+        )}
+
+        {/* 스트리밍 질문 생성기 */}
+        {selectedIntent && useStreaming && questions.length === 0 && (
+          <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-white/20 dark:border-gray-700/50 rounded-3xl p-6 mb-8">
+            <StreamingQuestionGenerator
+              sessionId={sessionId}
+              goal={goal}
+              intentTitle={selectedIntent}
+              onQuestionsComplete={handleStreamingQuestionsComplete}
+              onError={handleStreamingError}
+              autoStart={true}
+              className="w-full"
+            />
+          </div>
         )}
 
         {/* 질문 표시 */}

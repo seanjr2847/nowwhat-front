@@ -1,5 +1,5 @@
-import { PropellerAd } from "./PropellerAd"
 import { MockAd } from "./MockAd"
+import { PropellerAd } from "./PropellerAd"
 
 interface AdDisplayProps {
   type?: 'banner' | 'square' | 'vertical'
@@ -15,8 +15,8 @@ interface AdDisplayProps {
  */
 export function AdDisplay({ type = 'banner', className = '' }: AdDisplayProps) {
   const useMockAds = import.meta.env.VITE_USE_MOCK_ADS === 'true'
-  const zoneId = import.meta.env.VITE_PROPELLER_ZONE_ID
-  
+  const zoneId = import.meta.env.VITE_PROPELLER_ZONE_ID as string
+
   // PropellerAds 설정이 없거나 개발 환경에서는 Mock 광고 사용
   if (useMockAds || !zoneId || zoneId === 'YOUR_ZONE_ID') {
     return <MockAd type={type} className={className} />
@@ -37,7 +37,7 @@ export function AdDisplay({ type = 'banner', className = '' }: AdDisplayProps) {
   const { width, height } = getAdSize()
 
   return (
-    <PropellerAd 
+    <PropellerAd
       zoneId={zoneId}
       adType="banner"
       width={width}
