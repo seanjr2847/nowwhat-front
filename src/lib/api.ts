@@ -38,12 +38,12 @@ async function apiRequest<T>(
     // 사용자 언어/지역 정보 자동 추가
     const localeSettings = getUserLocaleSettings()
     const enhancedHeaders = {
-        'Content-Type': 'application/json',
         'Accept-Language': `${localeSettings.userLanguage}-${localeSettings.userCountry}`,
         'X-User-Locale': localeSettings.userLanguage,
         'X-User-Region': localeSettings.userCountry,
         'X-User-Timezone': Intl.DateTimeFormat().resolvedOptions().timeZone,
         ...options.headers,
+        'Content-Type': 'application/json',  // Move Content-Type to end to ensure it's not overridden
     }
 
     console.log('🌐 API 요청 시작:', {
@@ -51,7 +51,9 @@ async function apiRequest<T>(
         method: options.method || 'GET',
         url,
         headers: enhancedHeaders,
-        locale: localeSettings
+        locale: localeSettings,
+        body: options.body,
+        bodyType: typeof options.body
     })
 
     try {
@@ -211,8 +213,8 @@ async function authenticatedRequest<T>(
     const response = await apiRequest<T>(endpoint, {
         ...options,
         headers: {
-            Authorization: `Bearer ${token}`,
-            ...options.headers,  // 사용자 정의 헤더가 있으면 덮어씀 (언어/지역 정보는 apiRequest에서 자동 추가)
+            ...options.headers,  // 사용자 정의 헤더를 먼저 적용
+            Authorization: `Bearer ${token}`,  // Authorization은 항상 마지막에 설정
         },
     })
 
@@ -337,15 +339,17 @@ export interface ChecklistCreationResponse {
 // Intent 분석 API
 export async function analyzeIntents(goal: string): Promise<ApiResponse<IntentAnalysisResponse>> {
     const localeSettings = getUserLocaleSettings()
-    console.log('🧠 의도 분석 API 호출:', { goal, locale: localeSettings })
+    const requestBody = {
+        goal,
+        userLanguage: localeSettings.userLanguage,
+        userCountry: localeSettings.userCountry
+    }
+    console.log('🧠 의도 분석 API 호출:', { goal, locale: localeSettings, requestBody })
+    console.log('🔍 Request body JSON:', JSON.stringify(requestBody))
 
     return authenticatedRequest<IntentAnalysisResponse>('/api/v1/intents/analyze', {
         method: 'POST',
-        body: JSON.stringify({
-            goal,
-            userLanguage: localeSettings.userLanguage,
-            userCountry: localeSettings.userCountry
-        })
+        body: JSON.stringify(requestBody)
     })
 }
 
