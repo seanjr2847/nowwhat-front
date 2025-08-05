@@ -6,8 +6,6 @@ import {
   getUserLocaleSettings,
   saveUserLocaleSettings,
   getSupportedRegions,
-  SUPPORTED_LANGUAGES,
-  detectUserLocale,
   type UserLocaleSettings
 } from "../../lib/locale-utils"
 import { Button } from "../ui/button"
@@ -47,24 +45,6 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     }
   }, [isOpen])
 
-  // 자동 감지 함수
-  const handleAutoDetect = () => {
-    const detected = detectUserLocale()
-    
-    setSettings(prev => ({
-      ...prev,
-      userCountry: detected.region,
-      userLanguage: detected.language,
-      autoDetect: true
-    }))
-
-    const supportedRegions = getSupportedRegions()
-    toast({
-      title: "자동 감지 완료",
-      description: `국가: ${supportedRegions[detected.region]?.name || detected.region}, 언어: ${SUPPORTED_LANGUAGES[detected.language as keyof typeof SUPPORTED_LANGUAGES]?.name || detected.language}`,
-      variant: "default"
-    })
-  }
 
   // 설정 저장
   const handleSave = () => {
@@ -109,18 +89,6 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               AI가 당신의 국가와 언어에 맞는 더 정확한 답변을 제공합니다.
             </p>
 
-            {/* 자동 감지 활성화/비활성화 */}
-            <div className="flex items-center justify-between">
-              <Label htmlFor="auto-detect-enabled" className="text-sm font-medium">
-                자동 감지 사용
-              </Label>
-              <Switch
-                id="auto-detect-enabled"
-                checked={settings.autoDetect}
-                onCheckedChange={(autoDetect) => setSettings(prev => ({ ...prev, autoDetect }))}
-              />
-            </div>
-
             {/* 국가별 맞춤화 옵션 */}
             <div className="flex items-center justify-between">
               <Label htmlFor="country-option" className="text-sm font-medium">
@@ -144,8 +112,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 value={settings.userCountry}
                 onValueChange={(value) => setSettings(prev => ({ 
                   ...prev, 
-                  userCountry: value,
-                  autoDetect: false  // 수동 선택 시 자동 감지 비활성화
+                  userCountry: value
                 }))}
               >
                 <SelectTrigger className="w-full">
@@ -161,39 +128,6 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               </Select>
             </div>
 
-            {/* 언어 선택 */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">언어</Label>
-              <Select
-                value={settings.userLanguage}
-                onValueChange={(value) => setSettings(prev => ({ 
-                  ...prev, 
-                  userLanguage: value,
-                  autoDetect: false  // 수동 선택 시 자동 감지 비활성화
-                }))}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="언어를 선택하세요" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(SUPPORTED_LANGUAGES).map(([code, lang]) => (
-                    <SelectItem key={code} value={code}>
-                      {lang.flag} {lang.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* 자동 감지 버튼 */}
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleAutoDetect}
-              className="w-full"
-            >
-              자동 감지
-            </Button>
           </div>
 
           {/* 버튼 그룹 */}
