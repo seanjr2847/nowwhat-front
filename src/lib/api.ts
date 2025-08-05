@@ -74,8 +74,8 @@ async function apiRequest<T>(
 
     try {
         const response = await fetch(url, {
-            headers: enhancedHeaders,
             ...options,
+            headers: enhancedHeaders,
         })
 
         console.log('📡 API 응답 상태:', {
