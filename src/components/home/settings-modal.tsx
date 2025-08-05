@@ -79,16 +79,6 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   }
 
 
-  // 설정 저장
-  const handleSave = () => {
-    saveUserLocaleSettings(settings)
-    toast({
-      title: "설정 저장 완료",
-      description: "언어 및 지역 설정이 저장되었습니다.",
-      variant: "default"
-    })
-    onClose()
-  }
 
   if (!isOpen) return null
 
@@ -135,6 +125,11 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   setSettings(updatedSettings)
                   // 즉시 저장
                   saveUserLocaleSettings(updatedSettings)
+                  toast({
+                    title: "설정 변경됨",
+                    description: `국가별 맞춤화가 ${country_option ? '활성화' : '비활성화'}되었습니다.`,
+                    variant: "default"
+                  })
                 }}
               />
             </div>
@@ -189,6 +184,11 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                                 setSettings(updatedSettings)
                                 // 즉시 저장
                                 saveUserLocaleSettings(updatedSettings)
+                                toast({
+                                  title: "국가 변경됨",
+                                  description: `국가가 ${country.name}(으)로 변경되었습니다.`,
+                                  variant: "default"
+                                })
                                 setCountryPopoverOpen(false)
                               }}
                             >
@@ -210,23 +210,6 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               </Popover>
             </div>
 
-          </div>
-
-          {/* 버튼 그룹 */}
-          <div className="flex space-x-3">
-            <Button
-              variant="outline"
-              onClick={onClose}
-              className="flex-1"
-            >
-              취소
-            </Button>
-            <Button
-              onClick={handleSave}
-              className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
-            >
-              저장
-            </Button>
           </div>
         </div>
       </div>
