@@ -37,23 +37,40 @@ async function apiRequest<T>(
 
     // 사용자 언어/지역 정보 자동 추가
     const localeSettings = getUserLocaleSettings()
-    const enhancedHeaders = {
+
+    // Content-Type이 명시적으로 설정되지 않은 경우에만 JSON으로 설정
+    const defaultHeaders = {
         'Accept-Language': `${localeSettings.userLanguage}-${localeSettings.userCountry}`,
         'X-User-Locale': localeSettings.userLanguage,
         'X-User-Region': localeSettings.userCountry,
         'X-User-Timezone': Intl.DateTimeFormat().resolvedOptions().timeZone,
+    }
+
+    // POST/PUT/PATCH 요청이고 body가 있으면서 Content-Type이 없는 경우 JSON으로 설정
+    const method = options.method?.toUpperCase() || 'GET'
+    const hasBody = !!options.body
+    const hasContentType = !!(options.headers && 'Content-Type' in options.headers)
+
+    const enhancedHeaders = {
+        ...defaultHeaders,
         ...options.headers,
-        'Content-Type': 'application/json',  // Move Content-Type to end to ensure it's not overridden
+        // JSON body가 있고 Content-Type이 명시되지 않은 경우에만 설정
+        ...(hasBody && !hasContentType && ['POST', 'PUT', 'PATCH'].includes(method) && {
+            'Content-Type': 'application/json'
+        })
     }
 
     console.log('🌐 API 요청 시작:', {
         endpoint,
-        method: options.method || 'GET',
+        method: method,
         url,
         headers: enhancedHeaders,
         locale: localeSettings,
         body: options.body,
-        bodyType: typeof options.body
+        bodyType: typeof options.body,
+        hasBody,
+        hasContentType,
+        contentTypeCheck: enhancedHeaders['Content-Type']
     })
 
     try {
