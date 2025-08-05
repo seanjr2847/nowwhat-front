@@ -1,18 +1,21 @@
 "use client"
 
-import { Globe, Settings, X } from "lucide-react"
+import { Check, ChevronsUpDown, Globe, Settings, X } from "lucide-react"
 import { useEffect, useState } from "react"
 import { 
   getUserLocaleSettings,
   saveUserLocaleSettings,
-  getSupportedRegions,
-  type UserLocaleSettings
+  fetchAllCountries,
+  type UserLocaleSettings,
+  type RegionInfo
 } from "../../lib/locale-utils"
 import { Button } from "../ui/button"
-import { Label } from "../ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
+import { Label } from "../ui/label" 
 import { Switch } from "../ui/switch"
 import { useToast } from "../../hooks/use-toast"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "../ui/command"
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
+import { cn } from "../../lib/utils"
 
 interface SettingsModalProps {
   isOpen: boolean
@@ -36,6 +39,11 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     country_option: true,
     lastUpdated: new Date().toISOString()
   })
+  
+  // 국가 관련 상태
+  const [countries, setCountries] = useState<Record<string, RegionInfo>>({})
+  const [countryPopoverOpen, setCountryPopoverOpen] = useState(false)
+  const [isLoadingCountries, setIsLoadingCountries] = useState(false)
 
   // 설정 불러오기
   useEffect(() => {
@@ -44,6 +52,31 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
       setSettings(currentSettings)
     }
   }, [isOpen])
+
+  // 모든 국가 데이터 로드
+  useEffect(() => {
+    if (isOpen && Object.keys(countries).length === 0) {
+      loadCountries()
+    }
+  }, [isOpen])
+
+  const loadCountries = async () => {
+    setIsLoadingCountries(true)
+    try {
+      const allCountries = await fetchAllCountries()
+      setCountries(allCountries)
+      console.log('🌍 모든 국가 로드 완료:', Object.keys(allCountries).length, '개 국가')
+    } catch (error) {
+      console.error('국가 로드 실패:', error)
+      toast({
+        title: "국가 로드 실패",
+        description: "국가 목록을 불러오는데 실패했습니다.",
+        variant: "destructive"
+      })
+    } finally {
+      setIsLoadingCountries(false)
+    }
+  }
 
 
   // 설정 저장
@@ -108,24 +141,65 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             {/* 국가 선택 */}
             <div className="space-y-2">
               <Label className="text-sm font-medium">국가</Label>
-              <Select
-                value={settings.userCountry}
-                onValueChange={(value) => setSettings(prev => ({ 
-                  ...prev, 
-                  userCountry: value
-                }))}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="국가를 선택하세요" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(getSupportedRegions()).map(([code, region]) => (
-                    <SelectItem key={code} value={code}>
-                      {region.flag} {region.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Popover open={countryPopoverOpen} onOpenChange={setCountryPopoverOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={countryPopoverOpen}
+                    className="w-full justify-between"
+                    disabled={isLoadingCountries}
+                  >
+                    {settings.userCountry && countries[settings.userCountry]
+                      ? (
+                          <span className="flex items-center">
+                            <span className="mr-2">{countries[settings.userCountry].flag}</span>
+                            {countries[settings.userCountry].name}
+                          </span>
+                        )
+                      : isLoadingCountries 
+                        ? "국가 로딩 중..."
+                        : "국가를 선택하세요"
+                    }
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[400px] p-0" align="start">
+                  <Command>
+                    <CommandInput placeholder="국가 검색..." />
+                    <CommandEmpty>검색 결과가 없습니다.</CommandEmpty>
+                    <CommandList className="max-h-60">
+                      <CommandGroup>
+                        {Object.entries(countries)
+                          .sort(([, a], [, b]) => a.name.localeCompare(b.name))  // 알파벳 순 정렬
+                          .map(([code, country]) => (
+                            <CommandItem
+                              key={code}
+                              value={`${code} ${country.name}`}
+                              onSelect={() => {
+                                setSettings(prev => ({ 
+                                  ...prev, 
+                                  userCountry: code
+                                }))
+                                setCountryPopoverOpen(false)
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4 shrink-0",
+                                  settings.userCountry === code ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              <span className="mr-2 text-lg">{country.flag}</span>
+                              <span className="truncate">{country.name}</span>
+                            </CommandItem>
+                          ))
+                        }
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
 
           </div>
