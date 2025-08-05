@@ -1,6 +1,6 @@
 "use client"
 
-import { Check, ChevronsUpDown, Globe, Settings, X } from "lucide-react"
+import { Check, ChevronsUpDown, Settings, X } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useToast } from "../../hooks/use-toast"
 import {
@@ -103,15 +103,6 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         <div className="space-y-6">
           {/* API 개인화 설정 섹션 */}
           <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <Globe className="w-5 h-5 text-blue-500" />
-              <h4 className="text-base font-medium text-foreground">API 개인화</h4>
-            </div>
-
-            <p className="text-sm text-muted-foreground">
-              AI가 당신의 국가와 언어에 맞는 더 정확한 답변을 제공합니다.
-            </p>
-
             {/* 국가별 맞춤화 옵션 */}
             <div className="flex items-center justify-between">
               <Label htmlFor="country-option" className="text-sm font-medium">
