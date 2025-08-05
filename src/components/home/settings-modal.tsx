@@ -35,6 +35,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     userLanguage: 'ko',
     userCountry: 'KR',
     autoDetect: true,
+    country_option: true,
     lastUpdated: new Date().toISOString()
   })
 
@@ -119,6 +120,22 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 onCheckedChange={(autoDetect) => setSettings(prev => ({ ...prev, autoDetect }))}
               />
             </div>
+
+            {/* 국가별 맞춤화 옵션 */}
+            <div className="flex items-center justify-between">
+              <Label htmlFor="country-option" className="text-sm font-medium">
+                국가별 맞춤화
+              </Label>
+              <Switch
+                id="country-option"
+                checked={settings.country_option}
+                onCheckedChange={(country_option) => setSettings(prev => ({ ...prev, country_option }))}
+              />
+            </div>
+            
+            <p className="text-xs text-muted-foreground">
+              국가별 맞춤화를 활성화하면 해당 국가의 법률, 가격, 연락처 등이 포함된 더 정확한 답변을 받을 수 있습니다.
+            </p>
 
             {/* 국가 선택 */}
             <div className="space-y-2">

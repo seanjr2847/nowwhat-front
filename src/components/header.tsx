@@ -46,6 +46,7 @@ export function Header() {
     userLanguage: 'en',
     userCountry: 'US',
     autoDetect: true,
+    country_option: true,
     lastUpdated: new Date().toISOString()
   })
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false)
@@ -112,7 +113,7 @@ export function Header() {
   const handleLanguageChange = (newLanguage: string) => {
     const updatedSettings = {
       ...localeSettings,
-      language: newLanguage,
+      userLanguage: newLanguage,
       autoDetect: false // 수동 설정으로 변경
     }
     setLocaleSettings(updatedSettings)
@@ -129,7 +130,7 @@ export function Header() {
   const handleRegionChange = (newRegion: string) => {
     const updatedSettings = {
       ...localeSettings,
-      region: newRegion,
+      userCountry: newRegion,
       autoDetect: false // 수동 설정으로 변경
     }
     setLocaleSettings(updatedSettings)

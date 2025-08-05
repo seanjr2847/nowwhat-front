@@ -342,7 +342,8 @@ export async function analyzeIntents(goal: string): Promise<ApiResponse<IntentAn
     const requestBody = {
         goal,
         userLanguage: localeSettings.userLanguage,
-        userCountry: localeSettings.userCountry
+        userCountry: localeSettings.userCountry,
+        country_option: localeSettings.country_option
     }
     console.log('🧠 의도 분석 API 호출:', { goal, locale: localeSettings, requestBody })
     console.log('🔍 Request body JSON:', JSON.stringify(requestBody))
@@ -382,6 +383,7 @@ export async function generateQuestions(
             intentTitle,
             userLanguage: localeSettings.userLanguage,
             userCountry: localeSettings.userCountry,
+            country_option: localeSettings.country_option,
             // API 개인화 설정으로 오버라이드 (활성화된 경우)
             ...apiUserInfo
         })
@@ -435,6 +437,7 @@ export async function generateQuestionsStream(
             // 기존 필드 (하위 호환성)
             userLanguage: localeSettings.userLanguage,
             userCountry: localeSettings.userCountry,
+            country_option: localeSettings.country_option,
             // 새로운 API 필드 (선택적)
             ...apiUserInfo
         }
@@ -562,6 +565,7 @@ export async function createChecklist(
             answers,
             userLanguage: localeSettings.userLanguage,
             userCountry: localeSettings.userCountry,
+            country_option: localeSettings.country_option,
             // API 개인화 설정으로 오버라이드 (활성화된 경우)
             ...apiUserInfo
         })

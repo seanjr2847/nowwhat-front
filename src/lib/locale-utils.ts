@@ -264,6 +264,7 @@ export interface UserLocaleSettings {
   userLanguage: string
   userCountry: string
   autoDetect: boolean
+  country_option: boolean
   lastUpdated: string
 }
 
@@ -295,6 +296,7 @@ export function getUserLocaleSettings(): UserLocaleSettings {
     userLanguage: detected.language,
     userCountry: detected.region,
     autoDetect: true,
+    country_option: true, // 기본값: 국가별 맞춤화 활성화
     lastUpdated: new Date().toISOString()
   }
 }
