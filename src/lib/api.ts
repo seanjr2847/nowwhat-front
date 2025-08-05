@@ -344,7 +344,7 @@ export async function analyzeIntents(goal: string): Promise<ApiResponse<IntentAn
         body: JSON.stringify({
             goal,
             userLanguage: localeSettings.userLanguage,
-            userCountry: localeSettings.userCountry,
+            userCountry: localeSettings.userCountry
         })
     })
 }
@@ -376,10 +376,9 @@ export async function generateQuestions(
             sessionId,
             goal,
             intentTitle,
-            // 기존 필드 (하위 호환성)
             userLanguage: localeSettings.userLanguage,
             userCountry: localeSettings.userCountry,
-            // 새로운 API 필드 (선택적)
+            // API 개인화 설정으로 오버라이드 (활성화된 경우)
             ...apiUserInfo
         })
     })
@@ -532,8 +531,22 @@ export async function createChecklist(
     selectedIntent: string,
     answers: { questionId: string, questionIndex: number, questionText: string, questionType: string, answer: string | string[] }[]
 ): Promise<ApiResponse<ChecklistCreationResponse>> {
+    // 기존 로케일 설정 (헤더 UI용) 
     const localeSettings = getUserLocaleSettings()
-    console.log('✅ 체크리스트 생성 API 호출:', { sessionId, questionSetId, goal, selectedIntent, answersCount: answers.length, locale: localeSettings })
+    
+    // API 개인화 설정 (API 요청용)
+    const { getApiUserInfo } = await import('./locale-utils')
+    const apiUserInfo = getApiUserInfo()
+    
+    console.log('✅ 체크리스트 생성 API 호출:', { 
+        sessionId, 
+        questionSetId, 
+        goal, 
+        selectedIntent, 
+        answersCount: answers.length, 
+        locale: localeSettings,
+        apiUserInfo 
+    })
 
     return authenticatedRequest<ChecklistCreationResponse>('/api/v1/questions/answer', {
         method: 'POST',
@@ -545,7 +558,8 @@ export async function createChecklist(
             answers,
             userLanguage: localeSettings.userLanguage,
             userCountry: localeSettings.userCountry,
-            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+            // API 개인화 설정으로 오버라이드 (활성화된 경우)
+            ...apiUserInfo
         })
     })
 }
@@ -661,6 +675,45 @@ export async function submitFeedback(
             comment
         })
     })
+}
+
+// 에러 메시지 포맷팅 유틸리티
+export function formatApiError(error: unknown): string {
+  if (typeof error === 'string') {
+    return error
+  }
+  
+  if (Array.isArray(error)) {
+    // Validation error array
+    return error.map(err => {
+      if (typeof err === 'object' && err !== null && 'msg' in err) {
+        return (err as { msg: string }).msg
+      }
+      return String(err)
+    }).join(', ')
+  }
+  
+  if (typeof error === 'object' && error !== null) {
+    if ('message' in error) {
+      return String((error as { message: unknown }).message)
+    }
+    if ('detail' in error) {
+      const detail = (error as { detail: unknown }).detail
+      if (typeof detail === 'string') {
+        return detail
+      }
+      if (Array.isArray(detail)) {
+        return detail.map(d => {
+          if (typeof d === 'object' && d !== null && 'msg' in d) {
+            return (d as { msg: string }).msg
+          }
+          return String(d)
+        }).join(', ')
+      }
+    }
+  }
+  
+  return String(error)
 }
 
 export { apiRequest, authenticatedRequest }

@@ -20,6 +20,7 @@ import {
   createChecklist,
   generateQuestions,
   saveQuestionAnswer,
+  formatApiError,
   type Intent,
   type Question
 } from "../lib/api"
@@ -88,11 +89,12 @@ export default function ClarifyPage() {
         })
       } else {
         console.error('❌ 의도 분석 실패:', response.error)
-        setError(response.error || "의도 분석 중 오류가 발생했습니다.")
+        const errorMessage = formatApiError(response.error) || "의도 분석 중 오류가 발생했습니다."
+        setError(errorMessage)
 
         toast({
           title: "분석 실패",
-          description: response.error || "의도 분석 중 오류가 발생했습니다.",
+          description: errorMessage,
           variant: "destructive",
         })
       }
@@ -169,11 +171,12 @@ export default function ClarifyPage() {
         })
       } else {
         console.error('❌ 질문 생성 실패:', response.error)
-        setError(response.error || "질문 생성 중 오류가 발생했습니다.")
+        const errorMessage = formatApiError(response.error) || "질문 생성 중 오류가 발생했습니다."
+        setError(errorMessage)
 
         toast({
           title: "질문 생성 실패",
-          description: response.error || "질문 생성 중 오류가 발생했습니다.",
+          description: errorMessage,
           variant: "destructive",
         })
       }
@@ -291,7 +294,7 @@ export default function ClarifyPage() {
         }, 1000)
       } else {
         console.error('❌ 체크리스트 생성 실패:', response.error)
-        const errorMessage = typeof response.error === 'string' ? response.error : "체크리스트 생성 중 오류가 발생했습니다."
+        const errorMessage = formatApiError(response.error) || "체크리스트 생성 중 오류가 발생했습니다."
         setError(errorMessage)
         setShowAdModal(false)
 
