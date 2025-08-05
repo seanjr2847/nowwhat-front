@@ -3,13 +3,12 @@
 import { Globe, Settings, X } from "lucide-react"
 import { useEffect, useState } from "react"
 import { 
-  getApiPersonalizationSettings, 
-  saveApiPersonalizationSettings, 
-  SUPPORTED_API_COUNTRIES,
-  SUPPORTED_API_LANGUAGES,
-  detectUserCountry,
-  detectUserLanguage,
-  type ApiPersonalizationSettings 
+  getUserLocaleSettings,
+  saveUserLocaleSettings,
+  getSupportedRegions,
+  SUPPORTED_LANGUAGES,
+  detectUserLocale,
+  type UserLocaleSettings
 } from "../../lib/locale-utils"
 import { Button } from "../ui/button"
 import { Label } from "../ui/label"
@@ -32,45 +31,46 @@ interface SettingsModalProps {
  */
 export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const { toast } = useToast()
-  const [settings, setSettings] = useState<ApiPersonalizationSettings>({
-    enabled: true,
-    userCountry: undefined,
-    userLanguage: undefined,
+  const [settings, setSettings] = useState<UserLocaleSettings>({
+    userLanguage: 'ko',
+    userCountry: 'KR',
+    autoDetect: true,
     lastUpdated: new Date().toISOString()
   })
 
   // 설정 불러오기
   useEffect(() => {
     if (isOpen) {
-      const currentSettings = getApiPersonalizationSettings()
+      const currentSettings = getUserLocaleSettings()
       setSettings(currentSettings)
     }
   }, [isOpen])
 
   // 자동 감지 함수
   const handleAutoDetect = () => {
-    const detectedCountry = detectUserCountry()
-    const detectedLanguage = detectUserLanguage()
+    const detected = detectUserLocale()
     
     setSettings(prev => ({
       ...prev,
-      userCountry: detectedCountry || undefined,
-      userLanguage: detectedLanguage || undefined
+      userCountry: detected.region,
+      userLanguage: detected.language,
+      autoDetect: true
     }))
 
+    const supportedRegions = getSupportedRegions()
     toast({
       title: "자동 감지 완료",
-      description: `국가: ${detectedCountry ? SUPPORTED_API_COUNTRIES[detectedCountry as keyof typeof SUPPORTED_API_COUNTRIES] : '감지 실패'}, 언어: ${detectedLanguage ? SUPPORTED_API_LANGUAGES[detectedLanguage as keyof typeof SUPPORTED_API_LANGUAGES] : '감지 실패'}`,
+      description: `국가: ${supportedRegions[detected.region]?.name || detected.region}, 언어: ${SUPPORTED_LANGUAGES[detected.language as keyof typeof SUPPORTED_LANGUAGES]?.name || detected.language}`,
       variant: "default"
     })
   }
 
   // 설정 저장
   const handleSave = () => {
-    saveApiPersonalizationSettings(settings)
+    saveUserLocaleSettings(settings)
     toast({
       title: "설정 저장 완료",
-      description: "API 개인화 설정이 저장되었습니다.",
+      description: "언어 및 지역 설정이 저장되었습니다.",
       variant: "default"
     })
     onClose()
@@ -108,79 +108,75 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               AI가 당신의 국가와 언어에 맞는 더 정확한 답변을 제공합니다.
             </p>
 
-            {/* 개인화 활성화/비활성화 */}
+            {/* 자동 감지 활성화/비활성화 */}
             <div className="flex items-center justify-between">
-              <Label htmlFor="personalization-enabled" className="text-sm font-medium">
-                개인화 사용
+              <Label htmlFor="auto-detect-enabled" className="text-sm font-medium">
+                자동 감지 사용
               </Label>
               <Switch
-                id="personalization-enabled"
-                checked={settings.enabled}
-                onCheckedChange={(enabled) => setSettings(prev => ({ ...prev, enabled }))}
+                id="auto-detect-enabled"
+                checked={settings.autoDetect}
+                onCheckedChange={(autoDetect) => setSettings(prev => ({ ...prev, autoDetect }))}
               />
             </div>
 
             {/* 국가 선택 */}
-            {settings.enabled && (
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">국가</Label>
-                <Select
-                  value={settings.userCountry || ""}
-                  onValueChange={(value) => setSettings(prev => ({ 
-                    ...prev, 
-                    userCountry: value || undefined 
-                  }))}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="국가를 선택하세요" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(SUPPORTED_API_COUNTRIES).map(([code, name]) => (
-                      <SelectItem key={code} value={code}>
-                        {name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">국가</Label>
+              <Select
+                value={settings.userCountry}
+                onValueChange={(value) => setSettings(prev => ({ 
+                  ...prev, 
+                  userCountry: value,
+                  autoDetect: false  // 수동 선택 시 자동 감지 비활성화
+                }))}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="국가를 선택하세요" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(getSupportedRegions()).map(([code, region]) => (
+                    <SelectItem key={code} value={code}>
+                      {region.flag} {region.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
             {/* 언어 선택 */}
-            {settings.enabled && (
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">언어</Label>
-                <Select
-                  value={settings.userLanguage || ""}
-                  onValueChange={(value) => setSettings(prev => ({ 
-                    ...prev, 
-                    userLanguage: value || undefined 
-                  }))}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="언어를 선택하세요" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(SUPPORTED_API_LANGUAGES).map(([code, name]) => (
-                      <SelectItem key={code} value={code}>
-                        {name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">언어</Label>
+              <Select
+                value={settings.userLanguage}
+                onValueChange={(value) => setSettings(prev => ({ 
+                  ...prev, 
+                  userLanguage: value,
+                  autoDetect: false  // 수동 선택 시 자동 감지 비활성화
+                }))}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="언어를 선택하세요" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(SUPPORTED_LANGUAGES).map(([code, lang]) => (
+                    <SelectItem key={code} value={code}>
+                      {lang.flag} {lang.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
             {/* 자동 감지 버튼 */}
-            {settings.enabled && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleAutoDetect}
-                className="w-full"
-              >
-                자동 감지
-              </Button>
-            )}
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleAutoDetect}
+              className="w-full"
+            >
+              자동 감지
+            </Button>
           </div>
 
           {/* 버튼 그룹 */}
