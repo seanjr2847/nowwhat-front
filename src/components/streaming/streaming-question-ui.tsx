@@ -146,7 +146,7 @@ export function StreamingQuestionUI({
                 "transition-opacity duration-300",
                 isCurrentStreaming ? "opacity-50" : "opacity-100"
               )}>
-                {renderQuestionInput(question, index)}
+                {renderQuestionInput(question)}
               </div>
 
               {/* 로딩 애니메이션 */}
