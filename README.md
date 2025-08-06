@@ -1,12 +1,18 @@
-# 🚀 NowWhat - AI 개인화 체크리스트 생성기
+<div align="center">
+  <img src="./public/NowWhat_logo.svg" alt="NowWhat Logo" width="120" height="120"/>
+  
+  # Now What? <sup><em>Alpha</em></sup>
+  
+  ### AI 개인화 체크리스트 생성기
+  
+  > AI가 당신의 목표를 실행 가능한 단계별 체크리스트로 변환해 드립니다
 
-> AI가 당신의 목표를 실행 가능한 단계별 체크리스트로 변환해 드립니다
-
-[![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=white)](https://reactjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-7.0-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-[![Vercel](https://img.shields.io/badge/Deployed_on-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
+  [![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=white)](https://reactjs.org/)
+  [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+  [![Vite](https://img.shields.io/badge/Vite-7.0-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
+  [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+  [![Vercel](https://img.shields.io/badge/Deployed_on-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
+</div>
 
 **NowWhat**은 AI를 활용하여 사용자의 목표나 아이디어를 구체적이고 실행 가능한 체크리스트로 변환해주는 웹 애플리케이션입니다. ChatGPT 스타일의 실시간 스트리밍으로 개인화된 질문을 생성하고, 답변을 바탕으로 맞춤형 행동 계획을 제공합니다.
 

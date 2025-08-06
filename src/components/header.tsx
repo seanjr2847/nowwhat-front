@@ -208,8 +208,13 @@ export function Header() {
   return (
     <header className="flex items-center justify-between p-3 bg-background/80 backdrop-blur-sm border-b border-border/50 sticky top-0 z-50">
       <div className="flex items-center space-x-2">
-        <button onClick={() => handleNavigation("/")} className="flex items-center space-x-2">
-          <h1 className="text-xl font-semibold cursor-pointer hover:opacity-80 transition-opacity">
+        <button onClick={() => handleNavigation("/")} className="flex items-center space-x-2 group">
+          <img 
+            src="/NowWhat_logo.svg" 
+            alt="NowWhat Logo" 
+            className="w-8 h-8 transition-transform group-hover:scale-110"
+          />
+          <h1 className="text-xl font-semibold cursor-pointer group-hover:opacity-80 transition-opacity">
             Now <span className="text-blue-400">What?</span>
           </h1>
         </button>
