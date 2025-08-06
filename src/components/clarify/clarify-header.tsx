@@ -37,15 +37,15 @@ export function ClarifyHeader({ goal }: ClarifyHeaderProps) {
 
       <div className="text-center space-y-4">
         <div className="flex items-center justify-center mb-3">
-          <div className="flex items-center space-x-2 px-3 py-1.5 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full border border-blue-500/30 backdrop-blur-sm">
-            <Sparkles className="w-4 h-4 text-blue-400" />
-            <span className="text-sm font-medium text-blue-300">AI 분석 완료</span>
+          <div className="flex items-center space-x-2 px-3 py-1.5 bg-gradient-to-r from-brand-primary-500/20 to-brand-secondary-500/20 rounded-full border border-brand-primary-500/30 backdrop-blur-sm">
+            <Sparkles className="w-4 h-4 text-brand-primary-400" />
+            <span className="text-sm font-medium text-brand-primary-300">AI 분석 완료</span>
           </div>
         </div>
 
         <div className="space-y-3">
           <h1 className="text-xl font-bold text-foreground" id="main-heading">
-            <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">"{goal}"</span>
+            <span className="bg-gradient-to-r from-brand-primary-400 to-brand-secondary-400 bg-clip-text text-transparent">"{goal}"</span>
             <span className="text-foreground"> 구체화하기</span>
           </h1>
 

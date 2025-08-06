@@ -103,7 +103,7 @@ export default function ResultPage() {
                     <h1 className="text-2xl font-bold text-foreground mb-4">체크리스트를 찾을 수 없습니다</h1>
                     <button
                         onClick={() => { void navigate("/") }}
-                        className="text-blue-500 hover:underline"
+                        className="text-brand-primary-500 hover:underline"
                     >
                         홈으로 돌아가기
                     </button>
@@ -116,7 +116,7 @@ export default function ResultPage() {
     const isAllCompleted = completedCount === checklist.items.length
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-slate-900">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-brand-primary-50 dark:from-gray-900 dark:to-slate-900">
             <div className="max-w-4xl mx-auto px-4 py-8">
                 <ChecklistHeader goal={checklist.title} createdAt={checklist.createdAt} />
 

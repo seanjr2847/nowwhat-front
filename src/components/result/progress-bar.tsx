@@ -18,9 +18,9 @@ interface ProgressBarProps {
 export function ProgressBar({ completed, total, progress }: ProgressBarProps) {
   const getProgressColor = (progress: number) => {
     if (progress === 100) return "from-green-500 to-emerald-500"
-    if (progress >= 75) return "from-blue-500 to-green-500"
-    if (progress >= 50) return "from-purple-500 to-blue-500"
-    if (progress >= 25) return "from-orange-500 to-purple-500"
+    if (progress >= 75) return "from-brand-primary-500 to-green-500"
+    if (progress >= 50) return "from-brand-secondary-500 to-brand-primary-500"
+    if (progress >= 25) return "from-orange-500 to-brand-secondary-500"
     return "from-red-500 to-orange-500"
   }
 
@@ -68,7 +68,7 @@ export function ProgressBar({ completed, total, progress }: ProgressBarProps) {
 
         <div className="flex justify-between items-center mt-3">
           <span className="text-sm text-muted-foreground">0%</span>
-          <span className={`text-sm font-medium ${progress === 100 ? "text-green-400" : "text-blue-400"}`}>
+          <span className={`text-sm font-medium ${progress === 100 ? "text-green-400" : "text-brand-primary-400"}`}>
             {Math.round(progress)}%
           </span>
           <span className="text-sm text-muted-foreground">100%</span>

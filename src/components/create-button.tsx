@@ -20,7 +20,7 @@ export function CreateButton({ onClick, isLoading }: CreateButtonProps) {
   return (
     <div id="create-button-section" className="text-center animate-scale-in">
       <div className="mb-6">
-        <div className="inline-flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-green-500/20 to-blue-500/20 rounded-full border border-green-500/30 mb-4">
+        <div className="inline-flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-green-500/20 to-brand-primary-500/20 rounded-full border border-green-500/30 mb-4">
           <Sparkles className="w-4 h-4 text-green-400" />
           <span className="text-sm font-medium text-green-300">모든 질문 완료!</span>
         </div>
@@ -29,7 +29,7 @@ export function CreateButton({ onClick, isLoading }: CreateButtonProps) {
       <Button
         onClick={onClick}
         disabled={isLoading}
-        className="bg-gradient-to-r from-blue-600 via-blue-500 to-purple-600 hover:from-blue-700 hover:via-blue-600 hover:to-purple-700 text-white px-12 py-4 text-xl font-bold rounded-2xl shadow-2xl shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-300 hover:scale-105 focus-ring disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+        className="bg-gradient-to-r from-brand-primary-600 via-brand-primary-500 to-brand-secondary-600 hover:from-brand-primary-700 hover:via-brand-primary-600 hover:to-brand-secondary-700 text-white px-12 py-4 text-xl font-bold rounded-2xl shadow-2xl shadow-brand-primary-500/25 hover:shadow-brand-primary-500/40 transition-all duration-300 hover:scale-105 focus-ring disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
         aria-describedby="create-button-help"
         aria-live="polite"
       >

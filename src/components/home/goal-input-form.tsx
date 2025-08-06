@@ -78,7 +78,7 @@ export function GoalInputForm() {
     <div className="relative max-w-4xl mx-auto animate-scale-in" style={{ animationDelay: "0.2s" }}>
       <form onSubmit={handleSubmit}>
         <div className="relative group">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-3xl blur-xl opacity-30 group-hover:opacity-50 transition-opacity duration-500" />
+          <div className="absolute inset-0 bg-gradient-to-r from-brand-primary-600 via-brand-secondary-600 to-brand-secondary-400 rounded-3xl blur-xl opacity-30 group-hover:opacity-50 transition-opacity duration-500" />
           <div className="relative bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-white/20 dark:border-gray-700/50 rounded-3xl p-3 shadow-2xl">
             <div className="space-y-3">
               {/* 첫 번째 줄: 입력창 */}
@@ -100,20 +100,20 @@ export function GoalInputForm() {
                     onClick={() => setShowSettingsModal(true)}
                     className="h-9 w-9 sm:h-10 sm:w-10 bg-white/20 dark:bg-gray-800/20 hover:bg-white/30 dark:hover:bg-gray-800/30 backdrop-blur-sm border border-white/30 dark:border-gray-700/30 rounded-2xl transition-all duration-300 hover:scale-110 group/settings"
                   >
-                    <Settings className="w-4 h-4 text-gray-600 dark:text-gray-300 group-hover/settings:text-purple-500 transition-colors duration-300" />
+                    <Settings className="w-4 h-4 text-gray-600 dark:text-gray-300 group-hover/settings:text-brand-secondary-500 transition-colors duration-300" />
                   </Button>
                   <Button
                     type="button"
                     onClick={() => setShowHelpModal(true)}
                     className="h-9 w-9 sm:h-10 sm:w-10 bg-white/20 dark:bg-gray-800/20 hover:bg-white/30 dark:hover:bg-gray-800/30 backdrop-blur-sm border border-white/30 dark:border-gray-700/30 rounded-2xl transition-all duration-300 hover:scale-110 group/help"
                   >
-                    <HelpCircle className="w-4 h-4 text-gray-600 dark:text-gray-300 group-hover/help:text-blue-500 transition-colors duration-300" />
+                    <HelpCircle className="w-4 h-4 text-gray-600 dark:text-gray-300 group-hover/help:text-brand-primary-500 transition-colors duration-300" />
                   </Button>
                 </div>
                 <Button
                   type="submit"
                   disabled={!goal.trim()}
-                  className="h-9 w-9 sm:h-10 sm:w-10 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-2xl shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-300 hover:scale-110 group/btn disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  className="h-9 w-9 sm:h-10 sm:w-10 bg-gradient-to-r from-brand-primary-600 to-brand-secondary-600 hover:from-brand-primary-700 hover:to-brand-secondary-700 rounded-2xl shadow-lg shadow-brand-primary-500/25 hover:shadow-brand-primary-500/40 transition-all duration-300 hover:scale-110 group/btn disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                 >
                   <Send className="w-4 h-4 text-white group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform duration-300" />
                 </Button>
@@ -138,7 +138,7 @@ export function GoalInputForm() {
               onClick={() => setGoal(suggestion.text)}
               className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-md border border-white/30 dark:border-gray-700/50 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-white/80 dark:hover:bg-gray-800/80 px-3 py-2 sm:px-4 rounded-xl transition-all duration-300 hover:scale-105 group shadow-lg relative overflow-hidden"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
+              <div className="absolute inset-0 bg-gradient-to-r from-brand-primary-500 to-brand-secondary-500 opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
               <suggestion.icon className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
               <span className="text-xs sm:text-sm font-medium relative z-10">{suggestion.text}</span>
             </Button>
@@ -176,7 +176,7 @@ export function GoalInputForm() {
                 onClick={() => setGoal(suggestion.text)}
                 className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-md border border-white/30 dark:border-gray-700/50 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-white/80 dark:hover:bg-gray-800/80 px-3 py-2 sm:px-4 rounded-xl transition-all duration-300 hover:scale-105 group shadow-lg relative overflow-hidden"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
+                <div className="absolute inset-0 bg-gradient-to-r from-brand-primary-500 to-brand-secondary-500 opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
                 <suggestion.icon className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
                 <span className="text-xs sm:text-sm font-medium relative z-10">{suggestion.text}</span>
               </Button>

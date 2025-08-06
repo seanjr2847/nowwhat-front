@@ -24,10 +24,10 @@ export function ProgressBar({ progress }: ProgressBarProps) {
   }
 
   const getProgressColor = (progress: number) => {
-    if (progress < 25) return "from-blue-500 to-blue-600"
-    if (progress < 50) return "from-blue-500 to-purple-500"
-    if (progress < 90) return "from-purple-500 to-pink-500"
-    return "from-green-500 to-blue-500"
+    if (progress < 25) return "from-brand-primary-500 to-brand-primary-600"
+    if (progress < 50) return "from-brand-primary-500 to-brand-secondary-500"
+    if (progress < 90) return "from-brand-secondary-500 to-brand-secondary-300"
+    return "from-green-500 to-brand-primary-500"
   }
 
   return (
@@ -52,7 +52,7 @@ export function ProgressBar({ progress }: ProgressBarProps) {
           </div>
         </div>
         <div className="text-right">
-          <span className="text-blue-400 font-bold text-xl" aria-hidden="true">
+          <span className="text-brand-primary-400 font-bold text-xl" aria-hidden="true">
             {Math.round(progress)}%
           </span>
         </div>

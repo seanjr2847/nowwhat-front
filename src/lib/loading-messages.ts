@@ -81,9 +81,9 @@ export const LOADING_STAGES: Record<LoadingStage, LoadingStageConfig> = {
       ]
     },
     colors: {
-      primary: '#3b82f6', // blue-500
-      secondary: '#60a5fa', // blue-400
-      accent: '#93c5fd' // blue-300
+      primary: '#03b2f9', // brand-primary-500
+      secondary: '#38bdf8', // brand-primary-400
+      accent: '#7dd3fc' // brand-primary-300
     }
   },
 
@@ -147,9 +147,9 @@ export const LOADING_STAGES: Record<LoadingStage, LoadingStageConfig> = {
       ]
     },
     colors: {
-      primary: '#ec4899', // pink-500
-      secondary: '#f472b6', // pink-400
-      accent: '#f9a8d4' // pink-300
+      primary: '#00edce', // brand-secondary-500
+      secondary: '#2dd4bf', // brand-secondary-400
+      accent: '#5eead4' // brand-secondary-300
     }
   },
 

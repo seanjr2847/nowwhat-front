@@ -132,7 +132,7 @@ export function Header() {
               <DropdownMenuItem key={code} onSelect={() => handleLanguageChange(code)}>
                 <span className="mr-2">{info.flag}</span>
                 {info.name}
-                {localeSettings.userLanguage === code && <span className="ml-auto text-blue-500">✓</span>}
+                {localeSettings.userLanguage === code && <span className="ml-auto text-brand-primary-500">✓</span>}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
@@ -149,7 +149,7 @@ export function Header() {
         <div className={`flex ${isMobile ? "flex-col space-y-2 border-t pt-4 mt-4" : "items-center space-x-2"}`}>
           {/* 사용자 정보 표시 */}
           <div className={`flex items-center ${isMobile ? "px-3 py-2 mb-2" : "px-3"}`}>
-            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-3">
+            <div className="w-8 h-8 bg-brand-primary-500 rounded-full flex items-center justify-center mr-3">
               <span className="text-white text-sm font-medium">
                 {(user?.name !== undefined && user.name.length > 0) ? user.name.charAt(0).toUpperCase() : 'U'}
               </span>
@@ -215,7 +215,7 @@ export function Header() {
             className="w-8 h-8 transition-transform group-hover:scale-110"
           />
           <h1 className="text-xl font-semibold cursor-pointer group-hover:opacity-80 transition-opacity">
-            Now <span className="text-blue-400">What?</span>
+            Now <span className="text-brand-primary-400">What?</span>
           </h1>
         </button>
         <Badge variant="secondary" className="bg-muted text-muted-foreground text-xs">

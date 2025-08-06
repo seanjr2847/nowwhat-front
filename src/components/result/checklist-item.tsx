@@ -73,7 +73,7 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
 
   return (
     <Card
-      className={`bg-white/70 dark:bg-gray-900/70 backdrop-blur-2xl border border-white/40 dark:border-gray-700/40 transition-all duration-300 rounded-2xl shadow-xl ${item.isCompleted ? "border-green-500/50 bg-green-500/10" : "hover:border-blue-500/50"
+      className={`bg-white/70 dark:bg-gray-900/70 backdrop-blur-2xl border border-white/40 dark:border-gray-700/40 transition-all duration-300 rounded-2xl shadow-xl ${item.isCompleted ? "border-green-500/50 bg-green-500/10" : "hover:border-brand-primary-500/50"
         }`}
     >
       <CardContent className="p-6">
@@ -116,7 +116,7 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
                   <Button
                     variant="ghost"
                     onClick={() => setIsExpanded(!isExpanded)}
-                    className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/20 backdrop-blur-sm p-2 h-auto rounded-lg transition-all duration-300 border border-blue-400/20"
+                    className="text-brand-primary-400 hover:text-brand-primary-300 hover:bg-brand-primary-500/20 backdrop-blur-sm p-2 h-auto rounded-lg transition-all duration-300 border border-brand-primary-400/20"
                   >
                     <span className="text-sm font-medium mr-2">{isExpanded ? "간단히 보기" : "자세히 보기"}</span>
                     {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -142,8 +142,8 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
                 {item.details?.location && (
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
-                      <MapPin className="w-4 h-4 text-purple-400" />
-                      <span className="text-sm font-medium text-purple-300">위치</span>
+                      <MapPin className="w-4 h-4 text-brand-secondary-400" />
+                      <span className="text-sm font-medium text-brand-secondary-300">위치</span>
                     </div>
                     <div className="ml-6">
                       <span className="text-sm text-muted-foreground">📍 {item.details?.location}</span>
@@ -170,7 +170,7 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
 
                 {item.details?.contacts && item.details.contacts.length > 0 && (
                   <div className="space-y-2">
-                    <span className="text-sm font-medium text-blue-300 flex items-center">
+                    <span className="text-sm font-medium text-brand-primary-300 flex items-center">
                       <Phone className="w-4 h-4 mr-2" />
                       연락처
                     </span>
@@ -178,7 +178,7 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
                       {item.details?.contacts?.map((contact, contactIndex) => (
                         <div key={contactIndex} className="text-sm">
                           <div className="text-foreground font-medium">{contact.name}</div>
-                          <div className="text-blue-400">{contact.phone}</div>
+                          <div className="text-brand-primary-400">{contact.phone}</div>
                           {contact.email && (
                             <div className="text-muted-foreground flex items-center">
                               <Mail className="w-3 h-3 mr-1" />

@@ -323,7 +323,7 @@ export default function ClarifyPage() {
   // 인증 로딩 중
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-slate-900">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-brand-primary-50 dark:from-gray-900 dark:to-slate-900">
         <LoadingSpinner stage="auth-check" />
       </div>
     )
@@ -332,7 +332,7 @@ export default function ClarifyPage() {
   // 의도 분석 로딩 중
   if (isLoading && intents.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-slate-900">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-brand-primary-50 dark:from-gray-900 dark:to-slate-900">
         <LoadingSpinner stage="goal-analysis" />
       </div>
     )
@@ -341,7 +341,7 @@ export default function ClarifyPage() {
   // 에러 상태
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-slate-900">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-brand-primary-50 dark:from-gray-900 dark:to-slate-900">
         <ErrorMessage
           message={error}
           onRetry={() => {
@@ -361,14 +361,14 @@ export default function ClarifyPage() {
 
   return (
     <div
-      className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-slate-900 relative"
+      className="min-h-screen bg-gradient-to-br from-slate-50 to-brand-primary-50 dark:from-gray-900 dark:to-slate-900 relative"
       role="main"
       aria-label="목표 구체화 페이지"
     >
       {/* 미묘한 배경 패턴 */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/5 dark:bg-blue-500/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-purple-500/5 dark:bg-purple-500/10 rounded-full blur-3xl" />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-brand-primary-500/5 dark:bg-brand-primary-500/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-brand-secondary-500/5 dark:bg-brand-secondary-500/10 rounded-full blur-3xl" />
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-8 relative z-10">
@@ -430,7 +430,7 @@ export default function ClarifyPage() {
                 setError("")
                 setQuestions([])
               }}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              className="px-4 py-2 bg-brand-primary-500 text-white rounded hover:bg-brand-primary-600"
             >
               다시 시도
             </button>

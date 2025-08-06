@@ -12,13 +12,13 @@ export function MainContent() {
     <main className="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 relative overflow-hidden bg-background">
       {/* 배경 장식 요소들 */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-500/10 dark:bg-blue-500/5 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-brand-primary-500/10 dark:bg-brand-primary-500/5 rounded-full blur-3xl animate-pulse" />
         <div
-          className="absolute bottom-1/3 right-1/4 w-96 h-96 bg-purple-500/10 dark:bg-purple-500/5 rounded-full blur-3xl animate-pulse"
+          className="absolute bottom-1/3 right-1/4 w-96 h-96 bg-brand-secondary-500/10 dark:bg-brand-secondary-500/5 rounded-full blur-3xl animate-pulse"
           style={{ animationDelay: "2s" }}
         />
         <div
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-pink-500/10 dark:bg-pink-500/5 rounded-full blur-2xl animate-pulse"
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-brand-secondary-300/10 dark:bg-brand-secondary-300/5 rounded-full blur-2xl animate-pulse"
           style={{ animationDelay: "4s" }}
         />
       </div>
@@ -28,7 +28,7 @@ export function MainContent() {
         <div className="space-y-6 animate-fade-in">
           <div className="space-y-4">
             <h1 className="main-title text-5xl md:text-7xl font-light text-foreground tracking-wide leading-tight">
-              <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-brand-primary-400 via-brand-secondary-400 to-brand-secondary-300 bg-clip-text text-transparent">
                 뭐부터 해야하지?
               </span>
             </h1>
