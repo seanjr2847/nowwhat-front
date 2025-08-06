@@ -92,16 +92,50 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
 
     // 질문 데이터가 없으면 누적된 텍스트에서 파싱 시도
     console.log('🔍 누적된 텍스트에서 JSON 파싱 시도...')
-    console.log('📄 전체 누적 텍스트:', streamingTextRef.current)
+    console.log('📄 전체 누적 텍스트 길이:', streamingTextRef.current.length)
+    console.log('📄 첫 500자:', streamingTextRef.current.substring(0, 500))
+    console.log('📄 마지막 500자:', streamingTextRef.current.substring(Math.max(0, streamingTextRef.current.length - 500)))
 
     try {
-      // JSON 블록 추출 (```json...``` 형태)
-      const jsonMatch = streamingTextRef.current.match(/```json\n([\s\S]*?)\n```/)
+      // 다양한 JSON 블록 패턴 시도
+      let jsonText = ''
+      
+      // 1. 기본 패턴: ```json...```
+      let jsonMatch = streamingTextRef.current.match(/```json\n([\s\S]*?)\n```/)
       if (jsonMatch) {
-        const jsonText: string = jsonMatch[1].trim()
-        console.log('🔍 추출된 JSON:', jsonText)
+        jsonText = jsonMatch[1].trim()
+        console.log('🔍 기본 패턴으로 JSON 추출 성공:', jsonText.length, '글자')
+      } else {
+        // 2. 개행 없는 패턴: ```json...```
+        jsonMatch = streamingTextRef.current.match(/```json([\s\S]*?)```/)
+        if (jsonMatch) {
+          jsonText = jsonMatch[1].trim()
+          console.log('🔍 개행 없는 패턴으로 JSON 추출 성공:', jsonText.length, '글자')
+        } else {
+          // 3. JSON 시작/끝만 찾기
+          const jsonStart = streamingTextRef.current.indexOf('{\n  "questions"')
+          const jsonEnd = streamingTextRef.current.lastIndexOf('}\n```')
+          
+          if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+            jsonText = streamingTextRef.current.substring(jsonStart, jsonEnd + 1).trim()
+            console.log('🔍 JSON 시작/끝 패턴으로 추출 성공:', jsonText.length, '글자')
+          } else {
+            // 4. 마지막 시도: { 부터 } 까지 찾기
+            const firstBrace = streamingTextRef.current.indexOf('{')
+            const lastBrace = streamingTextRef.current.lastIndexOf('}')
+            
+            if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+              jsonText = streamingTextRef.current.substring(firstBrace, lastBrace + 1).trim()
+              console.log('🔍 중괄호 패턴으로 JSON 추출 성공:', jsonText.length, '글자')
+            }
+          }
+        }
+      }
 
-        const parsed: unknown = JSON.parse(typeof jsonText === 'string' ? jsonText : '')
+      if (jsonText) {
+        console.log('🔍 최종 추출된 JSON:', jsonText.substring(0, 200) + '...')
+
+        const parsed: unknown = JSON.parse(jsonText)
 
         // 타입 가드로 안전하게 검증
         if (
@@ -150,6 +184,8 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
         console.log('  - ```json 패턴:', streamingTextRef.current.includes('```json'))
         console.log('  - ``` 패턴:', streamingTextRef.current.includes('```'))
         console.log('  - questions 키워드:', streamingTextRef.current.includes('"questions"'))
+        console.log('  - { 패턴:', streamingTextRef.current.includes('{'))
+        console.log('  - } 패턴:', streamingTextRef.current.includes('}'))
         setError('질문 생성 데이터를 찾을 수 없습니다.')
         setIsStreaming(false)
       }
