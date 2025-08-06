@@ -4,7 +4,7 @@ import { useStreamingQuestions } from "../../hooks/useStreamingQuestions"
 import type { Question } from "../../lib/api"
 import { cn } from "../../lib/utils"
 import { Button } from "../ui/button"
-import { StreamingText } from "./streaming-text"
+import { StreamingQuestionUI } from "./streaming-question-ui"
 import "./streaming.css"
 
 interface StreamingQuestionGeneratorProps {
@@ -42,6 +42,7 @@ export function StreamingQuestionGenerator({
     isStreaming,
     error,
     questions,
+    currentQuestionIndex,
     startStreaming,
     stopStreaming,
     resetStreaming,
@@ -158,7 +159,7 @@ export function StreamingQuestionGenerator({
             </Button>
           )}
 
-          {!isStreaming && (questions.length > 0 || error) && (
+          {!isStreaming && (questions.length > 0 || error !== null) && (
             <Button
               onClick={resetStreaming}
               variant="outline"
@@ -169,64 +170,23 @@ export function StreamingQuestionGenerator({
         </div>
       </div>
 
-      {/* 스트리밍 출력 영역 */}
-      {(isStreaming || streamingText || error) && (
-        <div className="bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                실시간 생성 결과
-              </span>
-              {isStreaming && (
-                <div className="flex items-center space-x-2 text-xs text-gray-500">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                  <span>실시간 스트리밍</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div
-            ref={outputRef}
-            className="p-4 max-h-96 overflow-y-auto streaming-scrollbar streaming-scroll"
-          >
-            {error ? (
-              <div className="text-red-600 dark:text-red-400 text-sm">
-                <strong>오류:</strong> {error}
-              </div>
-            ) : (
-              <StreamingText
-                text={streamingText}
-                isStreaming={isStreaming}
-                typingSpeed={20}
-                showCursor={true}
-                className="text-gray-800 dark:text-gray-200"
-              />
-            )}
-          </div>
+      {/* 스트리밍 질문 UI */}
+      {(isStreaming || questions.length > 0) && (
+        <div ref={outputRef}>
+          <StreamingQuestionUI
+            questions={questions}
+            isStreaming={isStreaming}
+            currentQuestionIndex={typeof currentQuestionIndex === 'number' ? currentQuestionIndex : 0}
+            className="mt-6"
+          />
         </div>
       )}
 
-      {/* 완료된 질문들 미리보기 */}
-      {questions.length > 0 && !isStreaming && (
-        <div className="bg-green-50 dark:bg-green-900/20 rounded-2xl border border-green-200 dark:border-green-800 p-4">
-          <div className="flex items-center space-x-2 mb-3">
-            <div className="w-3 h-3 bg-green-500 rounded-full" />
-            <span className="text-sm font-medium text-green-700 dark:text-green-300">
-              생성 완료 - {questions.length}개의 질문
-            </span>
-          </div>
-          <div className="space-y-2">
-            {questions.slice(0, 3).map((question, index) => (
-              <div key={question.id} className="text-sm text-green-800 dark:text-green-200">
-                {index + 1}. {question.text}
-              </div>
-            ))}
-            {questions.length > 3 && (
-              <div className="text-sm text-green-600 dark:text-green-400">
-                ...그 외 {questions.length - 3}개 질문
-              </div>
-            )}
+      {/* 에러 표시 */}
+      {error !== null && !isStreaming && (
+        <div className="bg-red-50 dark:bg-red-900/20 rounded-2xl border border-red-200 dark:border-red-800 p-4">
+          <div className="text-red-600 dark:text-red-400 text-sm">
+            <strong>오류:</strong> {error}
           </div>
         </div>
       )}

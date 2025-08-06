@@ -10,15 +10,12 @@ import { IntentSelection } from "../components/clarify/intent-selection"
 import { LoadingSpinner } from "../components/clarify/loading-spinner"
 import { ProgressBar } from "../components/clarify/progress-bar"
 import { QuestionSection } from "../components/clarify/question-section"
-import { QuestionSkeletonCompact } from "../components/clarify/question-skeleton"
 import { StreamingQuestionGenerator } from "../components/streaming/streaming-question-generator"
-import { Button } from "../components/ui/button"
 import { useToast } from "../hooks/use-toast"
 import { useAuth } from "../hooks/useAuth"
 import {
   analyzeIntents,
   createChecklist,
-  generateQuestions,
   saveQuestionAnswer,
   formatApiError,
   type Intent,
@@ -45,7 +42,7 @@ export default function ClarifyPage() {
   const [error, setError] = useState<string>("")
   const [showAdModal, setShowAdModal] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
-  const [useStreaming, setUseStreaming] = useState(false)
+  const [useStreaming] = useState(true) // 항상 스트리밍 사용
 
   // 세션 정보
   const [sessionId, setSessionId] = useState<string>("")
@@ -118,80 +115,11 @@ export default function ClarifyPage() {
 
     console.log('🎯 의도 선택:', selectedIntentObj)
     console.log('📌 현재 sessionId:', sessionId)
-
-    // 상태 업데이트 전
-    console.log('🔄 상태 업데이트 전:', { selectedIntent, isLoading })
-    console.log('🆔 선택된 intentId:', intentId)
-    console.log('📝 사용할 title:', selectedIntentObj.title)
+    console.log('🚀 스트리밍 모드로 질문 생성 시작')
 
     setSelectedIntent(selectedIntentObj.title)
-    setIsLoading(true)
     setError("")
-
-    // 상태 업데이트 직후 (실제로는 아직 적용 안됨)
-    console.log('🔄 상태 업데이트 호출 완료')
-
-    try {
-      console.log('⏳ API 호출 시작 - 최소 500ms 로딩 보장')
-      
-      // 최소 로딩 시간 보장 (500ms)
-      const [response] = await Promise.all([
-        generateQuestions(sessionId, goal, selectedIntentObj.title),
-        new Promise<void>(resolve => setTimeout(resolve, 500))
-      ])
-      
-      console.log('✅ API 호출 및 최소 로딩 시간 완료')
-
-      if (response.success && response.data) {
-        console.log('✅ 질문 생성 성공:', response.data)
-        console.log('📋 질문 데이터:', {
-          questionSetId: response.data.questionSetId,
-          questionsCount: response.data.questions?.length || 0,
-          firstQuestion: response.data.questions?.[0]
-        })
-
-        // 질문이 실제로 있는지 확인
-        if (!response.data.questions || response.data.questions.length === 0) {
-          console.error('⚠️ 질문 배열이 비어있습니다!')
-          setError("질문을 생성하지 못했습니다.")
-          return
-        }
-
-        // questionSetId가 없을 수 있으므로 옵셔널 체이닝 사용
-        if (response.data.questionSetId) {
-          setQuestionSetId(response.data.questionSetId)
-        }
-        setQuestions(response.data.questions || [])
-        setProgress(50)
-
-        toast({
-          title: "질문 생성 완료!",
-          description: `${response.data.questions?.length || 0}개의 맞춤 질문을 준비했습니다.`,
-          variant: "default",
-        })
-      } else {
-        console.error('❌ 질문 생성 실패:', response.error)
-        const errorMessage = formatApiError(response.error) || "질문 생성 중 오류가 발생했습니다."
-        setError(errorMessage)
-
-        toast({
-          title: "질문 생성 실패",
-          description: errorMessage,
-          variant: "destructive",
-        })
-      }
-    } catch (error) {
-      console.error('💥 질문 생성 에러:', error)
-      setError("질문 생성 중 오류가 발생했습니다.")
-
-      toast({
-        title: "연결 오류",
-        description: "서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoading(false)
-    }
+    setProgress(25) // 의도 선택 완료
   }
 
   // 스트리밍 질문 생성 완료 핸들러
@@ -423,7 +351,9 @@ export default function ClarifyPage() {
             if (intents.length === 0) {
               void fetchIntents(goal)
             } else if (selectedIntent && questions.length === 0) {
-              void handleIntentSelect(selectedIntent)
+              // 스트리밍 모드에서는 에러 초기화만 하면 자동으로 다시 시작됨
+              setError("")
+              setQuestions([])
             }
           }}
         />
@@ -469,51 +399,11 @@ export default function ClarifyPage() {
 
         {/* 의도 선택 단계 */}
         {!selectedIntent && intents.length > 0 && (
-          <>
-            <IntentSelection intents={intents} onSelect={(id) => void handleIntentSelect(id)} />
-            
-            {/* 스트리밍 모드 토글 */}
-            <div className="flex justify-center mb-6">
-              <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-white/20 dark:border-gray-700/50 rounded-2xl p-4">
-                <div className="flex items-center space-x-3">
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    질문 생성 방식:
-                  </span>
-                  <Button
-                    variant={useStreaming ? "outline" : "default"}
-                    size="sm"
-                    onClick={() => setUseStreaming(false)}
-                    className="text-xs"
-                  >
-                    일반 모드
-                  </Button>
-                  <Button
-                    variant={useStreaming ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setUseStreaming(true)}
-                    className="text-xs bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0"
-                  >
-                    🚀 실시간 스트리밍
-                  </Button>
-                </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
-                  {useStreaming 
-                    ? "ChatGPT 스타일로 실시간 질문 생성을 확인할 수 있습니다" 
-                    : "완성된 질문을 한번에 받아볼 수 있습니다"
-                  }
-                </p>
-              </div>
-            </div>
-          </>
-        )}
-
-        {/* 질문 생성 중 - 일반 모드 */}
-        {selectedIntent && isLoading && !useStreaming && (
-          <QuestionSkeletonCompact />
+          <IntentSelection intents={intents} onSelect={(id) => void handleIntentSelect(id)} />
         )}
 
         {/* 스트리밍 질문 생성기 */}
-        {selectedIntent && useStreaming && questions.length === 0 && (
+        {selectedIntent && questions.length === 0 && (
           <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-white/20 dark:border-gray-700/50 rounded-3xl p-6 mb-8">
             <StreamingQuestionGenerator
               sessionId={sessionId}
@@ -528,21 +418,19 @@ export default function ClarifyPage() {
         )}
 
         {/* 질문 표시 */}
-        {selectedIntent && !isLoading && questions.length > 0 && (
+        {selectedIntent && questions.length > 0 && (
           <QuestionSection questions={questions} answers={answers} onAnswerChange={handleAnswerChange} />
         )}
 
         {/* 에러 상태: 질문 생성 실패 */}
-        {selectedIntent && !isLoading && questions.length === 0 && !error && (
+        {selectedIntent && questions.length === 0 && error && (
           <div className="text-center py-10">
             <p className="text-gray-500 mb-4">질문을 생성하지 못했습니다.</p>
             <button
               onClick={() => {
-                // selectedIntent는 이제 title이므로 직접 해당하는 intent를 찾아서 id 사용
-                const intentObj = intents.find(i => i.title === selectedIntent)
-                if (intentObj) {
-                  void handleIntentSelect(intentObj.id)
-                }
+                // 에러 초기화하고 다시 스트리밍 시작
+                setError("")
+                setQuestions([])
               }}
               className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
             >
