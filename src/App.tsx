@@ -12,6 +12,7 @@ import ClarifyPage from './pages/ClarifyPage';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import MyListsPage from './pages/MyListsPage';
+import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
 import ResultPage from './pages/ResultPage';
 
 function App() {
@@ -30,7 +31,7 @@ function App() {
             {/* AuthCallback 라우트는 ID 토큰 방식에서는 불필요 */}
             <Route path="/my-lists" element={<ProtectedRoute><MyListsPage /></ProtectedRoute>} />
             <Route path="/result/:id" element={<ResultPage />} />
-            <Route path="/privacy" element={<div>Privacy Policy</div>} />
+            <Route path="/privacy" element={<PrivacyPolicyPage />} />
             <Route path="/terms" element={<div>Terms of Service</div>} />
           </Routes>
           <Toaster />

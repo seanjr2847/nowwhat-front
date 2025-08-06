@@ -1,5 +1,5 @@
-import { useState, useCallback, useRef } from 'react'
-import { generateQuestionsStream, type StreamResponse, type Question } from '../lib/api'
+import { useCallback, useRef, useState } from 'react'
+import { generateQuestionsStream, type Question, type StreamResponse } from '../lib/api'
 
 export interface UseStreamingQuestionsReturn {
   /** 현재 스트리밍 텍스트 */
@@ -33,7 +33,7 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
   const [questions, setQuestions] = useState<Question[]>([])
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [streamingStatus, setStreamingStatus] = useState<StreamResponse['status'] | null>(null)
-  
+
   // 스트리밍 중단을 위한 AbortController
   const abortControllerRef = useRef<AbortController | null>(null)
   // 질문을 순차적으로 추가하기 위한 타이머
@@ -43,7 +43,7 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
 
   const handleStreamData = useCallback((data: StreamResponse) => {
     setStreamingStatus(data.status)
-    
+
     switch (data.status) {
       case 'started':
         console.log('🚀 스트리밍 시작:', data.message)
@@ -82,27 +82,27 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
 
   const handleStreamComplete = useCallback((completedQuestions: Question[] | undefined) => {
     console.log('🎉 [DONE] 신호 수신 - 최종 처리 시작')
-    
+
     // 이미 질문 데이터가 있으면 바로 사용
     if (completedQuestions && completedQuestions.length > 0) {
       console.log('✅ 전달받은 질문 데이터 사용:', completedQuestions.length, '개')
       processQuestions(completedQuestions)
       return
     }
-    
+
     // 질문 데이터가 없으면 누적된 텍스트에서 파싱 시도
     console.log('🔍 누적된 텍스트에서 JSON 파싱 시도...')
     console.log('📄 전체 누적 텍스트:', streamingTextRef.current)
-    
+
     try {
       // JSON 블록 추출 (```json...``` 형태)
       const jsonMatch = streamingTextRef.current.match(/```json\n([\s\S]*?)\n```/)
       if (jsonMatch) {
-        const jsonText = jsonMatch[1].trim()
+        const jsonText: string = jsonMatch[1].trim()
         console.log('🔍 추출된 JSON:', jsonText)
-        
-        const parsed: unknown = JSON.parse(jsonText)
-        
+
+        const parsed: unknown = JSON.parse(typeof jsonText === 'string' ? jsonText : '')
+
         // 타입 가드로 안전하게 검증
         if (
           parsed !== null &&
@@ -113,7 +113,7 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
           // questions 배열의 각 요소가 Question 타입인지 검증
           const questions = parsed.questions as unknown[]
           const validQuestions: Question[] = []
-          
+
           for (const q of questions) {
             if (
               q !== null &&
@@ -130,7 +130,7 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
               validQuestions.push(q as Question)
             }
           }
-          
+
           if (validQuestions.length > 0) {
             console.log('✅ JSON 파싱 성공:', validQuestions.length, '개 질문')
             processQuestions(validQuestions)
@@ -163,7 +163,7 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
   // 질문들을 순차적으로 추가하는 헬퍼 함수
   const processQuestions = useCallback((questionsToProcess: Question[]) => {
     console.log('🔄 질문 순차 추가 시작:', questionsToProcess.length, '개')
-    
+
     // 질문을 하나씩 순차적으로 추가
     let currentIndex = 0
     const addQuestionSequentially = () => {
@@ -171,7 +171,7 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
         setQuestions(prev => [...prev, questionsToProcess[currentIndex]])
         setCurrentQuestionIndex(currentIndex)
         currentIndex++
-        
+
         // 다음 질문을 500ms 후에 추가
         questionTimerRef.current = setTimeout(addQuestionSequentially, 500)
       } else {
@@ -182,7 +182,7 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
         setCurrentQuestionIndex(questionsToProcess.length - 1)
       }
     }
-    
+
     // 기존 질문 초기화 후 순차적 추가 시작
     setQuestions([])
     setCurrentQuestionIndex(0)
@@ -197,8 +197,8 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
   }, [])
 
   const startStreaming = useCallback(async (
-    sessionId: string, 
-    goal: string, 
+    sessionId: string,
+    goal: string,
     intentTitle: string
   ) => {
     // 이전 상태 초기화
