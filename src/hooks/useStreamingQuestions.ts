@@ -117,37 +117,55 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
     console.log('📄 텍스트 샘플 (마지막 300자):', streamingTextRef.current.substring(Math.max(0, streamingTextRef.current.length - 300)))
 
     try {
-      // 다양한 JSON 블록 패턴 시도
+      // 더 정확한 JSON 블록 패턴 시도
       let jsonText = ''
       
-      // 1. 기본 패턴: ```json...```
+      // 1. 완전한 ```json...``` 패턴 (개행 포함)
       let jsonMatch = streamingTextRef.current.match(/```json\n([\s\S]*?)\n```/)
       if (jsonMatch) {
         jsonText = jsonMatch[1].trim()
-        console.log('🔍 기본 패턴으로 JSON 추출 성공:', jsonText.length, '글자')
+        console.log('🔍 완전한 JSON 블록 패턴으로 추출 성공:', jsonText.length, '글자')
       } else {
-        // 2. 개행 없는 패턴: ```json...```
-        jsonMatch = streamingTextRef.current.match(/```json([\s\S]*?)```/)
+        // 2. 불완전한 ```json...``` 패턴 (```이 끝에 없을 수 있음)
+        jsonMatch = streamingTextRef.current.match(/```json\n?([\s\S]*)/)
         if (jsonMatch) {
-          jsonText = jsonMatch[1].trim()
-          console.log('🔍 개행 없는 패턴으로 JSON 추출 성공:', jsonText.length, '글자')
+          let rawJson = jsonMatch[1]
+          // 끝의 ``` 제거
+          if (rawJson.endsWith('```')) {
+            rawJson = rawJson.slice(0, -3)
+          }
+          jsonText = rawJson.trim()
+          console.log('🔍 불완전한 JSON 블록 패턴으로 추출 성공:', jsonText.length, '글자')
         } else {
-          // 3. JSON 시작/끝만 찾기
-          const jsonStart = streamingTextRef.current.indexOf('{\n  "questions"')
-          const jsonEnd = streamingTextRef.current.lastIndexOf('}\n```')
-          
-          if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
-            jsonText = streamingTextRef.current.substring(jsonStart, jsonEnd + 1).trim()
-            console.log('🔍 JSON 시작/끝 패턴으로 추출 성공:', jsonText.length, '글자')
-          } else {
-            // 4. 마지막 시도: { 부터 } 까지 찾기
-            const firstBrace = streamingTextRef.current.indexOf('{')
-            const lastBrace = streamingTextRef.current.lastIndexOf('}')
-            
-            if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-              jsonText = streamingTextRef.current.substring(firstBrace, lastBrace + 1).trim()
-              console.log('🔍 중괄호 패턴으로 JSON 추출 성공:', jsonText.length, '글자')
+          // 3. questions 키워드로 시작하는 JSON 찾기
+          const questionsStart = streamingTextRef.current.indexOf('{\n  "questions"')
+          if (questionsStart === -1) {
+            // 다른 형태의 questions 찾기
+            const altQuestionsStart = streamingTextRef.current.indexOf('{"questions"')
+            if (altQuestionsStart !== -1) {
+              // 여기서부터 끝까지 가져와서 완전한 JSON 구성 시도
+              let candidateJson = streamingTextRef.current.substring(altQuestionsStart).trim()
+              // 끝의 ``` 제거
+              if (candidateJson.endsWith('```')) {
+                candidateJson = candidateJson.slice(0, -3).trim()
+              }
+              jsonText = candidateJson
+              console.log('🔍 대체 questions 패턴으로 추출 성공:', jsonText.length, '글자')
             }
+          } else {
+            // 여기서부터 끝까지 또는 ``` 까지
+            const remaining = streamingTextRef.current.substring(questionsStart)
+            const endMarker = remaining.indexOf('\n```')
+            if (endMarker !== -1) {
+              jsonText = remaining.substring(0, endMarker).trim()
+            } else {
+              jsonText = remaining.trim()
+              // 끝의 ``` 제거
+              if (jsonText.endsWith('```')) {
+                jsonText = jsonText.slice(0, -3).trim()
+              }
+            }
+            console.log('🔍 questions 시작 패턴으로 추출 성공:', jsonText.length, '글자')
           }
         }
       }
@@ -169,13 +187,28 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
           bracketMatch: openBrackets === closeBrackets
         })
 
-        // [DONE] 신호 후이므로 JSON이 완전해야 함
+        // JSON이 불완전한 경우 복구 시도
         if (openBraces !== closeBraces || openBrackets !== closeBrackets) {
-          console.error('❌ [DONE] 후에도 JSON 괄호 불일치 - 스트리밍 데이터 손상')
-          setError('스트리밍 데이터가 손상되었습니다. 다시 시도해주세요.')
-          setIsStreaming(false)
-          isProcessingRef.current = false
-          return
+          console.warn('⚠️ JSON 괄호 불일치 감지 - 복구 시도 중...')
+          console.log('🔧 복구 전 JSON 끝부분:', jsonText.substring(Math.max(0, jsonText.length - 200)))
+          
+          // 부족한 닫는 괄호 개수 계산
+          const missingBraces = openBraces - closeBraces
+          const missingBrackets = openBrackets - closeBrackets
+          
+          // 적절한 닫는 괄호 추가
+          let fixedJson = jsonText
+          for (let i = 0; i < missingBrackets; i++) {
+            fixedJson += ']'
+          }
+          for (let i = 0; i < missingBraces; i++) {
+            fixedJson += '}'
+          }
+          
+          console.log('🔧 복구 후 JSON 끝부분:', fixedJson.substring(Math.max(0, fixedJson.length - 200)))
+          console.log('🔧 추가된 괄호:', { 추가된_중괄호: missingBraces, 추가된_대괄호: missingBrackets })
+          
+          jsonText = fixedJson
         }
 
         const parsed: unknown = JSON.parse(jsonText)
