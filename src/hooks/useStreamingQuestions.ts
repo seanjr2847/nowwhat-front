@@ -40,6 +40,8 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
   const questionTimerRef = useRef<NodeJS.Timeout | null>(null)
   // 최신 streamingText 값을 참조하기 위한 ref
   const streamingTextRef = useRef<string>('')
+  // 중복 처리 방지를 위한 플래그
+  const isProcessingRef = useRef<boolean>(false)
 
   const handleStreamData = useCallback((data: StreamResponse) => {
     setStreamingStatus(data.status)
@@ -68,6 +70,8 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
         if (data.questions) {
           console.log('🎉 서버에서 완성된 질문 데이터 수신:', data.questions.length, '개')
           handleStreamComplete(data.questions)
+        } else {
+          console.log('⏳ 질문 데이터가 없으므로 [DONE] 신호를 기다립니다...')
         }
         // 그렇지 않으면 [DONE] 신호에서 최종 파싱 처리
         break
@@ -82,6 +86,13 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
 
   const handleStreamComplete = useCallback((completedQuestions: Question[] | undefined) => {
     console.log('🎉 [DONE] 신호 수신 - 최종 처리 시작')
+
+    // 이미 처리 중이면 중복 처리 방지
+    if (isProcessingRef.current) {
+      console.log('⚠️ 이미 처리 중이므로 중복 처리 방지')
+      return
+    }
+    isProcessingRef.current = true
 
     // 이미 질문 데이터가 있으면 바로 사용
     if (completedQuestions && completedQuestions.length > 0) {
@@ -133,7 +144,29 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
       }
 
       if (jsonText) {
-        console.log('🔍 최종 추출된 JSON:', jsonText.substring(0, 200) + '...')
+        console.log('🔍 최종 추출된 JSON 길이:', jsonText.length)
+        console.log('🔍 JSON 앞부분:', jsonText.substring(0, 300))
+        console.log('🔍 JSON 뒷부분:', jsonText.substring(Math.max(0, jsonText.length - 300)))
+
+        // JSON이 완전한지 기본 검증
+        const openBraces = (jsonText.match(/{/g) || []).length
+        const closeBraces = (jsonText.match(/}/g) || []).length
+        const openBrackets = (jsonText.match(/\[/g) || []).length
+        const closeBrackets = (jsonText.match(/\]/g) || []).length
+
+        console.log('🔍 JSON 완전성 검사:', { 
+          openBraces, closeBraces, openBrackets, closeBrackets,
+          braceMatch: openBraces === closeBraces,
+          bracketMatch: openBrackets === closeBrackets
+        })
+
+        if (openBraces !== closeBraces || openBrackets !== closeBrackets) {
+          console.error('❌ JSON이 불완전합니다 - 괄호 불일치')
+          setError('질문 생성이 완료되지 않았습니다. 다시 시도해주세요.')
+          setIsStreaming(false)
+          isProcessingRef.current = false
+          return
+        }
 
         const parsed: unknown = JSON.parse(jsonText)
 
@@ -172,11 +205,13 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
             console.error('❌ 유효한 질문 데이터가 없음')
             setError('질문 데이터가 올바른 형식이 아닙니다.')
             setIsStreaming(false)
+            isProcessingRef.current = false
           }
         } else {
           console.error('❌ 파싱된 데이터에 questions 배열이 없음:', parsed)
           setError('질문 데이터 형식이 올바르지 않습니다.')
           setIsStreaming(false)
+          isProcessingRef.current = false
         }
       } else {
         console.error('❌ JSON 블록을 찾을 수 없음')
@@ -188,11 +223,13 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
         console.log('  - } 패턴:', streamingTextRef.current.includes('}'))
         setError('질문 생성 데이터를 찾을 수 없습니다.')
         setIsStreaming(false)
+        isProcessingRef.current = false
       }
     } catch (parseError) {
       console.error('❌ JSON 파싱 에러:', parseError)
       setError(`질문 생성 데이터를 파싱할 수 없습니다: ${parseError instanceof Error ? parseError.message : String(parseError)}`)
       setIsStreaming(false)
+      isProcessingRef.current = false
     }
   }, [])
 
@@ -245,6 +282,7 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
     setCurrentQuestionIndex(0)
     setIsStreaming(true)
     setStreamingStatus('started')
+    isProcessingRef.current = false
 
     // 기존 타이머 정리
     if (questionTimerRef.current) {
@@ -293,6 +331,7 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
     setQuestions([])
     setCurrentQuestionIndex(0)
     setStreamingStatus(null)
+    isProcessingRef.current = false
     console.log('🔄 스트리밍 상태 초기화됨')
   }, [stopStreaming])
 
