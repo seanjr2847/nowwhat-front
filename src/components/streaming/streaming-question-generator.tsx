@@ -49,13 +49,16 @@ export function StreamingQuestionGenerator({
   } = useStreamingQuestions()
 
   const outputRef = useRef<HTMLDivElement>(null)
+  const hasStartedRef = useRef(false)
 
   // 자동 시작
   useEffect(() => {
-    if (autoStart && !isStreaming && !questions.length) {
+    if (autoStart && !isStreaming && !questions.length && sessionId && goal && intentTitle && !hasStartedRef.current) {
+      console.log('🎬 자동 시작 조건 충족 - API 호출')
+      hasStartedRef.current = true
       void startStreaming(sessionId, goal, intentTitle)
     }
-  }, [autoStart, sessionId, goal, intentTitle, startStreaming, isStreaming, questions.length])
+  }, [autoStart, sessionId, goal, intentTitle]) // startStreaming과 questions.length 제거로 중복 호출 방지
 
   // 질문 완료 시 콜백 호출
   useEffect(() => {
@@ -79,7 +82,13 @@ export function StreamingQuestionGenerator({
   }, [streamingText])
 
   const handleStart = () => {
+    hasStartedRef.current = true
     void startStreaming(sessionId, goal, intentTitle)
+  }
+  
+  const handleReset = () => {
+    hasStartedRef.current = false
+    resetStreaming()
   }
 
   const getStatusMessage = () => {
@@ -149,7 +158,7 @@ export function StreamingQuestionGenerator({
 
           {!isStreaming && (questions.length > 0 || error !== null) && (
             <Button
-              onClick={resetStreaming}
+              onClick={handleReset}
               variant="outline"
             >
               다시 생성

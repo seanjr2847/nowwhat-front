@@ -74,8 +74,20 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
             // JSON 블록 추출 (```json...``` 형태)
             const jsonMatch = streamingTextRef.current.match(/```json\n([\s\S]*?)\n```/)
             if (jsonMatch) {
-              const jsonText = jsonMatch[1]
-              console.log('🔍 추출된 JSON:', jsonText)
+              const jsonText = jsonMatch[1].trim()
+              console.log('🔍 추출된 JSON 길이:', jsonText.length)
+              console.log('🔍 JSON 첫 100자:', jsonText.substring(0, 100))
+              console.log('🔍 JSON 마지막 100자:', jsonText.substring(Math.max(0, jsonText.length - 100)))
+              
+              // JSON 완성도 검증
+              if (!jsonText.endsWith('}') || !jsonText.includes('"questions"')) {
+                console.warn('⚠️ JSON이 완성되지 않음 - completed 상태이지만 JSON이 불완전')
+                console.log('📄 전체 누적 텍스트:', streamingTextRef.current)
+                setError('질문 생성이 완료되지 않았습니다.')
+                setIsStreaming(false)
+                return
+              }
+              
               const parsed = JSON.parse(jsonText)
               if (parsed.questions && Array.isArray(parsed.questions)) {
                 console.log('✅ 질문 파싱 성공:', parsed.questions.length, '개')
@@ -86,13 +98,15 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
                 setIsStreaming(false)
               }
             } else {
-              console.error('❌ JSON 블록을 찾을 수 없음:', streamingTextRef.current.substring(0, 200) + '...')
+              console.error('❌ JSON 블록을 찾을 수 없음')
+              console.log('📄 전체 누적 텍스트 (첫 500자):', streamingTextRef.current.substring(0, 500))
               setError('질문 생성 데이터를 파싱할 수 없습니다.')
               setIsStreaming(false)
             }
           } catch (parseError) {
-            console.error('❌ JSON 파싱 에러:', parseError, '텍스트:', streamingTextRef.current.substring(0, 200) + '...')
-            setError('질문 생성 데이터를 파싱할 수 없습니다.')
+            console.error('❌ JSON 파싱 에러:', parseError)
+            console.log('🔍 파싱 시도한 텍스트 (첫 500자):', streamingTextRef.current.substring(0, 500))
+            setError(`질문 생성 데이터를 파싱할 수 없습니다: ${parseError instanceof Error ? parseError.message : String(parseError)}`)
             setIsStreaming(false)
           }
         }
