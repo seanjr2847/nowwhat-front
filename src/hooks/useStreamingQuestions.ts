@@ -61,19 +61,18 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
             return newText
           })
         }
+        // generating 단계에서는 절대 파싱하지 않음
         break
 
       case 'completed':
         console.log('✅ 스트리밍 상태 완료:', data.message)
-        // completed 상태에서는 파싱하지 않고, [DONE] 신호를 기다립니다
-        // data.questions가 있으면 바로 사용
-        if (data.questions) {
+        // completed 상태에서는 data.questions가 완전히 제공된 경우만 처리
+        if (data.questions && Array.isArray(data.questions) && data.questions.length > 0) {
           console.log('🎉 서버에서 완성된 질문 데이터 수신:', data.questions.length, '개')
           handleStreamComplete(data.questions)
         } else {
-          console.log('⏳ 질문 데이터가 없으므로 [DONE] 신호를 기다립니다...')
+          console.log('⏳ 완전한 질문 데이터가 없으므로 [DONE] 신호를 기다립니다...')
         }
-        // 그렇지 않으면 [DONE] 신호에서 최종 파싱 처리
         break
 
       case 'error':
@@ -94,18 +93,28 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
     }
     isProcessingRef.current = true
 
-    // 이미 질문 데이터가 있으면 바로 사용
-    if (completedQuestions && completedQuestions.length > 0) {
-      console.log('✅ 전달받은 질문 데이터 사용:', completedQuestions.length, '개')
+    // 이미 완성된 질문 데이터가 있으면 바로 사용 (최우선)
+    if (completedQuestions && Array.isArray(completedQuestions) && completedQuestions.length > 0) {
+      console.log('✅ [DONE] 신호와 함께 전달받은 완성된 질문 데이터 사용:', completedQuestions.length, '개')
       processQuestions(completedQuestions)
       return
     }
 
-    // 질문 데이터가 없으면 누적된 텍스트에서 파싱 시도
-    console.log('🔍 누적된 텍스트에서 JSON 파싱 시도...')
+    // 완성된 데이터가 없는 경우에만 마지막 수단으로 텍스트 파싱 시도
+    console.log('⚠️ [DONE] 신호 수신했지만 완성된 질문 데이터가 없음 - 텍스트 파싱 시도')
     console.log('📄 전체 누적 텍스트 길이:', streamingTextRef.current.length)
-    console.log('📄 첫 500자:', streamingTextRef.current.substring(0, 500))
-    console.log('📄 마지막 500자:', streamingTextRef.current.substring(Math.max(0, streamingTextRef.current.length - 500)))
+    
+    // 텍스트가 충분히 누적되었는지 확인
+    if (streamingTextRef.current.length < 50) {
+      console.error('❌ 누적된 텍스트가 너무 짧아서 파싱 불가:', streamingTextRef.current.length, '글자')
+      setError('스트리밍 데이터가 충분하지 않습니다. 다시 시도해주세요.')
+      setIsStreaming(false)
+      isProcessingRef.current = false
+      return
+    }
+
+    console.log('📄 텍스트 샘플 (첫 300자):', streamingTextRef.current.substring(0, 300))
+    console.log('📄 텍스트 샘플 (마지막 300자):', streamingTextRef.current.substring(Math.max(0, streamingTextRef.current.length - 300)))
 
     try {
       // 다양한 JSON 블록 패턴 시도
@@ -148,21 +157,22 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
         console.log('🔍 JSON 앞부분:', jsonText.substring(0, 300))
         console.log('🔍 JSON 뒷부분:', jsonText.substring(Math.max(0, jsonText.length - 300)))
 
-        // JSON이 완전한지 기본 검증
+        // JSON이 완전한지 엄격하게 검증 ([DONE] 신호 후에만 호출되므로)
         const openBraces = (jsonText.match(/{/g) || []).length
         const closeBraces = (jsonText.match(/}/g) || []).length
         const openBrackets = (jsonText.match(/\[/g) || []).length
         const closeBrackets = (jsonText.match(/\]/g) || []).length
 
-        console.log('🔍 JSON 완전성 검사:', { 
+        console.log('🔍 [DONE] 후 JSON 완전성 검사:', { 
           openBraces, closeBraces, openBrackets, closeBrackets,
           braceMatch: openBraces === closeBraces,
           bracketMatch: openBrackets === closeBrackets
         })
 
+        // [DONE] 신호 후이므로 JSON이 완전해야 함
         if (openBraces !== closeBraces || openBrackets !== closeBrackets) {
-          console.error('❌ JSON이 불완전합니다 - 괄호 불일치')
-          setError('질문 생성이 완료되지 않았습니다. 다시 시도해주세요.')
+          console.error('❌ [DONE] 후에도 JSON 괄호 불일치 - 스트리밍 데이터 손상')
+          setError('스트리밍 데이터가 손상되었습니다. 다시 시도해주세요.')
           setIsStreaming(false)
           isProcessingRef.current = false
           return
