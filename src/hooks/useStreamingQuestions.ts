@@ -38,6 +38,8 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
   const abortControllerRef = useRef<AbortController | null>(null)
   // 질문을 순차적으로 추가하기 위한 타이머
   const questionTimerRef = useRef<NodeJS.Timeout | null>(null)
+  // 최신 streamingText 값을 참조하기 위한 ref
+  const streamingTextRef = useRef<string>('')
 
   const handleStreamData = useCallback((data: StreamResponse) => {
     setStreamingStatus(data.status)
@@ -46,20 +48,54 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
       case 'started':
         console.log('🚀 스트리밍 시작:', data.message)
         setStreamingText('')
+        streamingTextRef.current = ''
         break
 
       case 'generating':
         if (data.chunk) {
-          setStreamingText(prev => prev + data.chunk)
+          setStreamingText(prev => {
+            const newText = prev + data.chunk
+            streamingTextRef.current = newText
+            return newText
+          })
         }
         break
 
       case 'completed':
         console.log('✅ 스트리밍 완료:', data.message)
+        console.log('📄 누적된 텍스트:', streamingTextRef.current)
+        
+        // data.questions가 있으면 바로 사용, 없으면 누적된 텍스트에서 파싱
         if (data.questions) {
-          setQuestions(data.questions)
+          handleStreamComplete(data.questions)
+        } else {
+          // 누적된 스트리밍 텍스트에서 JSON 파싱 시도
+          try {
+            // JSON 블록 추출 (```json...``` 형태)
+            const jsonMatch = streamingTextRef.current.match(/```json\n([\s\S]*?)\n```/)
+            if (jsonMatch) {
+              const jsonText = jsonMatch[1]
+              console.log('🔍 추출된 JSON:', jsonText)
+              const parsed = JSON.parse(jsonText)
+              if (parsed.questions && Array.isArray(parsed.questions)) {
+                console.log('✅ 질문 파싱 성공:', parsed.questions.length, '개')
+                handleStreamComplete(parsed.questions)
+              } else {
+                console.error('❌ 파싱된 데이터에 questions 배열이 없음:', parsed)
+                setError('질문 데이터 형식이 올바르지 않습니다.')
+                setIsStreaming(false)
+              }
+            } else {
+              console.error('❌ JSON 블록을 찾을 수 없음:', streamingTextRef.current.substring(0, 200) + '...')
+              setError('질문 생성 데이터를 파싱할 수 없습니다.')
+              setIsStreaming(false)
+            }
+          } catch (parseError) {
+            console.error('❌ JSON 파싱 에러:', parseError, '텍스트:', streamingTextRef.current.substring(0, 200) + '...')
+            setError('질문 생성 데이터를 파싱할 수 없습니다.')
+            setIsStreaming(false)
+          }
         }
-        setIsStreaming(false)
         break
 
       case 'error':
@@ -111,6 +147,7 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
   ) => {
     // 이전 상태 초기화
     setStreamingText('')
+    streamingTextRef.current = ''
     setError(null)
     setQuestions([])
     setCurrentQuestionIndex(0)
@@ -159,6 +196,7 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
   const resetStreaming = useCallback(() => {
     stopStreaming()
     setStreamingText('')
+    streamingTextRef.current = ''
     setError(null)
     setQuestions([])
     setCurrentQuestionIndex(0)

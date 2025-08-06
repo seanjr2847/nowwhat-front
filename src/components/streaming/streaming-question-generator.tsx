@@ -1,4 +1,4 @@
-import { Brain, Square, Zap } from "lucide-react"
+import { Brain, Zap } from "lucide-react"
 import { useEffect, useRef } from "react"
 import { useStreamingQuestions } from "../../hooks/useStreamingQuestions"
 import type { Question } from "../../lib/api"
@@ -44,7 +44,6 @@ export function StreamingQuestionGenerator({
     questions,
     currentQuestionIndex,
     startStreaming,
-    stopStreaming,
     resetStreaming,
     streamingStatus
   } = useStreamingQuestions()
@@ -145,17 +144,6 @@ export function StreamingQuestionGenerator({
             >
               <Zap className="w-4 h-4 mr-2" />
               시작
-            </Button>
-          )}
-
-          {isStreaming && (
-            <Button
-              onClick={stopStreaming}
-              variant="outline"
-              className="border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
-            >
-              <Square className="w-4 h-4 mr-2" />
-              중단
             </Button>
           )}
 
