@@ -36,16 +36,20 @@ export function IntentSelection({ intents, onSelect }: IntentSelectionProps) {
       switch (e.key) {
         case "ArrowRight":
         case "ArrowDown":
-          { e.preventDefault()
-          const nextIndex = (currentIndex + 1) % intents.length
-          cardRefs.current[nextIndex]?.focus()
-          break }
+          {
+            e.preventDefault()
+            const nextIndex = (currentIndex + 1) % intents.length
+            cardRefs.current[nextIndex]?.focus()
+            break
+          }
         case "ArrowLeft":
         case "ArrowUp":
-          { e.preventDefault()
-          const prevIndex = currentIndex === 0 ? intents.length - 1 : currentIndex - 1
-          cardRefs.current[prevIndex]?.focus()
-          break }
+          {
+            e.preventDefault()
+            const prevIndex = currentIndex === 0 ? intents.length - 1 : currentIndex - 1
+            cardRefs.current[prevIndex]?.focus()
+            break
+          }
         case "Enter":
         case " ":
           e.preventDefault()
@@ -74,7 +78,7 @@ export function IntentSelection({ intents, onSelect }: IntentSelectionProps) {
         {intents.map((intent, index) => (
           <Card
             key={intent.id}
-            ref={(el) => {(cardRefs.current[index] = el)}}
+            ref={(el) => { (cardRefs.current[index] = el) }}
             className="group bg-white/70 dark:bg-gray-900/70 backdrop-blur-2xl border border-white/40 dark:border-gray-700/40 hover:bg-white/80 dark:hover:bg-gray-900/80 cursor-pointer transition-all duration-500 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/20 focus-ring rounded-2xl hover:border-blue-500/50 card-hover overflow-hidden"
             onClick={() => onSelect(intent.id)}
             onKeyDown={(e) => {
@@ -119,19 +123,7 @@ export function IntentSelection({ intents, onSelect }: IntentSelectionProps) {
         ))}
       </div>
 
-      <div className="text-center mt-6">
-        <div className="inline-flex items-center space-x-3 px-4 py-2 bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl border border-white/30 dark:border-gray-700/30 rounded-full">
-          <div className="flex items-center space-x-1">
-            <kbd className="px-2 py-1 bg-muted rounded text-xs">↑↓←→</kbd>
-            <span className="text-muted-foreground text-xs">탐색</span>
-          </div>
-          <div className="w-px h-3 bg-border"></div>
-          <div className="flex items-center space-x-1">
-            <kbd className="px-2 py-1 bg-muted rounded text-xs">Enter</kbd>
-            <span className="text-muted-foreground text-xs">선택</span>
-          </div>
-        </div>
-      </div>
+
     </section>
   )
 }

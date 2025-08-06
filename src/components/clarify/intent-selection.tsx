@@ -120,20 +120,6 @@ export function IntentSelection({ intents, onSelect }: IntentSelectionProps) {
           </Card>
         ))}
       </div>
-
-      <div className="text-center mt-6">
-        <div className="inline-flex items-center space-x-3 px-4 py-2 bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl border border-white/30 dark:border-gray-700/30 rounded-full">
-          <div className="flex items-center space-x-1">
-            <kbd className="px-2 py-1 bg-muted rounded text-xs">↑↓←→</kbd>
-            <span className="text-muted-foreground text-xs">탐색</span>
-          </div>
-          <div className="w-px h-3 bg-border"></div>
-          <div className="flex items-center space-x-1">
-            <kbd className="px-2 py-1 bg-muted rounded text-xs">Enter</kbd>
-            <span className="text-muted-foreground text-xs">선택</span>
-          </div>
-        </div>
-      </div>
     </section>
   )
 }
