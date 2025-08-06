@@ -127,10 +127,10 @@ export function GoalInputForm() {
         {/* 항상 보이는 기본 추천 목표들 (4개) */}
         <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
           {[
-            { icon: Dumbbell, text: "운동 시작하고 싶어", color: "from-red-500 to-red-600" },
-            { icon: BookOpen, text: "책 읽는 습관 만들고 싶어", color: "from-blue-500 to-blue-600" },
-            { icon: Languages, text: "영어공부 다시 시작하고 싶어", color: "from-green-500 to-green-600" },
-            { icon: PiggyBank, text: "돈 관리 제대로 하고 싶어", color: "from-yellow-500 to-yellow-600" },
+            { icon: Dumbbell, text: "운동 시작하고 싶어" },
+            { icon: BookOpen, text: "책 읽는 습관 만들고 싶어" },
+            { icon: Languages, text: "영어공부 다시 시작하고 싶어" },
+            { icon: PiggyBank, text: "돈 관리 제대로 하고 싶어" },
           ].map((suggestion, index) => (
             <Button
               key={index}
@@ -138,7 +138,7 @@ export function GoalInputForm() {
               onClick={() => setGoal(suggestion.text)}
               className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-md border border-white/30 dark:border-gray-700/50 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-white/80 dark:hover:bg-gray-800/80 px-3 py-2 sm:px-4 rounded-xl transition-all duration-300 hover:scale-105 group shadow-lg relative overflow-hidden"
             >
-              <div className={`absolute inset-0 bg-gradient-to-r ${suggestion.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
               <suggestion.icon className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
               <span className="text-xs sm:text-sm font-medium relative z-10">{suggestion.text}</span>
             </Button>
@@ -163,12 +163,12 @@ export function GoalInputForm() {
         {showAllSuggestions && (
           <div className="flex flex-wrap justify-center gap-2 sm:gap-3 animate-in slide-in-from-top-2 duration-300">
             {[
-              { icon: Users, text: "인맥 관리 시작하고 싶어", color: "from-teal-500 to-teal-600" },
-              { icon: Palette, text: "새로운 취미 배우고 싶어", color: "from-pink-500 to-pink-600" },
-              { icon: Target, text: "부업 알아보고 싶어", color: "from-indigo-500 to-indigo-600" },
-              { icon: Heart, text: "자기계발 시작하고 싶어", color: "from-purple-500 to-purple-600" },
-              { icon: GraduationCap, text: "새 기술 배우고 싶어", color: "from-emerald-500 to-emerald-600" },
-              { icon: Trash2, text: "미니멀 라이프 시작하고 싶어", color: "from-gray-500 to-gray-600" },
+              { icon: Users, text: "인맥 관리 시작하고 싶어" },
+              { icon: Palette, text: "새로운 취미 배우고 싶어" },
+              { icon: Target, text: "부업 알아보고 싶어" },
+              { icon: Heart, text: "자기계발 시작하고 싶어" },
+              { icon: GraduationCap, text: "새 기술 배우고 싶어" },
+              { icon: Trash2, text: "미니멀 라이프 시작하고 싶어" },
             ].map((suggestion, index) => (
               <Button
                 key={`extra-${index}`}
@@ -176,7 +176,7 @@ export function GoalInputForm() {
                 onClick={() => setGoal(suggestion.text)}
                 className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-md border border-white/30 dark:border-gray-700/50 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-white/80 dark:hover:bg-gray-800/80 px-3 py-2 sm:px-4 rounded-xl transition-all duration-300 hover:scale-105 group shadow-lg relative overflow-hidden"
               >
-                <div className={`absolute inset-0 bg-gradient-to-r ${suggestion.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
                 <suggestion.icon className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
                 <span className="text-xs sm:text-sm font-medium relative z-10">{suggestion.text}</span>
               </Button>
