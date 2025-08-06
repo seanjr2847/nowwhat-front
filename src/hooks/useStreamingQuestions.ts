@@ -62,54 +62,14 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
         break
 
       case 'completed':
-        console.log('✅ 스트리밍 완료:', data.message)
-        console.log('📄 누적된 텍스트:', streamingTextRef.current)
-        
-        // data.questions가 있으면 바로 사용, 없으면 누적된 텍스트에서 파싱
+        console.log('✅ 스트리밍 상태 완료:', data.message)
+        // completed 상태에서는 파싱하지 않고, [DONE] 신호를 기다립니다
+        // data.questions가 있으면 바로 사용
         if (data.questions) {
+          console.log('🎉 서버에서 완성된 질문 데이터 수신:', data.questions.length, '개')
           handleStreamComplete(data.questions)
-        } else {
-          // 누적된 스트리밍 텍스트에서 JSON 파싱 시도
-          try {
-            // JSON 블록 추출 (```json...``` 형태)
-            const jsonMatch = streamingTextRef.current.match(/```json\n([\s\S]*?)\n```/)
-            if (jsonMatch) {
-              const jsonText = jsonMatch[1].trim()
-              console.log('🔍 추출된 JSON 길이:', jsonText.length)
-              console.log('🔍 JSON 첫 100자:', jsonText.substring(0, 100))
-              console.log('🔍 JSON 마지막 100자:', jsonText.substring(Math.max(0, jsonText.length - 100)))
-              
-              // JSON 완성도 검증
-              if (!jsonText.endsWith('}') || !jsonText.includes('"questions"')) {
-                console.warn('⚠️ JSON이 완성되지 않음 - completed 상태이지만 JSON이 불완전')
-                console.log('📄 전체 누적 텍스트:', streamingTextRef.current)
-                setError('질문 생성이 완료되지 않았습니다.')
-                setIsStreaming(false)
-                return
-              }
-              
-              const parsed = JSON.parse(jsonText)
-              if (parsed.questions && Array.isArray(parsed.questions)) {
-                console.log('✅ 질문 파싱 성공:', parsed.questions.length, '개')
-                handleStreamComplete(parsed.questions)
-              } else {
-                console.error('❌ 파싱된 데이터에 questions 배열이 없음:', parsed)
-                setError('질문 데이터 형식이 올바르지 않습니다.')
-                setIsStreaming(false)
-              }
-            } else {
-              console.error('❌ JSON 블록을 찾을 수 없음')
-              console.log('📄 전체 누적 텍스트 (첫 500자):', streamingTextRef.current.substring(0, 500))
-              setError('질문 생성 데이터를 파싱할 수 없습니다.')
-              setIsStreaming(false)
-            }
-          } catch (parseError) {
-            console.error('❌ JSON 파싱 에러:', parseError)
-            console.log('🔍 파싱 시도한 텍스트 (첫 500자):', streamingTextRef.current.substring(0, 500))
-            setError(`질문 생성 데이터를 파싱할 수 없습니다: ${parseError instanceof Error ? parseError.message : String(parseError)}`)
-            setIsStreaming(false)
-          }
         }
+        // 그렇지 않으면 [DONE] 신호에서 최종 파싱 처리
         break
 
       case 'error':
@@ -120,14 +80,95 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
     }
   }, [])
 
-  const handleStreamComplete = useCallback((completedQuestions: Question[]) => {
-    console.log('🎉 스트리밍 완전 완료, 질문 수:', completedQuestions.length)
+  const handleStreamComplete = useCallback((completedQuestions: Question[] | undefined) => {
+    console.log('🎉 [DONE] 신호 수신 - 최종 처리 시작')
+    
+    // 이미 질문 데이터가 있으면 바로 사용
+    if (completedQuestions && completedQuestions.length > 0) {
+      console.log('✅ 전달받은 질문 데이터 사용:', completedQuestions.length, '개')
+      processQuestions(completedQuestions)
+      return
+    }
+    
+    // 질문 데이터가 없으면 누적된 텍스트에서 파싱 시도
+    console.log('🔍 누적된 텍스트에서 JSON 파싱 시도...')
+    console.log('📄 전체 누적 텍스트:', streamingTextRef.current)
+    
+    try {
+      // JSON 블록 추출 (```json...``` 형태)
+      const jsonMatch = streamingTextRef.current.match(/```json\n([\s\S]*?)\n```/)
+      if (jsonMatch) {
+        const jsonText = jsonMatch[1].trim()
+        console.log('🔍 추출된 JSON:', jsonText)
+        
+        const parsed: unknown = JSON.parse(jsonText)
+        
+        // 타입 가드로 안전하게 검증
+        if (
+          parsed !== null &&
+          typeof parsed === 'object' &&
+          'questions' in parsed &&
+          Array.isArray(parsed.questions)
+        ) {
+          // questions 배열의 각 요소가 Question 타입인지 검증
+          const questions = parsed.questions as unknown[]
+          const validQuestions: Question[] = []
+          
+          for (const q of questions) {
+            if (
+              q !== null &&
+              typeof q === 'object' &&
+              'id' in q &&
+              'text' in q &&
+              'type' in q &&
+              'required' in q &&
+              typeof q.id === 'string' &&
+              typeof q.text === 'string' &&
+              typeof q.type === 'string' &&
+              typeof q.required === 'boolean'
+            ) {
+              validQuestions.push(q as Question)
+            }
+          }
+          
+          if (validQuestions.length > 0) {
+            console.log('✅ JSON 파싱 성공:', validQuestions.length, '개 질문')
+            processQuestions(validQuestions)
+          } else {
+            console.error('❌ 유효한 질문 데이터가 없음')
+            setError('질문 데이터가 올바른 형식이 아닙니다.')
+            setIsStreaming(false)
+          }
+        } else {
+          console.error('❌ 파싱된 데이터에 questions 배열이 없음:', parsed)
+          setError('질문 데이터 형식이 올바르지 않습니다.')
+          setIsStreaming(false)
+        }
+      } else {
+        console.error('❌ JSON 블록을 찾을 수 없음')
+        console.log('🔍 텍스트 패턴 검색 결과:')
+        console.log('  - ```json 패턴:', streamingTextRef.current.includes('```json'))
+        console.log('  - ``` 패턴:', streamingTextRef.current.includes('```'))
+        console.log('  - questions 키워드:', streamingTextRef.current.includes('"questions"'))
+        setError('질문 생성 데이터를 찾을 수 없습니다.')
+        setIsStreaming(false)
+      }
+    } catch (parseError) {
+      console.error('❌ JSON 파싱 에러:', parseError)
+      setError(`질문 생성 데이터를 파싱할 수 없습니다: ${parseError instanceof Error ? parseError.message : String(parseError)}`)
+      setIsStreaming(false)
+    }
+  }, [])
+
+  // 질문들을 순차적으로 추가하는 헬퍼 함수
+  const processQuestions = useCallback((questionsToProcess: Question[]) => {
+    console.log('🔄 질문 순차 추가 시작:', questionsToProcess.length, '개')
     
     // 질문을 하나씩 순차적으로 추가
     let currentIndex = 0
     const addQuestionSequentially = () => {
-      if (currentIndex < completedQuestions.length) {
-        setQuestions(prev => [...prev, completedQuestions[currentIndex]])
+      if (currentIndex < questionsToProcess.length) {
+        setQuestions(prev => [...prev, questionsToProcess[currentIndex]])
         setCurrentQuestionIndex(currentIndex)
         currentIndex++
         
@@ -135,9 +176,10 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
         questionTimerRef.current = setTimeout(addQuestionSequentially, 500)
       } else {
         // 모든 질문 추가 완료
+        console.log('🎉 모든 질문 순차 추가 완료')
         setIsStreaming(false)
         setStreamingStatus('completed')
-        setCurrentQuestionIndex(completedQuestions.length - 1)
+        setCurrentQuestionIndex(questionsToProcess.length - 1)
       }
     }
     
