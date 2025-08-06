@@ -116,9 +116,10 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
     console.log('📄 텍스트 샘플 (첫 300자):', streamingTextRef.current.substring(0, 300))
     console.log('📄 텍스트 샘플 (마지막 300자):', streamingTextRef.current.substring(Math.max(0, streamingTextRef.current.length - 300)))
 
+    let jsonText = ''
+    
     try {
       // 더 정확한 JSON 블록 패턴 시도
-      let jsonText = ''
       
       // 1. 완전한 ```json...``` 패턴 (개행 포함)
       let jsonMatch = streamingTextRef.current.match(/```json\n([\s\S]*?)\n```/)
@@ -172,8 +173,22 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
 
       if (jsonText) {
         console.log('🔍 최종 추출된 JSON 길이:', jsonText.length)
-        console.log('🔍 JSON 앞부분:', jsonText.substring(0, 300))
-        console.log('🔍 JSON 뒷부분:', jsonText.substring(Math.max(0, jsonText.length - 300)))
+        console.log('🔍 JSON 앞부분:', jsonText.substring(0, 200))
+        console.log('🔍 JSON 뒷부분:', jsonText.substring(Math.max(0, jsonText.length - 200)))
+        
+        // JSON 유효성 사전 검사 - 따옴표가 제대로 닫혔는지 확인
+        const quoteCount = (jsonText.match(/"/g) || []).length
+        if (quoteCount % 2 !== 0) {
+          console.warn('⚠️ JSON에 홀수 개의 따옴표 발견, 마지막 따옴표 추가 시도')
+          jsonText += '"'
+        }
+        
+        // 특수 문자 이스케이핑 문제 확인
+        console.log('🔍 JSON 특수 문자 검사:', {
+          hasUnescapedQuotes: /[^\\]"[^:,}\]]/.test(jsonText),
+          hasUnescapedBackslash: /\\(?!["\\/bfnrtu])/.test(jsonText),
+          totalQuotes: quoteCount
+        })
 
         // JSON이 완전한지 엄격하게 검증 ([DONE] 신호 후에만 호출되므로)
         const openBraces = (jsonText.match(/{/g) || []).length
@@ -211,7 +226,39 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
           jsonText = fixedJson
         }
 
-        const parsed: unknown = JSON.parse(jsonText)
+        let parsed: unknown
+        try {
+          parsed = JSON.parse(jsonText)
+        } catch (parseError) {
+          console.error('❌ JSON.parse 실패, 상세 분석 중...')
+          
+          if (parseError instanceof SyntaxError) {
+            console.error('🔍 SyntaxError 상세:', {
+              message: parseError.message,
+              name: parseError.name,
+              line: parseError.message.match(/line (\d+)/)?.[1],
+              column: parseError.message.match(/column (\d+)/)?.[1],
+              position: parseError.message.match(/position (\d+)/)?.[1]
+            })
+            
+            // 오류 위치 주변 텍스트 추출
+            const positionMatch = parseError.message.match(/position (\d+)/)
+            if (positionMatch) {
+              const position = parseInt(positionMatch[1])
+              const start = Math.max(0, position - 50)
+              const end = Math.min(jsonText.length, position + 50)
+              console.error('🔍 오류 위치 주변 텍스트:', {
+                position,
+                before: jsonText.substring(start, position),
+                errorChar: jsonText.charAt(position),
+                after: jsonText.substring(position + 1, end)
+              })
+            }
+          }
+          
+          // 원본 에러를 다시 던져서 catch 블록에서 처리
+          throw parseError
+        }
 
         // 타입 가드로 안전하게 검증
         if (
@@ -269,8 +316,26 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
         isProcessingRef.current = false
       }
     } catch (parseError) {
-      console.error('❌ JSON 파싱 에러:', parseError)
-      setError(`질문 생성 데이터를 파싱할 수 없습니다: ${parseError instanceof Error ? parseError.message : String(parseError)}`)
+      console.error('❌ 최종 JSON 파싱 에러:', parseError)
+      console.error('🔍 파싱 실패한 전체 텍스트 길이:', streamingTextRef.current.length)
+      console.error('🔍 파싱 시도한 JSON 길이:', jsonText.length)
+      
+      // 더 자세한 에러 메시지 제공
+      let errorMessage = '질문 생성 데이터를 파싱할 수 없습니다'
+      if (parseError instanceof Error) {
+        errorMessage += `: ${parseError.message}`
+        
+        // SyntaxError의 경우 더 친화적인 메시지 제공
+        if (parseError instanceof SyntaxError) {
+          if (parseError.message.includes('Expected double-quoted property name')) {
+            errorMessage = '질문 데이터의 형식이 올바르지 않습니다. 다시 시도해주세요.'
+          } else if (parseError.message.includes('Unexpected end of JSON')) {
+            errorMessage = '질문 데이터가 완전히 전송되지 않았습니다. 다시 시도해주세요.'
+          }
+        }
+      }
+      
+      setError(errorMessage)
       setIsStreaming(false)
       isProcessingRef.current = false
     }
