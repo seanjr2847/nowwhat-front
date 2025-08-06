@@ -42,11 +42,9 @@ export default function ClarifyPage() {
   const [error, setError] = useState<string>("")
   const [showAdModal, setShowAdModal] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
-  const [useStreaming] = useState(true) // 항상 스트리밍 사용
-
   // 세션 정보
   const [sessionId, setSessionId] = useState<string>("")
-  const [questionSetId, setQuestionSetId] = useState<string>("")
+  const [questionSetId] = useState<string>("")
 
   const fetchIntents = async (targetGoal?: string) => {
     const goalToAnalyze = targetGoal || goal

@@ -36,9 +36,7 @@ export function StreamingQuestionUI({
     }
   }, [questions.length, visibleQuestions.length])
 
-  const renderQuestionInput = (question: Question, index: number) => {
-    const isCurrentStreaming = isStreaming && index === currentQuestionIndex
-    const isVisible = visibleQuestions.includes(index)
+  const renderQuestionInput = (question: Question) => {
 
     switch (question.type) {
       case "single":
