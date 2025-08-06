@@ -190,40 +190,31 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
           totalQuotes: quoteCount
         })
 
-        // JSON이 완전한지 엄격하게 검증 ([DONE] 신호 후에만 호출되므로)
+        // [DONE] 신호 후 JSON 검증
+        console.log('🔍 [DONE] 신호 후 JSON 유효성 검사')
+        
+        // 간단한 괄호 균형 체크만 수행
         const openBraces = (jsonText.match(/{/g) || []).length
         const closeBraces = (jsonText.match(/}/g) || []).length
         const openBrackets = (jsonText.match(/\[/g) || []).length
         const closeBrackets = (jsonText.match(/\]/g) || []).length
 
-        console.log('🔍 [DONE] 후 JSON 완전성 검사:', { 
+        console.log('🔍 JSON 괄호 균형:', { 
           openBraces, closeBraces, openBrackets, closeBrackets,
-          braceMatch: openBraces === closeBraces,
-          bracketMatch: openBrackets === closeBrackets
+          balanced: openBraces === closeBraces && openBrackets === closeBrackets
         })
-
-        // JSON이 불완전한 경우 복구 시도
+        
+        // 괄호가 불균형하면 백엔드 문제로 처리
         if (openBraces !== closeBraces || openBrackets !== closeBrackets) {
-          console.warn('⚠️ JSON 괄호 불일치 감지 - 복구 시도 중...')
-          console.log('🔧 복구 전 JSON 끝부분:', jsonText.substring(Math.max(0, jsonText.length - 200)))
-          
-          // 부족한 닫는 괄호 개수 계산
-          const missingBraces = openBraces - closeBraces
-          const missingBrackets = openBrackets - closeBrackets
-          
-          // 적절한 닫는 괄호 추가
-          let fixedJson = jsonText
-          for (let i = 0; i < missingBrackets; i++) {
-            fixedJson += ']'
-          }
-          for (let i = 0; i < missingBraces; i++) {
-            fixedJson += '}'
-          }
-          
-          console.log('🔧 복구 후 JSON 끝부분:', fixedJson.substring(Math.max(0, fixedJson.length - 200)))
-          console.log('🔧 추가된 괄호:', { 추가된_중괄호: missingBraces, 추가된_대괄호: missingBrackets })
-          
-          jsonText = fixedJson
+          console.error('❌ [DONE] 신호 후에도 JSON이 불완전함 - 백엔드 버그!')
+          console.error('🐛 백엔드가 불완전한 JSON을 전송했습니다:', {
+            전체길이: jsonText.length,
+            마지막100자: jsonText.substring(Math.max(0, jsonText.length - 100))
+          })
+          setError('서버에서 불완전한 데이터를 전송했습니다. 다시 시도해주세요.')
+          setIsStreaming(false)
+          isProcessingRef.current = false
+          return
         }
 
         let parsed: unknown
