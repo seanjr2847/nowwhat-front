@@ -1,0 +1,49 @@
+{
+  "navigation": {
+    "home": "홈",
+    "myLists": "내 리스트",
+    "signIn": "로그인",
+    "signOut": "로그아웃",
+    "settings": "설정",
+    "help": "도움말",
+    "language": "언어"
+  },
+  "auth": {
+    "user": "사용자",
+    "signOutConfirm": "로그아웃 하시겠습니까?",
+    "signOutDescription": "로그아웃하면 현재 세션이 종료되며, 다시 로그인해야 합니다.",
+    "signOutSuccess": "로그아웃 완료",
+    "signOutSuccessDesc": "성공적으로 로그아웃되었습니다.",
+    "signOutError": "로그아웃 실패",
+    "signOutErrorDesc": "로그아웃 중 오류가 발생했습니다. 다시 시도해주세요."
+  },
+  "buttons": {
+    "submit": "제출",
+    "cancel": "취소",
+    "save": "저장",
+    "delete": "삭제",
+    "edit": "수정",
+    "back": "뒤로",
+    "next": "다음",
+    "previous": "이전",
+    "close": "닫기",
+    "confirm": "확인",
+    "retry": "다시 시도"
+  },
+  "status": {
+    "loading": "로딩 중...",
+    "error": "오류가 발생했습니다",
+    "success": "성공",
+    "completed": "완료",
+    "pending": "대기 중",
+    "inProgress": "진행 중"
+  },
+  "time": {
+    "justNow": "방금 전",
+    "minutesAgo": "{{count}}분 전",
+    "hoursAgo": "{{count}}시간 전",
+    "daysAgo": "{{count}}일 전",
+    "weeksAgo": "{{count}}주 전",
+    "monthsAgo": "{{count}}개월 전"
+  }
+}

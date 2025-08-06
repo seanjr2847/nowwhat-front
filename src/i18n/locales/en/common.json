@@ -1,0 +1,49 @@
+{
+  "navigation": {
+    "home": "Home",
+    "myLists": "My Lists",
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "settings": "Settings",
+    "help": "Help",
+    "language": "Language"
+  },
+  "auth": {
+    "user": "User",
+    "signOutConfirm": "Sign out?",
+    "signOutDescription": "Signing out will end your current session and you'll need to log in again.",
+    "signOutSuccess": "Signed out successfully",
+    "signOutSuccessDesc": "You have been successfully signed out.",
+    "signOutError": "Sign out failed",
+    "signOutErrorDesc": "An error occurred during sign out. Please try again."
+  },
+  "buttons": {
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "close": "Close",
+    "confirm": "Confirm",
+    "retry": "Retry"
+  },
+  "status": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success",
+    "completed": "Completed",
+    "pending": "Pending",
+    "inProgress": "In Progress"
+  },
+  "time": {
+    "justNow": "Just now",
+    "minutesAgo": "{{count}} minutes ago",
+    "hoursAgo": "{{count}} hours ago",
+    "daysAgo": "{{count}} days ago",
+    "weeksAgo": "{{count}} weeks ago",
+    "monthsAgo": "{{count}} months ago"
+  }
+}

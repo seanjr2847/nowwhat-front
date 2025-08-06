@@ -1,0 +1,29 @@
+{
+  "title": "뭐부터 해야하지?",
+  "subtitle": "AI가 만드는 나만의 실행 체크리스트",
+  "goalInput": {
+    "placeholder": "어떤 목표를 이루고 싶으신가요?",
+    "examples": {
+      "workout": "운동 시작하고 싶어",
+      "reading": "책 읽는 습관 만들고 싶어",
+      "english": "영어공부 다시 시작하고 싶어",
+      "money": "돈 관리 제대로 하고 싶어",
+      "networking": "인맥 관리 시작하고 싶어",
+      "hobby": "새로운 취미 배우고 싶어",
+      "sideJob": "부업 알아보고 싶어",
+      "selfDev": "자기계발 시작하고 싶어",
+      "skills": "새 기술 배우고 싶어",
+      "minimal": "미니멀 라이프 시작하고 싶어"
+    }
+  },
+  "toast": {
+    "loginRequired": {
+      "title": "로그인 필요",
+      "description": "체크리스트를 생성하려면 먼저 로그인해주세요."
+    },
+    "goalSet": {
+      "title": "목표 설정 완료!",
+      "description": "AI가 분석하여 맞춤 체크리스트를 만들어드립니다."
+    }
+  }
+}

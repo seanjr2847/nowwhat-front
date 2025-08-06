@@ -2,6 +2,7 @@
 
 import { ChevronDown, Globe, List, LogOut, Menu, User } from "lucide-react"
 import { useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 import { useIsMobile } from "../hooks/use-mobile"
 import { useToast } from "../hooks/use-toast"
@@ -39,6 +40,7 @@ export function Header() {
   const isMobile = useIsMobile()
   const { isAuthenticated, logout, user, isLoading } = useAuth()
   const { toast } = useToast()
+  const { t, i18n } = useTranslation('common')
   const [isSheetOpen, setIsSheetOpen] = useState(false)
   const [localeSettings, setLocaleSettings] = useState<UserLocaleSettings>({
     userLanguage: 'en',
@@ -78,8 +80,8 @@ export function Header() {
 
       // 로그아웃 성공 토스트 표시
       toast({
-        title: "로그아웃 완료",
-        description: "성공적으로 로그아웃되었습니다.",
+        title: t('auth.signOutSuccess'),
+        description: t('auth.signOutSuccessDesc'),
         variant: "default",
       })
 
@@ -89,8 +91,8 @@ export function Header() {
 
       // 로그아웃 실패 토스트 표시
       toast({
-        title: "로그아웃 실패",
-        description: "로그아웃 중 오류가 발생했습니다. 다시 시도해주세요.",
+        title: t('auth.signOutError'),
+        description: t('auth.signOutErrorDesc'),
         variant: "destructive",
       })
     }
@@ -104,10 +106,13 @@ export function Header() {
     }
     setLocaleSettings(updatedSettings)
     saveUserLocaleSettings(updatedSettings)
+    
+    // i18next 언어 변경
+    void i18n.changeLanguage(newLanguage)
 
     toast({
-      title: "언어 변경됨",
-      description: `언어가 ${SUPPORTED_LANGUAGES[newLanguage as keyof typeof SUPPORTED_LANGUAGES]?.name}(으)로 변경되었습니다.`,
+      title: t('status.success'),
+      description: `${t('navigation.language')} → ${SUPPORTED_LANGUAGES[newLanguage as keyof typeof SUPPORTED_LANGUAGES]?.name}`,
       variant: "default",
     })
   }
@@ -155,14 +160,14 @@ export function Header() {
               </span>
             </div>
             <div className="flex flex-col">
-              <span className="text-sm font-medium">{(user?.name !== undefined && user.name.length > 0) ? user.name : '사용자'}</span>
+              <span className="text-sm font-medium">{(user?.name !== undefined && user.name.length > 0) ? user.name : t('auth.user')}</span>
               <span className="text-xs text-muted-foreground">{user?.email}</span>
             </div>
           </div>
 
           <Button onClick={() => handleNavigation("/my-lists")} variant="ghost" className="w-full justify-start px-3">
             <List className="w-4 h-4 mr-2" />
-            <span>My Lists</span>
+            <span>{t('navigation.myLists')}</span>
           </Button>
 
           <AlertDialog open={isLogoutDialogOpen} onOpenChange={setIsLogoutDialogOpen}>
@@ -172,23 +177,23 @@ export function Header() {
                 className="w-full justify-start text-red-500 hover:text-red-500 px-3"
               >
                 <LogOut className="w-4 h-4 mr-2" />
-                <span>Sign Out</span>
+                <span>{t('navigation.signOut')}</span>
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>로그아웃 하시겠습니까?</AlertDialogTitle>
+                <AlertDialogTitle>{t('auth.signOutConfirm')}</AlertDialogTitle>
                 <AlertDialogDescription>
-                  로그아웃하면 현재 세션이 종료되며, 다시 로그인해야 합니다.
+                  {t('auth.signOutDescription')}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>취소</AlertDialogCancel>
+                <AlertDialogCancel>{t('buttons.cancel')}</AlertDialogCancel>
                 <AlertDialogAction
                   onClick={() => void handleSignOut()}
                   className="bg-red-500 hover:bg-red-600"
                 >
-                  로그아웃
+                  {t('navigation.signOut')}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -198,7 +203,7 @@ export function Header() {
         <div className={isMobile ? "border-t pt-4 mt-4" : ""}>
           <Button onClick={handleSignIn} variant="ghost" className="w-full justify-start px-3">
             <User className="w-4 h-4 mr-2" />
-            <span>Sign In</span>
+            <span>{t('navigation.signIn')}</span>
           </Button>
         </div>
       )}

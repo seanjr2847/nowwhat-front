@@ -1,0 +1,29 @@
+{
+  "title": "Where to start?",
+  "subtitle": "AI-powered personalized action checklists",
+  "goalInput": {
+    "placeholder": "What goal would you like to achieve?",
+    "examples": {
+      "workout": "Want to start working out",
+      "reading": "Want to build a reading habit",
+      "english": "Want to restart studying English",
+      "money": "Want to manage money properly",
+      "networking": "Want to start networking",
+      "hobby": "Want to learn a new hobby",
+      "sideJob": "Want to explore side jobs",
+      "selfDev": "Want to start self-development",
+      "skills": "Want to learn new skills",
+      "minimal": "Want to start minimal living"
+    }
+  },
+  "toast": {
+    "loginRequired": {
+      "title": "Login Required",
+      "description": "Please log in first to generate a checklist."
+    },
+    "goalSet": {
+      "title": "Goal Set Successfully!",
+      "description": "AI will analyze and create a personalized checklist for you."
+    }
+  }
+}

@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslation } from "react-i18next"
 import { GoalInputForm } from "./goal-input-form"
 
 /**
@@ -8,6 +9,8 @@ import { GoalInputForm } from "./goal-input-form"
  * @returns {JSX.Element} 렌더링된 메인 콘텐츠입니다.
  */
 export function MainContent() {
+  const { t } = useTranslation('home')
+  
   return (
     <main className="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 relative overflow-hidden bg-background">
       {/* 배경 장식 요소들 */}
@@ -29,11 +32,11 @@ export function MainContent() {
           <div className="space-y-4">
             <h1 className="main-title text-5xl md:text-7xl font-light text-foreground tracking-wide leading-tight">
               <span className="bg-gradient-to-r from-brand-primary-400 via-brand-secondary-400 to-brand-secondary-300 bg-clip-text text-transparent">
-                뭐부터 해야하지?
+                {t('title')}
               </span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              AI가 만드는 나만의 실행 체크리스트
+              {t('subtitle')}
             </p>
           </div>
         </div>
