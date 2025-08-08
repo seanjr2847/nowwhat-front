@@ -9,6 +9,15 @@ import { Card, CardContent } from "../ui/card"
 export function IntentSkeleton() {
   return (
     <section className="mb-12 animate-scale-in" aria-labelledby="intent-heading">
+      {/* 상단 로딩바 */}
+      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-8 overflow-hidden">
+        <div className="bg-gradient-to-r from-blue-500 to-purple-500 h-full rounded-full animate-pulse-width origin-left" 
+             style={{ 
+               animation: 'loading-bar 2s ease-in-out infinite',
+               width: '60%'
+             }} />
+      </div>
+
       <div className="text-center mb-8">
         <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded-lg w-64 mx-auto mb-2 animate-pulse" />
         <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-48 mx-auto animate-pulse" />
@@ -44,14 +53,6 @@ export function IntentSkeleton() {
             </CardContent>
           </Card>
         ))}
-      </div>
-
-      {/* 로딩 메시지 */}
-      <div className="text-center mt-8">
-        <div className="inline-flex items-center space-x-2 px-4 py-2 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-full border border-white/20 dark:border-gray-700/20">
-          <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-          <span className="text-sm text-muted-foreground">AI가 맞춤 방향을 분석하고 있습니다...</span>
-        </div>
       </div>
     </section>
   )
