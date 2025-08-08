@@ -86,11 +86,19 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
   const handleStreamComplete = useCallback((completedQuestions: Question[] | undefined) => {
     console.log('🎉 [DONE] 신호 수신 - 최종 처리 시작')
 
-    // 이미 처리 중이면 중복 처리 방지
+    // 이미 처리 중이거나 질문이 이미 있으면 중복 처리 방지
     if (isProcessingRef.current) {
       console.log('⚠️ 이미 처리 중이므로 중복 처리 방지')
       return
     }
+    
+    if (questions.length > 0) {
+      console.log('⚠️ 이미 질문이 있으므로 [DONE] 신호 무시:', questions.length, '개 질문 존재')
+      setIsStreaming(false)
+      setStreamingStatus('completed')
+      return
+    }
+    
     isProcessingRef.current = true
 
     // 이미 완성된 질문 데이터가 있으면 바로 사용 (최우선)
@@ -330,17 +338,34 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
       setIsStreaming(false)
       isProcessingRef.current = false
     }
-  }, [])
+  }, [questions.length])
 
   // 질문들을 순차적으로 추가하는 헬퍼 함수
   const processQuestions = useCallback((questionsToProcess: Question[]) => {
     console.log('🔄 질문 순차 추가 시작:', questionsToProcess.length, '개')
 
+    // 이미 처리 완료되었으면 중복 처리 방지
+    if (questions.length > 0) {
+      console.log('⚠️ 이미 질문이 있으므로 중복 처리 방지:', questions.length, '개 존재')
+      setIsStreaming(false)
+      setStreamingStatus('completed')
+      isProcessingRef.current = false
+      return
+    }
+
     // 질문을 하나씩 순차적으로 추가
     let currentIndex = 0
     const addQuestionSequentially = () => {
       if (currentIndex < questionsToProcess.length) {
-        setQuestions(prev => [...prev, questionsToProcess[currentIndex]])
+        setQuestions(prev => {
+          // 중복 방지: 이미 같은 ID의 질문이 있으면 추가하지 않음
+          const existingQuestion = prev.find(q => q.id === questionsToProcess[currentIndex].id)
+          if (existingQuestion) {
+            console.log('⚠️ 중복 질문 ID 감지, 추가 건너뛰기:', questionsToProcess[currentIndex].id)
+            return prev
+          }
+          return [...prev, questionsToProcess[currentIndex]]
+        })
         setCurrentQuestionIndex(currentIndex)
         currentIndex++
 
@@ -352,6 +377,7 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
         setIsStreaming(false)
         setStreamingStatus('completed')
         setCurrentQuestionIndex(questionsToProcess.length - 1)
+        isProcessingRef.current = false
       }
     }
 
@@ -359,7 +385,7 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
     setQuestions([])
     setCurrentQuestionIndex(0)
     addQuestionSequentially()
-  }, [])
+  }, [questions.length])
 
   const handleStreamError = useCallback((errorMessage: string) => {
     console.error('💥 스트리밍 에러:', errorMessage)

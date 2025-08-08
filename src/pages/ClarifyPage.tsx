@@ -124,14 +124,19 @@ export default function ClarifyPage() {
   // 스트리밍 질문 생성 완료 핸들러
   const handleStreamingQuestionsComplete = (streamedQuestions: Question[]) => {
     console.log('✅ 스트리밍 질문 생성 완료:', streamedQuestions)
-    setQuestions(streamedQuestions)
-    setProgress(50)
-    
-    toast({
-      title: "질문 생성 완료!",
-      description: `${streamedQuestions.length}개의 맞춤 질문을 준비했습니다.`,
-      variant: "default",
-    })
+    // 중복 방지: 이미 질문이 있으면 추가로 설정하지 않음
+    if (questions.length === 0) {
+      setQuestions(streamedQuestions)
+      setProgress(50)
+      
+      toast({
+        title: "질문 생성 완료!",
+        description: `${streamedQuestions.length}개의 맞춤 질문을 준비했습니다.`,
+        variant: "default",
+      })
+    } else {
+      console.log('⚠️ 이미 질문이 있으므로 중복 설정 방지:', questions.length, '개 존재')
+    }
   }
 
   // 스트리밍 에러 핸들러
