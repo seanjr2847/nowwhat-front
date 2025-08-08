@@ -33,6 +33,21 @@ interface ChecklistCardProps {
  */
 export function ChecklistCard({ checklist, onClick, onDelete }: ChecklistCardProps) {
   const [showMenu, setShowMenu] = useState(false)
+  
+  // 안전한 진행률 계산 (NaN 방지)
+  const safeProgress = (() => {
+    if (typeof checklist.progress === 'number' && !isNaN(checklist.progress)) {
+      return Math.max(0, Math.min(100, checklist.progress))
+    }
+    // 백엔드 호환성을 위해 progressPercentage도 확인
+    if (typeof (checklist as any).progressPercentage === 'number' && !isNaN((checklist as any).progressPercentage)) {
+      return Math.max(0, Math.min(100, (checklist as any).progressPercentage))
+    }
+    // fallback: completedItems와 totalItems로 계산
+    const completed = checklist.completedItems || 0
+    const total = checklist.totalItems || 1
+    return Math.round((completed / total) * 100)
+  })()
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("ko-KR", {
@@ -125,13 +140,13 @@ export function ChecklistCard({ checklist, onClick, onDelete }: ChecklistCardPro
           <div className="space-y-3">
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-600 dark:text-gray-400 font-medium">진행률</span>
-              <span className={`font-bold ${getProgressTextColor()}`}>{Math.round(checklist.progress)}%</span>
+              <span className={`font-bold ${getProgressTextColor()}`}>{safeProgress}%</span>
             </div>
 
             <div className="relative w-full bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-white/20 dark:border-gray-700/20 rounded-full h-2.5 overflow-hidden shadow-inner">
               <div
                 className={`h-full bg-gradient-to-r ${getProgressColor()} rounded-full transition-all duration-1000 ease-out shadow-sm`}
-                style={{ width: `${checklist.progress}%` }}
+                style={{ width: `${safeProgress}%` }}
               />
             </div>
 
@@ -143,7 +158,7 @@ export function ChecklistCard({ checklist, onClick, onDelete }: ChecklistCardPro
                   <span className="text-gray-500 dark:text-gray-400">/{checklist.totalItems}</span> 완료
                 </span>
               </div>
-              {checklist.progress === 100 && (
+              {safeProgress === 100 && (
                 <span className="text-emerald-600 dark:text-emerald-400 font-semibold text-xs px-2 py-1 bg-emerald-500/30 backdrop-blur-sm border border-emerald-400/30 rounded-full shadow-sm">
                   완료!
                 </span>

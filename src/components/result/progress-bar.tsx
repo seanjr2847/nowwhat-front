@@ -16,6 +16,12 @@ interface ProgressBarProps {
  * @returns {JSX.Element} 렌더링된 프로그레스 바입니다.
  */
 export function ProgressBar({ completed, total, progress }: ProgressBarProps) {
+  // 안전한 값들 계산 (NaN 방지)
+  const safeCompleted = Math.max(0, completed || 0)
+  const safeTotal = Math.max(1, total || 1)
+  const safeProgress = typeof progress === 'number' && !isNaN(progress) 
+    ? Math.max(0, Math.min(100, progress))
+    : Math.round((safeCompleted / safeTotal) * 100)
   const getProgressColor = (progress: number) => {
     if (progress === 100) return "from-green-500 to-emerald-500"
     if (progress >= 75) return "from-brand-primary-500 to-green-500"
@@ -38,19 +44,19 @@ export function ProgressBar({ completed, total, progress }: ProgressBarProps) {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
             <div
-              className={`flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-r ${getProgressColor(progress)} text-white shadow-lg`}
+              className={`flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-r ${getProgressColor(safeProgress)} text-white shadow-lg`}
             >
-              {progress === 100 ? <CheckCircle className="w-5 h-5" /> : <Circle className="w-5 h-5" />}
+              {safeProgress === 100 ? <CheckCircle className="w-5 h-5" /> : <Circle className="w-5 h-5" />}
             </div>
             <div>
               <h3 className="text-foreground font-semibold text-lg">진행 상황</h3>
-              <p className="text-muted-foreground text-sm">{getStatusMessage(progress)}</p>
+              <p className="text-muted-foreground text-sm">{getStatusMessage(safeProgress)}</p>
             </div>
           </div>
           <div className="text-right">
             <div className="text-2xl font-bold text-foreground">
-              {completed}
-              <span className="text-muted-foreground">/{total}</span>
+              {safeCompleted}
+              <span className="text-muted-foreground">/{safeTotal}</span>
             </div>
             <div className="text-sm text-muted-foreground">완료</div>
           </div>
@@ -59,8 +65,8 @@ export function ProgressBar({ completed, total, progress }: ProgressBarProps) {
         <div className="relative w-full bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-white/20 dark:border-gray-700/20 rounded-full h-4 overflow-hidden shadow-inner">
           <div className="absolute inset-0 bg-gradient-to-r from-muted/30 to-muted/30 rounded-full" />
           <div
-            className={`h-full bg-gradient-to-r ${getProgressColor(progress)} rounded-full transition-all duration-1000 ease-out relative overflow-hidden`}
-            style={{ width: `${progress}%` }}
+            className={`h-full bg-gradient-to-r ${getProgressColor(safeProgress)} rounded-full transition-all duration-1000 ease-out relative overflow-hidden`}
+            style={{ width: `${safeProgress}%` }}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-pulse" />
           </div>
@@ -68,8 +74,8 @@ export function ProgressBar({ completed, total, progress }: ProgressBarProps) {
 
         <div className="flex justify-between items-center mt-3">
           <span className="text-sm text-muted-foreground">0%</span>
-          <span className={`text-sm font-medium ${progress === 100 ? "text-green-400" : "text-brand-primary-400"}`}>
-            {Math.round(progress)}%
+          <span className={`text-sm font-medium ${safeProgress === 100 ? "text-green-400" : "text-brand-primary-400"}`}>
+            {safeProgress}%
           </span>
           <span className="text-sm text-muted-foreground">100%</span>
         </div>

@@ -29,7 +29,18 @@ export default function MyListsPage() {
       
       if (response.success && response.data) {
         // API가 직접 배열을 반환하는 경우와 checklists 속성으로 반환하는 경우 모두 처리
-        const checklistsData = Array.isArray(response.data) ? response.data : (response.data.checklists || [])
+        const rawData = Array.isArray(response.data) ? response.data : (response.data.checklists || [])
+        
+        // 백엔드의 progressPercentage를 progress로 변환하고 안전한 값 보장
+        const checklistsData = rawData.map(checklist => ({
+          ...checklist,
+          progress: typeof checklist.progressPercentage === 'number' 
+            ? checklist.progressPercentage 
+            : typeof checklist.progress === 'number'
+            ? checklist.progress
+            : (checklist.completedItems || 0) / Math.max(checklist.totalItems || 1, 1) * 100
+        }))
+        
         setChecklists(checklistsData)
         setFilteredChecklists(checklistsData)
       } else {

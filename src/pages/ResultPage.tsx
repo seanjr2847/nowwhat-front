@@ -33,9 +33,13 @@ export default function ResultPage() {
             
             if (response.success && response.data) {
                 // API 응답 데이터를 UI에 맞게 변환
+                const safeProgress = typeof response.data.progressPercentage === 'number' 
+                    ? Math.max(0, Math.min(100, response.data.progressPercentage))
+                    : (response.data.completedItems || 0) / Math.max(response.data.totalItems || 1, 1) * 100
+                    
                 const checklistData = {
                     ...response.data,
-                    progress: response.data.progressPercentage,
+                    progress: safeProgress,
                     isSaved: false // 기본값
                 }
                 setChecklist(checklistData)
