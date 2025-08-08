@@ -7,6 +7,7 @@ import { ClarifyHeader } from "../components/clarify/clarify-header"
 import { CreateButton } from "../components/clarify/create-button"
 import { ErrorMessage } from "../components/clarify/error-message"
 import { IntentSelection } from "../components/clarify/intent-selection"
+import { IntentSkeleton } from "../components/clarify/intent-skeleton"
 import { LoadingSpinner } from "../components/clarify/loading-spinner"
 import { ProgressBar } from "../components/clarify/progress-bar"
 import { QuestionSection } from "../components/clarify/question-section"
@@ -332,8 +333,22 @@ export default function ClarifyPage() {
   // 의도 분석 로딩 중
   if (isLoading && intents.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-brand-primary-50 dark:from-gray-900 dark:to-slate-900">
-        <LoadingSpinner stage="goal-analysis" />
+      <div
+        className="min-h-screen bg-gradient-to-br from-slate-50 to-brand-primary-50 dark:from-gray-900 dark:to-slate-900 relative"
+        role="main"
+        aria-label="목표 구체화 페이지"
+      >
+        {/* 미묘한 배경 패턴 */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-brand-primary-500/5 dark:bg-brand-primary-500/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-brand-secondary-500/5 dark:bg-brand-secondary-500/10 rounded-full blur-3xl" />
+        </div>
+
+        <div className="max-w-4xl mx-auto px-4 py-8 relative z-10">
+          <ClarifyHeader goal={goal} />
+          <ProgressBar progress={0} />
+          <IntentSkeleton />
+        </div>
       </div>
     )
   }
