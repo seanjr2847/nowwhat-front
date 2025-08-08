@@ -36,17 +36,25 @@ export function ChecklistCard({ checklist, onClick, onDelete }: ChecklistCardPro
   
   // 안전한 진행률 계산 (NaN 방지)
   const safeProgress = (() => {
+    let progress: number
+    
     if (typeof checklist.progress === 'number' && !isNaN(checklist.progress)) {
-      return Math.max(0, Math.min(100, checklist.progress))
+      progress = checklist.progress
     }
     // 백엔드 호환성을 위해 progressPercentage도 확인
-    if (typeof (checklist as any).progressPercentage === 'number' && !isNaN((checklist as any).progressPercentage)) {
-      return Math.max(0, Math.min(100, (checklist as any).progressPercentage))
+    else if (typeof (checklist as any).progressPercentage === 'number' && !isNaN((checklist as any).progressPercentage)) {
+      progress = (checklist as any).progressPercentage
     }
     // fallback: completedItems와 totalItems로 계산
-    const completed = checklist.completedItems || 0
-    const total = checklist.totalItems || 1
-    return Math.round((completed / total) * 100)
+    else {
+      const completed = checklist.completedItems || 0
+      const total = checklist.totalItems || 1
+      progress = (completed / total) * 100
+    }
+    
+    // 0-100 범위로 제한하고 소수점 2자리로 반올림
+    progress = Math.max(0, Math.min(100, progress))
+    return Math.round(progress * 100) / 100
   })()
 
   const formatDate = (dateString: string) => {

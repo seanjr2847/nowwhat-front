@@ -32,14 +32,25 @@ export default function MyListsPage() {
         const rawData = Array.isArray(response.data) ? response.data : (response.data.checklists || [])
         
         // 백엔드의 progressPercentage를 progress로 변환하고 안전한 값 보장
-        const checklistsData = rawData.map(checklist => ({
-          ...checklist,
-          progress: typeof checklist.progressPercentage === 'number' 
-            ? checklist.progressPercentage 
-            : typeof checklist.progress === 'number'
-            ? checklist.progress
-            : (checklist.completedItems || 0) / Math.max(checklist.totalItems || 1, 1) * 100
-        }))
+        const checklistsData = rawData.map(checklist => {
+          let progress: number
+          
+          if (typeof checklist.progressPercentage === 'number') {
+            progress = checklist.progressPercentage
+          } else if (typeof checklist.progress === 'number') {
+            progress = checklist.progress
+          } else {
+            progress = (checklist.completedItems || 0) / Math.max(checklist.totalItems || 1, 1) * 100
+          }
+          
+          // 소수점 2자리까지만 표시
+          progress = Math.round(progress * 100) / 100
+          
+          return {
+            ...checklist,
+            progress
+          }
+        })
         
         setChecklists(checklistsData)
         setFilteredChecklists(checklistsData)
