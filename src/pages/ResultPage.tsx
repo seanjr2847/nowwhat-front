@@ -22,6 +22,7 @@ export default function ResultPage() {
     const [checklist, setChecklist] = useState<ChecklistData | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [feedbackGiven, setFeedbackGiven] = useState(false)
+    const [showCelebration, setShowCelebration] = useState(false)
 
     // 체크리스트 상세 정보 조회 API 연결
     const fetchChecklist = async () => {
@@ -57,7 +58,7 @@ export default function ResultPage() {
 
     useEffect(() => {
         void fetchChecklist()
-    }, [id, navigate])
+    }, [id])
 
     const handleItemToggle = (itemId: string) => {
         if (!checklist) return
@@ -74,6 +75,13 @@ export default function ResultPage() {
             items: updatedItems,
             progress
         })
+
+        // 모든 항목이 완료되었을 때 축하 모달 표시
+        if (completedCount === updatedItems.length && completedCount > 0) {
+            setShowCelebration(true)
+        } else {
+            setShowCelebration(false)
+        }
     }
 
 
@@ -90,6 +98,10 @@ export default function ResultPage() {
     const handleFeedback = (isPositive: boolean) => {
         console.log('Feedback received:', isPositive)
         setFeedbackGiven(true)
+    }
+
+    const handleCelebrationClose = () => {
+        setShowCelebration(false)
     }
 
     if (isLoading) {
@@ -117,7 +129,6 @@ export default function ResultPage() {
     }
 
     const completedCount = checklist.items.filter(item => item.isCompleted).length
-    const isAllCompleted = completedCount === checklist.items.length
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-brand-primary-50 dark:from-gray-900 dark:to-slate-900">
@@ -147,7 +158,7 @@ export default function ResultPage() {
                     ))}
                 </div>
 
-                {isAllCompleted && <CompletionCelebration onClose={() => { }} goal={checklist.title} />}
+                {showCelebration && <CompletionCelebration onClose={handleCelebrationClose} goal={checklist.title} />}
 
                 <FeedbackSection 
                     onFeedback={handleFeedback} 
