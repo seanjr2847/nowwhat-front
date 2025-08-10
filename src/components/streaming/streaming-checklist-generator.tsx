@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react"
 import { cn } from "../../lib/utils"
 import { Button } from "../ui/button"
 import { LoadingSpinner } from "../clarify/loading-spinner"
-import { generateChecklistStream, type StreamChecklistResponse } from "../../lib/api"
+import { generateChecklistStream, createChecklist, type StreamChecklistResponse } from "../../lib/api"
 
 interface StreamingChecklistGeneratorProps {
   /** 세션 ID */
@@ -92,24 +92,54 @@ export function StreamingChecklistGenerator({
     setStatusMessage('')
     setProgress({ current: 0, estimated_total: 0 })
     
-    console.log('🚀 체크리스트 스트리밍 생성 시작:', {
+    console.log('🚀 체크리스트 생성 시작:', {
       sessionId,
       goal,
       intentTitle,
       answersCount: answersArray.length
     })
 
-    // 실제 스트리밍 API 호출
-    await generateChecklistStream(
-      sessionId,
-      '', // questionSetId는 답변에서 자동으로 처리됨
-      goal,
-      intentTitle,
-      answersArray,
-      handleStreamData,
-      handleStreamComplete,
-      handleStreamError
-    )
+    try {
+      // 먼저 스트리밍 API 시도
+      await generateChecklistStream(
+        sessionId,
+        '', // questionSetId는 답변에서 자동으로 처리됨
+        goal,
+        intentTitle,
+        answersArray,
+        handleStreamData,
+        handleStreamComplete,
+        handleStreamError
+      )
+    } catch (streamError) {
+      console.warn('⚠️ 스트리밍 API 실패, 기존 API로 폴백:', streamError)
+      
+      // 스트리밍 실패 시 기존 API 사용
+      try {
+        setCurrentStatus('started')
+        setStatusMessage('체크리스트 생성 중...')
+        
+        const response = await createChecklist(
+          sessionId,
+          '',
+          goal,
+          intentTitle,
+          answersArray
+        )
+        
+        if (response.success && response.data?.checklistId) {
+          setCurrentStatus('completed')
+          setStatusMessage('체크리스트가 성공적으로 생성되었습니다!')
+          setIsStreaming(false)
+          onChecklistComplete(response.data.checklistId)
+        } else {
+          throw new Error(response.error || '체크리스트 생성에 실패했습니다.')
+        }
+      } catch (fallbackError) {
+        const errorMessage = fallbackError instanceof Error ? fallbackError.message : '체크리스트 생성 중 오류가 발생했습니다.'
+        handleStreamError(errorMessage)
+      }
+    }
   }
 
   const handleStreamData = (data: StreamChecklistResponse) => {

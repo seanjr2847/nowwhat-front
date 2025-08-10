@@ -73,18 +73,27 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
 
       case 'completed':
         console.log('✅ 스트리밍 상태 완료:', data.message)
-        // completed 상태에서는 data.questions가 완전히 제공된 경우만 처리
-        if (data.questions && Array.isArray(data.questions) && data.questions.length > 0) {
+        
+        // 백엔드에서 question_ready 이벤트로 질문들을 이미 전송했다면 즉시 완료 처리
+        if (questions.length > 0) {
+          console.log('🎉 질문별 스트리밍 완료 - 이미', questions.length, '개 질문 존재')
+          setIsStreaming(false)
+          setStreamingStatus('completed')
+        } 
+        // completed 상태에서 data.questions가 완전히 제공된 경우
+        else if (data.questions && Array.isArray(data.questions) && data.questions.length > 0) {
           console.log('🎉 서버에서 완성된 질문 데이터 수신:', data.questions.length, '개')
           handleStreamComplete(data.questions)
-        } else {
+        } 
+        // 새로운 스트리밍 모드에서는 completed 시 바로 완료 처리
+        else if (data.streaming_mode === 'per_question' || data.streaming_mode === 'batch_fallback') {
+          console.log('🆕 스트리밍 모드 완료 - 즉시 완료 처리')
+          setIsStreaming(false)
+          setStreamingStatus('completed')
+        }
+        // 그 외의 경우에만 [DONE] 신호 대기
+        else {
           console.log('⏳ 완전한 질문 데이터가 없으므로 [DONE] 신호를 기다립니다...')
-          // 새로운 스트리밍 모드에서는 completed 시 바로 완료 처리
-          if (data.streaming_mode === 'per_question') {
-            console.log('🆕 질문별 스트리밍 모드 완료 - 즉시 완료 처리')
-            setIsStreaming(false)
-            setStreamingStatus('completed')
-          }
         }
         break
 
@@ -367,23 +376,28 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
     })
     
     setQuestions(prev => {
-      // 중복 방지: 이미 같은 ID의 질문이 있으면 추가하지 않음
-      const existingQuestion = prev.find(q => q.id === question.id)
-      if (existingQuestion) {
-        console.log('⚠️ 중복 질문 ID 감지, 추가 건너뛰기:', question.id)
-        return prev
+      // 중복 ID 처리: 기존 질문을 찾아서 덮어쓰거나 새로 추가
+      const existingIndex = prev.findIndex(q => q.id === question.id)
+      
+      if (existingIndex !== -1) {
+        // 같은 ID가 있으면 해당 위치의 질문을 교체
+        console.log('🔄 중복 질문 ID로 기존 질문 교체:', question.id, 
+          `"${prev[existingIndex].text.substring(0, 30)}..." → "${question.text.substring(0, 30)}..."`)
+        const updatedQuestions = [...prev]
+        updatedQuestions[existingIndex] = question
+        return updatedQuestions
+      } else {
+        // 새로운 질문을 순서대로 추가
+        const newQuestions = [...prev, question]
+        console.log('✅ 질문 즉시 UI 추가:', newQuestions.length, '개 질문 존재')
+        
+        // 성능 로깅: 첫 질문 도착 시간 측정
+        if (newQuestions.length === 1) {
+          console.log('🚀 [성능] 첫 질문 표시까지의 시간 - 이전 대비 70% 단축!')
+        }
+        
+        return newQuestions
       }
-      
-      // 새로운 질문을 순서대로 추가
-      const newQuestions = [...prev, question]
-      console.log('✅ 질문 즉시 UI 추가:', newQuestions.length, '개 질문 존재')
-      
-      // 성능 로깅: 첫 질문 도착 시간 측정
-      if (newQuestions.length === 1) {
-        console.log('🚀 [성능] 첫 질문 표시까지의 시간 - 이전 대비 70% 단축!')
-      }
-      
-      return newQuestions
     })
     
     setCurrentQuestionIndex(questionNumber - 1) // 0-based index
