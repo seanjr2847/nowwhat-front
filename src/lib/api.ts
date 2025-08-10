@@ -421,6 +421,46 @@ export interface StreamResponse {
     streaming_mode?: 'per_question' | 'batch_fallback'
 }
 
+// 체크리스트 스트리밍 타입 정의
+export interface StreamChecklistResponse {
+    status: 'started' | 'saving_answers' | 'item_ready' | 'item_enhanced' | 'completed' | 'error'
+    message?: string
+    stream_id?: string
+    goal?: string
+    intent?: string
+    answers_count?: number
+    // 아이템 관련
+    item?: {
+        item_id: string
+        title: string
+        description: string
+        order: number
+    }
+    item_id?: string
+    enhanced_item?: {
+        item_id: string
+        title: string
+        description: string
+        order: number
+    }
+    details?: {
+        tips: string[]
+        links: Array<{ title: string; url: string }>
+        price?: string
+    }
+    // 진행률
+    progress?: {
+        current: number
+        estimated_total: number
+    }
+    // 완료 정보
+    checklist_id?: string
+    redirect_url?: string
+    total_items?: number
+    // 에러 정보
+    error?: string
+}
+
 // 스트리밍 질문 생성 API
 export async function generateQuestionsStream(
     sessionId: string,
@@ -592,6 +632,137 @@ export async function createChecklist(
             ...apiUserInfo
         })
     })
+}
+
+// 스트리밍 체크리스트 생성 API
+export async function generateChecklistStream(
+    sessionId: string,
+    questionSetId: string,
+    goal: string,
+    selectedIntent: string,
+    answers: { questionId: string, questionIndex: number, questionText: string, questionType: string, answer: string | string[] }[],
+    onData: (data: StreamChecklistResponse) => void,
+    onComplete: (checklistId: string) => void,
+    onError: (error: string) => void
+): Promise<void> {
+    try {
+        // 기존 로케일 설정 (헤더 UI용)
+        const localeSettings = getUserLocaleSettings()
+
+        // API 개인화 설정 (API 요청용)
+        const { getApiUserInfo } = await import('./locale-utils')
+        const apiUserInfo = getApiUserInfo()
+
+        console.log('🔄 스트리밍 체크리스트 생성 API 호출:', {
+            sessionId,
+            questionSetId,
+            goal,
+            selectedIntent,
+            answersCount: answers.length,
+            locale: localeSettings,
+            apiUserInfo
+        })
+
+        // 토큰 가져오기
+        const token = localStorage.getItem('accessToken')
+        if (!token || token === null) {
+            throw new Error('인증이 필요합니다.')
+        }
+
+        const requestBody = {
+            sessionId,
+            questionSetId,
+            goal,
+            selectedIntent,
+            answers,
+            // 기존 필드 (하위 호환성)
+            userLanguage: localeSettings.userLanguage,
+            userCountry: localeSettings.userCountry,
+            countryOption: localeSettings.countryOption,
+            // 새로운 API 필드 (선택적)
+            ...apiUserInfo
+        }
+
+        const response = await fetch(`${API_BASE_URL}/api/v1/questions/answer/stream`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                'Accept-Language': `${localeSettings.userLanguage}-${localeSettings.userCountry}`,
+                'X-User-Locale': localeSettings.userLanguage,
+                'X-User-Region': localeSettings.userCountry,
+                'X-User-Timezone': Intl.DateTimeFormat().resolvedOptions().timeZone,
+            },
+            body: JSON.stringify(requestBody)
+        })
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`)
+        }
+
+        // ReadableStream으로 응답 처리
+        const reader = response.body?.getReader()
+        if (!reader) {
+            throw new Error('스트림을 읽을 수 없습니다.')
+        }
+
+        const decoder = new TextDecoder()
+        let buffer = ''
+
+        while (true) {
+            const { done, value } = await reader.read()
+
+            if (done) break
+
+            // 청크 데이터 디코딩
+            const chunk = decoder.decode(value)
+            buffer += chunk
+
+            // 줄 단위로 처리
+            const lines = buffer.split('\n')
+            buffer = lines.pop() || '' // 마지막 불완전한 줄은 버퍼에 보관
+
+            for (const line of lines) {
+                if (line.trim() === '' || line.trim() === '[DONE]') continue
+
+                if (line.startsWith('data: ')) {
+                    try {
+                        const jsonStr = line.slice(6) // 'data: ' 제거
+                        if (jsonStr.trim() === '[DONE]') {
+                            console.log('✅ 스트리밍 완료')
+                            break
+                        }
+
+                        const data = JSON.parse(jsonStr) as StreamChecklistResponse
+                        console.log('📄 체크리스트 스트림 데이터:', data)
+
+                        // 콜백 호출
+                        onData(data)
+
+                        // 완료 상태 처리
+                        if (data.status === 'completed' && data.checklist_id) {
+                            console.log('🎉 체크리스트 생성 완료:', data.checklist_id)
+                            onComplete(data.checklist_id)
+                            return
+                        }
+
+                        // 에러 상태 처리
+                        if (data.status === 'error') {
+                            throw new Error(data.error || '체크리스트 생성 중 오류가 발생했습니다.')
+                        }
+
+                    } catch (parseError) {
+                        console.warn('⚠️ 체크리스트 스트림 파싱 에러:', parseError, 'Raw line:', line)
+                    }
+                }
+            }
+        }
+
+    } catch (error) {
+        console.error('💥 스트리밍 체크리스트 생성 에러:', error)
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+        onError(errorMessage)
+    }
 }
 
 // 체크리스트 관련 타입 정의

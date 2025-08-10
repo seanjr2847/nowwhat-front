@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { AdModal } from "../components/clarify/ad-modal"
 import { ClarifyHeader } from "../components/clarify/clarify-header"
 import { CreateButton } from "../components/clarify/create-button"
 import { ErrorMessage } from "../components/clarify/error-message"
@@ -12,11 +11,11 @@ import { LoadingSpinner } from "../components/clarify/loading-spinner"
 import { ProgressBar } from "../components/clarify/progress-bar"
 import { QuestionSection } from "../components/clarify/question-section"
 import { StreamingQuestionGenerator } from "../components/streaming/streaming-question-generator"
+import { StreamingChecklistGenerator } from "../components/streaming/streaming-checklist-generator"
 import { useToast } from "../hooks/use-toast"
 import { useAuth } from "../hooks/useAuth"
 import {
   analyzeIntents,
-  createChecklist,
   saveQuestionAnswer,
   formatApiError,
   type Intent,
@@ -41,11 +40,9 @@ export default function ClarifyPage() {
   const [progress, setProgress] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string>("")
-  const [showAdModal, setShowAdModal] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
   // 세션 정보
   const [sessionId, setSessionId] = useState<string>("")
-  const [questionSetId] = useState<string>("")
 
   const fetchIntents = async (targetGoal?: string) => {
     const goalToAnalyze = targetGoal || goal
@@ -173,107 +170,13 @@ export default function ClarifyPage() {
     }
   }
 
-  // 체크리스트 생성 결과를 저장할 state 추가
-  const [checklistId, setChecklistId] = useState<string | null>(null)
-
-  // 광고 모달 표시 (API 호출 없이)
-  const handleShowAdModal = () => {
-    console.log('🎬 광고 모달 표시')
-    setShowAdModal(true)
+  // 체크리스트 생성 시작 (스트리밍 UI가 실제 API 호출을 처리)
+  const handleCreateChecklist = () => {
+    console.log('🚀 체크리스트 생성 UI 표시')
     setIsCreating(true)
     setError("")
-    
-    // 광고가 표시되면 바로 백그라운드에서 API 호출
-    void performChecklistCreation()
   }
 
-  // 실제 체크리스트 생성 API 호출
-  const performChecklistCreation = async () => {
-    console.log('🚀 백그라운드에서 체크리스트 생성 시작')
-    
-    try {
-      // selectedIntent는 이제 title + description을 저장하고 있으므로 다시 파싱
-      const intentTitle = selectedIntent.split('.')[0].trim()
-      const selectedIntentObj = intents.find(i => i.title === intentTitle)
-      if (!selectedIntentObj) throw new Error('선택된 의도를 찾을 수 없습니다.')
-
-      const answersArray = questions.map((q, index) => {
-        const userAnswer = answers[q.id]
-        return {
-          questionId: q.id,
-          questionIndex: index,
-          questionText: q.text,
-          questionType: q.type,
-          answer: userAnswer || (q.type === 'multiple' ? [] : '')
-        }
-      })
-
-      console.log('📊 제출할 데이터:', { 
-        sessionId, 
-        questionSetId, 
-        goal, 
-        selectedIntent: selectedIntentObj.title, 
-        answersArray,
-        answersCount: answersArray.length,
-        firstAnswer: answersArray[0]
-      })
-
-      const response = await createChecklist(
-        sessionId,
-        questionSetId,
-        goal,
-        selectedIntentObj.title,
-        answersArray
-      )
-
-      if (response.success && response.data) {
-        console.log('✅ 체크리스트 생성 성공:', response.data)
-        setChecklistId(response.data.checklistId)
-        
-        toast({
-          title: "체크리스트 생성 완료!",
-          description: "나만의 실행 체크리스트가 준비되었습니다.",
-          variant: "default",
-        })
-      } else {
-        console.error('❌ 체크리스트 생성 실패:', response.error)
-        const errorMessage = formatApiError(response.error) || "체크리스트 생성 중 오류가 발생했습니다."
-        setError(errorMessage)
-        setShowAdModal(false)
-
-        toast({
-          title: "생성 실패",
-          description: errorMessage,
-          variant: "destructive",
-        })
-      }
-    } catch (error) {
-      console.error('💥 체크리스트 생성 에러:', error)
-      setError("체크리스트 생성 중 오류가 발생했습니다.")
-      setShowAdModal(false)
-
-      toast({
-        title: "연결 오류",
-        description: "서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsCreating(false)
-    }
-  }
-
-  // 광고 완료 후 호출될 핸들러
-  const handleAdComplete = () => {
-    console.log('⏰ 광고 시청 완료')
-    setShowAdModal(false)
-    
-    // 체크리스트가 이미 생성되었으면 바로 이동
-    if (checklistId) {
-      console.log('✅ 체크리스트 준비 완료, 결과 페이지로 이동')
-      void navigate(`/result/${checklistId}`)
-    }
-    // 아직 생성 중이면 AdModal에서 처리 (로딩 표시)
-  }
 
   const isAllQuestionsAnswered =
     questions.length > 0 &&
@@ -327,18 +230,14 @@ export default function ClarifyPage() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && showAdModal) {
-        e.preventDefault()
-      }
-
       if (e.ctrlKey && e.key === "Enter" && isAllQuestionsAnswered && !isCreating) {
-        handleShowAdModal()
+        handleCreateChecklist()
       }
     }
 
     document.addEventListener("keydown", handleKeyDown)
     return () => document.removeEventListener("keydown", handleKeyDown)
-  }, [showAdModal, isAllQuestionsAnswered, isCreating])
+  }, [isAllQuestionsAnswered, isCreating])
 
   // 디버그: 상태 변경 추적
   useEffect(() => {
@@ -480,9 +379,37 @@ export default function ClarifyPage() {
           </div>
         )}
 
-        {isAllQuestionsAnswered && <CreateButton onClick={handleShowAdModal} isLoading={isCreating} />}
+        {isAllQuestionsAnswered && !isCreating && (
+          <CreateButton onClick={handleCreateChecklist} isLoading={isCreating} />
+        )}
 
-        {showAdModal && <AdModal onComplete={handleAdComplete} isCreating={isCreating} />}
+        {/* 체크리스트 생성 중일 때 스트리밍 UI */}
+        {isCreating && (
+          <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-white/20 dark:border-gray-700/50 rounded-3xl p-6 mb-8">
+            <StreamingChecklistGenerator
+              sessionId={sessionId}
+              goal={goal}
+              intentTitle={selectedIntent}
+              answersArray={questions.map((q, index) => ({
+                questionId: q.id,
+                questionIndex: index,
+                questionText: q.text,
+                questionType: q.type,
+                answer: answers[q.id] || (q.type === 'multiple' ? [] : '')
+              }))}
+              onChecklistComplete={(checklistId) => {
+                console.log('✅ 체크리스트 완료:', checklistId)
+                void navigate(`/result/${checklistId}`)
+              }}
+              onError={(error) => {
+                console.error('❌ 체크리스트 생성 에러:', error)
+                setError(error)
+                setIsCreating(false)
+              }}
+              autoStart={true}
+            />
+          </div>
+        )}
       </div>
     </div>
   )
