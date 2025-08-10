@@ -55,9 +55,6 @@ export function AdModal({ onComplete, isCreating }: AdModalProps) {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timer)
-          if (!isCreating) {
-            onComplete()
-          }
           return 0
         }
         return prev - 1
@@ -65,13 +62,7 @@ export function AdModal({ onComplete, isCreating }: AdModalProps) {
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [onComplete, isCreating])
-
-  useEffect(() => {
-    if (timeLeft === 0 && !isCreating) {
-      onComplete()
-    }
-  }, [timeLeft, isCreating, onComplete])
+  }, [])
 
   return (
     <div
@@ -105,17 +96,27 @@ export function AdModal({ onComplete, isCreating }: AdModalProps) {
                 </div>
               </div>
             ) : isCreating ? (
-              <div className="flex flex-col items-center">
+              <div className="flex flex-col items-center space-y-4">
                 <LoadingSpinner stage="checklist-creation" />
+                <p className="text-sm text-gray-400">
+                  체크리스트를 마무리하고 있어요...
+                </p>
                 <div className="sr-only" aria-live="polite">
                   체크리스트 생성 중입니다. 잠시만 기다려주세요.
                 </div>
               </div>
             ) : (
-              <div>
-                <p className="text-green-400">완료!</p>
+              <div className="flex flex-col items-center space-y-4">
+                <p className="text-green-400 text-lg font-medium">✓ 준비 완료!</p>
+                <button
+                  onClick={onComplete}
+                  className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors"
+                  aria-label="체크리스트 확인하기"
+                >
+                  체크리스트 확인하기 →
+                </button>
                 <div className="sr-only" aria-live="polite">
-                  광고 시청 완료. 체크리스트 페이지로 이동합니다.
+                  체크리스트 생성 완료. 확인 버튼을 눌러 결과를 확인하세요.
                 </div>
               </div>
             )}

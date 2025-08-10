@@ -173,12 +173,24 @@ export default function ClarifyPage() {
     }
   }
 
-  const handleCreateChecklist = async () => {
-    console.log('🚀 체크리스트 생성 시작')
+  // 체크리스트 생성 결과를 저장할 state 추가
+  const [checklistId, setChecklistId] = useState<string | null>(null)
+
+  // 광고 모달 표시 (API 호출 없이)
+  const handleShowAdModal = () => {
+    console.log('🎬 광고 모달 표시')
     setShowAdModal(true)
     setIsCreating(true)
     setError("")
+    
+    // 광고가 표시되면 바로 백그라운드에서 API 호출
+    void performChecklistCreation()
+  }
 
+  // 실제 체크리스트 생성 API 호출
+  const performChecklistCreation = async () => {
+    console.log('🚀 백그라운드에서 체크리스트 생성 시작')
+    
     try {
       // selectedIntent는 이제 title + description을 저장하고 있으므로 다시 파싱
       const intentTitle = selectedIntent.split('.')[0].trim()
@@ -216,17 +228,13 @@ export default function ClarifyPage() {
 
       if (response.success && response.data) {
         console.log('✅ 체크리스트 생성 성공:', response.data)
-
+        setChecklistId(response.data.checklistId)
+        
         toast({
           title: "체크리스트 생성 완료!",
           description: "나만의 실행 체크리스트가 준비되었습니다.",
           variant: "default",
         })
-
-        // 잠시 후 결과 페이지로 이동
-        setTimeout(() => {
-          void navigate(`/result/${response.data!.checklistId}`)
-        }, 1000)
       } else {
         console.error('❌ 체크리스트 생성 실패:', response.error)
         const errorMessage = formatApiError(response.error) || "체크리스트 생성 중 오류가 발생했습니다."
@@ -252,6 +260,19 @@ export default function ClarifyPage() {
     } finally {
       setIsCreating(false)
     }
+  }
+
+  // 광고 완료 후 호출될 핸들러
+  const handleAdComplete = () => {
+    console.log('⏰ 광고 시청 완료')
+    setShowAdModal(false)
+    
+    // 체크리스트가 이미 생성되었으면 바로 이동
+    if (checklistId) {
+      console.log('✅ 체크리스트 준비 완료, 결과 페이지로 이동')
+      void navigate(`/result/${checklistId}`)
+    }
+    // 아직 생성 중이면 AdModal에서 처리 (로딩 표시)
   }
 
   const isAllQuestionsAnswered =
@@ -460,9 +481,9 @@ export default function ClarifyPage() {
           </div>
         )}
 
-        {isAllQuestionsAnswered && <CreateButton onClick={() => void handleCreateChecklist()} isLoading={isCreating} />}
+        {isAllQuestionsAnswered && <CreateButton onClick={handleShowAdModal} isLoading={isCreating} />}
 
-        {showAdModal && <AdModal onComplete={() => setShowAdModal(false)} isCreating={isCreating} />}
+        {showAdModal && <AdModal onComplete={handleAdComplete} isCreating={isCreating} />}
       </div>
     </div>
   )

@@ -340,9 +340,9 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
     }
   }, [questions.length])
 
-  // 질문들을 순차적으로 추가하는 헬퍼 함수
+  // 질문들을 한 번에 모두 추가하는 헬퍼 함수
   const processQuestions = useCallback((questionsToProcess: Question[]) => {
-    console.log('🔄 질문 순차 추가 시작:', questionsToProcess.length, '개')
+    console.log('🔄 질문 추가 시작:', questionsToProcess.length, '개')
 
     // 이미 처리 완료되었으면 중복 처리 방지
     if (questions.length > 0) {
@@ -353,38 +353,13 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
       return
     }
 
-    // 질문을 하나씩 순차적으로 추가
-    let currentIndex = 0
-    const addQuestionSequentially = () => {
-      if (currentIndex < questionsToProcess.length) {
-        setQuestions(prev => {
-          // 중복 방지: 이미 같은 ID의 질문이 있으면 추가하지 않음
-          const existingQuestion = prev.find(q => q.id === questionsToProcess[currentIndex].id)
-          if (existingQuestion) {
-            console.log('⚠️ 중복 질문 ID 감지, 추가 건너뛰기:', questionsToProcess[currentIndex].id)
-            return prev
-          }
-          return [...prev, questionsToProcess[currentIndex]]
-        })
-        setCurrentQuestionIndex(currentIndex)
-        currentIndex++
-
-        // 다음 질문을 500ms 후에 추가
-        questionTimerRef.current = setTimeout(addQuestionSequentially, 500)
-      } else {
-        // 모든 질문 추가 완료
-        console.log('🎉 모든 질문 순차 추가 완료')
-        setIsStreaming(false)
-        setStreamingStatus('completed')
-        setCurrentQuestionIndex(questionsToProcess.length - 1)
-        isProcessingRef.current = false
-      }
-    }
-
-    // 기존 질문 초기화 후 순차적 추가 시작
-    setQuestions([])
-    setCurrentQuestionIndex(0)
-    addQuestionSequentially()
+    // 모든 질문을 한 번에 추가
+    setQuestions(questionsToProcess)
+    setCurrentQuestionIndex(questionsToProcess.length - 1)
+    setIsStreaming(false)
+    setStreamingStatus('completed')
+    isProcessingRef.current = false
+    console.log('🎉 모든 질문 추가 완료')
   }, [questions.length])
 
   const handleStreamError = useCallback((errorMessage: string) => {
