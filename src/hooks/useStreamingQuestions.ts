@@ -74,20 +74,19 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
       case 'completed':
         console.log('✅ 스트리밍 상태 완료:', data.message)
         
-        // 백엔드에서 question_ready 이벤트로 질문들을 이미 전송했다면 즉시 완료 처리
-        if (questions.length > 0) {
-          console.log('🎉 질문별 스트리밍 완료 - 이미', questions.length, '개 질문 존재')
-          setIsStreaming(false)
-          setStreamingStatus('completed')
-        } 
         // completed 상태에서 data.questions가 완전히 제공된 경우
-        else if (data.questions && Array.isArray(data.questions) && data.questions.length > 0) {
+        if (data.questions && Array.isArray(data.questions) && data.questions.length > 0) {
           console.log('🎉 서버에서 완성된 질문 데이터 수신:', data.questions.length, '개')
           handleStreamComplete(data.questions)
         } 
-        // 새로운 스트리밍 모드에서는 completed 시 바로 완료 처리
+        // 질문별 스트리밍 모드에서는 [DONE] 신호를 기다림 (추가 질문이 올 수 있음)
         else if (data.streaming_mode === 'per_question' || data.streaming_mode === 'batch_fallback') {
-          console.log('🆕 스트리밍 모드 완료 - 즉시 완료 처리')
+          console.log('⏳ 스트리밍 모드 완료 신호 수신 - [DONE] 신호 대기 중...')
+          // [DONE] 신호에서 최종 완료 처리하도록 함
+        }
+        // 백엔드에서 question_ready 이벤트로 질문들을 이미 전송했다면 즉시 완료 처리
+        else if (questions.length > 0) {
+          console.log('🎉 질문별 스트리밍 완료 - 이미', questions.length, '개 질문 존재')
           setIsStreaming(false)
           setStreamingStatus('completed')
         }
