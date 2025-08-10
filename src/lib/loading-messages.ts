@@ -88,17 +88,17 @@ export const LOADING_STAGES: Record<LoadingStage, LoadingStageConfig> = {
   },
 
   'intent-analysis': {
-    name: '의도 분석',
-    icon: '🧠',
+    name: '방향 분석',
+    icon: '🎯',
     messages: {
-      primary: '선택하신 방향으로 세부 분석 중이에요',
-      secondary: '가장 실현 가능한 방법들을 찾고 있습니다',
-      encouragement: '거의 다 왔어요! 조금만 더 기다려주세요',
-      estimatedDuration: 6,
+      primary: '당신의 목표에 맞는 방향을 분석하고 있어요',
+      secondary: '가장 적합한 접근 방법들을 찾고 있습니다',
+      encouragement: '곧 맞춤형 방향들을 제시해드릴게요',
+      estimatedDuration: 5,
       progressMessages: [
-        '의도 파악 중...',
-        '실행 가능성 검토 중...',
-        '단계별 계획 수립 중...'
+        '목표 분석 중...',
+        '방향성 검토 중...',
+        '최적 경로 탐색 중...'
       ]
     },
     colors: {

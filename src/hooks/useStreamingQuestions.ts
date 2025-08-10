@@ -32,7 +32,7 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
   const [error, setError] = useState<string | null>(null)
   const [questions, setQuestions] = useState<Question[]>([])
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
-  const [streamingStatus, setStreamingStatus] = useState<StreamResponse['status'] | null>(null)
+  const [streamingStatus, setStreamingStatus] = useState<StreamResponse['status'] | 'progressing' | null>(null)
 
   // 스트리밍 중단을 위한 AbortController
   const abortControllerRef = useRef<AbortController | null>(null)

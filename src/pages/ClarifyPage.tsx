@@ -332,7 +332,7 @@ export default function ClarifyPage() {
       }
 
       if (e.ctrlKey && e.key === "Enter" && isAllQuestionsAnswered && !isCreating) {
-        void handleCreateChecklist()
+        handleShowAdModal()
       }
     }
 
@@ -375,7 +375,6 @@ export default function ClarifyPage() {
 
         <div className="max-w-4xl mx-auto px-4 py-8 relative z-10">
           <ClarifyHeader goal={goal} />
-          <ProgressBar progress={0} />
           <IntentSkeleton />
         </div>
       </div>
