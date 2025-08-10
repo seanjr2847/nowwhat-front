@@ -116,7 +116,9 @@ export default function ClarifyPage() {
     console.log('📌 현재 sessionId:', sessionId)
     console.log('🚀 스트리밍 모드로 질문 생성 시작')
 
-    setSelectedIntent(selectedIntentObj.title)
+    // title과 description을 결합하여 더 많은 컨텍스트 제공
+    const intentWithContext = `${selectedIntentObj.title}. ${selectedIntentObj.description}`
+    setSelectedIntent(intentWithContext)
     setError("")
     setProgress(25) // 의도 선택 완료
   }
@@ -178,8 +180,9 @@ export default function ClarifyPage() {
     setError("")
 
     try {
-      // selectedIntent는 이제 title을 저장하고 있으므로 title로 찾기
-      const selectedIntentObj = intents.find(i => i.title === selectedIntent)
+      // selectedIntent는 이제 title + description을 저장하고 있으므로 다시 파싱
+      const intentTitle = selectedIntent.split('.')[0].trim()
+      const selectedIntentObj = intents.find(i => i.title === intentTitle)
       if (!selectedIntentObj) throw new Error('선택된 의도를 찾을 수 없습니다.')
 
       const answersArray = questions.map((q, index) => {
