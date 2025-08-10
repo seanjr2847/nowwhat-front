@@ -10,15 +10,15 @@ import { LoadingSpinner } from "./loading-spinner"
 export function IntentSkeleton() {
   return (
     <section className="mb-12 animate-scale-in" aria-labelledby="intent-heading">
-      {/* 일관된 로딩 스피너 사용 */}
-      <div className="mb-12">
+      {/* 로딩바를 맨 위에 배치 */}
+      <div className="mb-8">
         <LoadingSpinner 
           stage="intent-analysis" 
           message="당신의 목표에 맞는 방향을 분석하고 있어요"
         />
       </div>
 
-      {/* 스켈레톤 컨텐샤를 더 간단하고 일관성 있게 */}
+      {/* 스켈레톤 컨텐츠를 더 간단하고 일관성 있게 */}
       <div className="grid md:grid-cols-2 gap-6 opacity-50">
         {Array.from({ length: 4 }).map((_, index) => (
           <Card
