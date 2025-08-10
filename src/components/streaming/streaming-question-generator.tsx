@@ -97,6 +97,10 @@ export function StreamingQuestionGenerator({
         return '질문 생성을 시작합니다...'
       case 'generating':
         return 'AI가 질문을 생성하고 있습니다...'
+      case 'question_ready':
+        return `질문이 실시간으로 생성되고 있습니다... (${questions.length}개 완성)`
+      case 'progressing':
+        return `질문이 실시간으로 추가되고 있습니다 (${questions.length}개)`
       case 'completed':
         return '질문 생성이 완료되었습니다!'
       case 'error':
@@ -111,6 +115,9 @@ export function StreamingQuestionGenerator({
       case 'started':
       case 'generating':
         return 'text-blue-600 dark:text-blue-400'
+      case 'question_ready':
+      case 'progressing':
+        return 'text-purple-600 dark:text-purple-400'
       case 'completed':
         return 'text-green-600 dark:text-green-400'
       case 'error':

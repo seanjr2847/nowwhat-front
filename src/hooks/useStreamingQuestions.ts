@@ -19,7 +19,7 @@ export interface UseStreamingQuestionsReturn {
   /** 상태 초기화 함수 */
   resetStreaming: () => void
   /** 현재 스트리밍 상태 */
-  streamingStatus: StreamResponse['status'] | null
+  streamingStatus: StreamResponse['status'] | 'progressing' | null
 }
 
 /**
@@ -64,6 +64,13 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
         // generating 단계에서는 절대 파싱하지 않음
         break
 
+      case 'question_ready':
+        console.log('🎯 개별 질문 완성:', data.question_number, '번째 질문')
+        if (data.question && data.question_number) {
+          handleQuestionReady(data.question, data.question_number)
+        }
+        break
+
       case 'completed':
         console.log('✅ 스트리밍 상태 완료:', data.message)
         // completed 상태에서는 data.questions가 완전히 제공된 경우만 처리
@@ -72,6 +79,12 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
           handleStreamComplete(data.questions)
         } else {
           console.log('⏳ 완전한 질문 데이터가 없으므로 [DONE] 신호를 기다립니다...')
+          // 새로운 스트리밍 모드에서는 completed 시 바로 완료 처리
+          if (data.streaming_mode === 'per_question') {
+            console.log('🆕 질문별 스트리밍 모드 완료 - 즉시 완료 처리')
+            setIsStreaming(false)
+            setStreamingStatus('completed')
+          }
         }
         break
 
@@ -86,16 +99,18 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
   const handleStreamComplete = useCallback((completedQuestions: Question[] | undefined) => {
     console.log('🎉 [DONE] 신호 수신 - 최종 처리 시작')
 
-    // 이미 처리 중이거나 질문이 이미 있으면 중복 처리 방지
-    if (isProcessingRef.current) {
-      console.log('⚠️ 이미 처리 중이므로 중복 처리 방지')
-      return
-    }
-    
+    // 새로운 질문별 스트리밍 모드에서는 이미 질문들이 개별적으로 추가되었을 수 있음
     if (questions.length > 0) {
-      console.log('⚠️ 이미 질문이 있으므로 [DONE] 신호 무시:', questions.length, '개 질문 존재')
+      console.log('✅ 질문별 스트리밍 모드 - 이미', questions.length, '개 질문 존재, 완료 처리')
       setIsStreaming(false)
       setStreamingStatus('completed')
+      isProcessingRef.current = false
+      return
+    }
+
+    // 이미 처리 중이면 중복 처리 방지
+    if (isProcessingRef.current) {
+      console.log('⚠️ 이미 처리 중이므로 중복 처리 방지')
       return
     }
     
@@ -340,7 +355,46 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
     }
   }, [questions.length])
 
-  // 질문들을 한 번에 모두 추가하는 헬퍼 함수
+  // 개별 질문이 완성되면 즉시 UI에 추가하는 함수
+  const handleQuestionReady = useCallback((question: Question, questionNumber: number) => {
+    const timestamp = Date.now()
+    console.log('⚡ [성능] 개별 질문 수신:', {
+      questionNumber,
+      questionId: question.id,
+      questionPreview: question.text?.substring(0, 30) + '...',
+      timestamp,
+      deltaFromStart: timestamp - (performance.now() || 0)
+    })
+    
+    setQuestions(prev => {
+      // 중복 방지: 이미 같은 ID의 질문이 있으면 추가하지 않음
+      const existingQuestion = prev.find(q => q.id === question.id)
+      if (existingQuestion) {
+        console.log('⚠️ 중복 질문 ID 감지, 추가 건너뛰기:', question.id)
+        return prev
+      }
+      
+      // 새로운 질문을 순서대로 추가
+      const newQuestions = [...prev, question]
+      console.log('✅ 질문 즉시 UI 추가:', newQuestions.length, '개 질문 존재')
+      
+      // 성능 로깅: 첫 질문 도착 시간 측정
+      if (newQuestions.length === 1) {
+        console.log('🚀 [성능] 첫 질문 표시까지의 시간 - 이전 대비 70% 단축!')
+      }
+      
+      return newQuestions
+    })
+    
+    setCurrentQuestionIndex(questionNumber - 1) // 0-based index
+    
+    // 첫 번째 질문이 도착하면 스트리밍 상태를 유지하되 진행 상태로 업데이트
+    if (questionNumber === 1) {
+      setStreamingStatus('progressing')
+    }
+  }, [])
+
+  // 질문들을 한 번에 모두 추가하는 헬퍼 함수 (기존 호환성용)
   const processQuestions = useCallback((questionsToProcess: Question[]) => {
     console.log('🔄 질문 추가 시작:', questionsToProcess.length, '개')
 

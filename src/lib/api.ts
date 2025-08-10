@@ -408,11 +408,17 @@ export async function generateQuestions(
 
 // 스트리밍 타입 정의
 export interface StreamResponse {
-    status: 'started' | 'generating' | 'completed' | 'error'
+    status: 'started' | 'generating' | 'completed' | 'error' | 'question_ready'
     message?: string
     chunk?: string
     error?: string
     questions?: Question[]
+    // 새로운 질문별 스트리밍 필드들
+    question?: Question
+    question_number?: number
+    timestamp?: number
+    total_questions?: number
+    streaming_mode?: 'per_question' | 'batch_fallback'
 }
 
 // 스트리밍 질문 생성 API
