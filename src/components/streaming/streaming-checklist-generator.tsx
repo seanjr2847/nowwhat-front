@@ -1,11 +1,11 @@
 "use client"
 
-import { Brain, Zap, CheckSquare } from "lucide-react"
+import { CheckSquare, Zap } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
+import { createChecklist, generateChecklistStream, type StreamChecklistResponse } from "../../lib/api"
 import { cn } from "../../lib/utils"
-import { Button } from "../ui/button"
 import { LoadingSpinner } from "../clarify/loading-spinner"
-import { generateChecklistStream, createChecklist, type StreamChecklistResponse } from "../../lib/api"
+import { Button } from "../ui/button"
 import "./streaming.css"
 
 interface StreamingChecklistGeneratorProps {
