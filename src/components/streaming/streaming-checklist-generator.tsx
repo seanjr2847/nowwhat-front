@@ -144,6 +144,13 @@ export function StreamingChecklistGenerator({
 
   const handleStreamData = (data: StreamChecklistResponse) => {
     console.log('📄 체크리스트 스트림 데이터 수신:', data)
+    console.log('🔍 상세 데이터 분석:', {
+      status: data.status,
+      hasItem: !!data.item,
+      hasEnhancedItem: !!data.enhanced_item,
+      hasDetails: !!data.details,
+      detailsContent: data.details
+    })
     
     setCurrentStatus(data.status)
     
@@ -161,41 +168,72 @@ export function StreamingChecklistGenerator({
 
     // 새 아이템 추가
     if (data.status === 'item_ready' && data.item) {
+      console.log('📦 item_ready 상태 - details 확인:', {
+        hasDetails: !!data.details,
+        details: data.details
+      })
+      
       const newItem: ChecklistItem = {
         item_id: data.item.item_id,
         title: data.item.title,
         description: data.item.description,
-        order: data.item.order
+        order: data.item.order,
+        // item_ready에서도 details가 있으면 포함
+        tips: data.details?.tips,
+        links: data.details?.links,
+        price: data.details?.price
       }
+      
+      console.log('📝 생성된 아이템:', newItem)
       
       setChecklistItems(prev => {
         // 중복 방지: 같은 item_id가 있으면 교체, 없으면 추가
         const existing = prev.find(item => item.item_id === newItem.item_id)
         if (existing) {
+          console.log('🔄 기존 아이템 교체:', newItem.item_id)
           return prev.map(item => item.item_id === newItem.item_id ? newItem : item)
         } else {
+          console.log('➕ 새 아이템 추가:', newItem.item_id)
           return [...prev, newItem].sort((a, b) => a.order - b.order)
         }
       })
     }
 
     // 아이템 향상 (details 추가)
-    if (data.status === 'item_enhanced' && data.enhanced_item && data.details) {
-      const enhancedItem: ChecklistItem = {
-        item_id: data.enhanced_item.item_id,
-        title: data.enhanced_item.title,
-        description: data.enhanced_item.description,
-        order: data.enhanced_item.order,
-        tips: data.details.tips,
-        links: data.details.links,
-        price: data.details.price
-      }
+    if (data.status === 'item_enhanced') {
+      console.log('🌟 item_enhanced 상태 감지:', {
+        hasEnhancedItem: !!data.enhanced_item,
+        hasDetails: !!data.details,
+        enhanced_item: data.enhanced_item,
+        details: data.details
+      })
+      
+      if (data.enhanced_item && data.details) {
+        const enhancedItem: ChecklistItem = {
+          item_id: data.enhanced_item.item_id,
+          title: data.enhanced_item.title,
+          description: data.enhanced_item.description,
+          order: data.enhanced_item.order,
+          tips: data.details.tips,
+          links: data.details.links,
+          price: data.details.price
+        }
 
-      setChecklistItems(prev => 
-        prev.map(item => 
-          item.item_id === enhancedItem.item_id ? enhancedItem : item
-        )
-      )
+        console.log('✨ 아이템 향상 적용:', enhancedItem)
+
+        setChecklistItems(prev => {
+          const updated = prev.map(item => 
+            item.item_id === enhancedItem.item_id ? enhancedItem : item
+          )
+          console.log('📝 향상 후 아이템 목록:', updated)
+          return updated
+        })
+      } else {
+        console.warn('⚠️ item_enhanced 상태이지만 enhanced_item 또는 details가 없음:', {
+          enhanced_item: data.enhanced_item,
+          details: data.details
+        })
+      }
     }
   }
 

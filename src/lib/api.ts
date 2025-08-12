@@ -735,6 +735,16 @@ export async function generateChecklistStream(
 
                         const data = JSON.parse(jsonStr) as StreamChecklistResponse
                         console.log('📄 체크리스트 스트림 데이터:', data)
+                        
+                        // item_enhanced 상태 특별 로깅
+                        if (data.status === 'item_enhanced') {
+                            console.log('🔍 [API] item_enhanced 데이터 상세:', {
+                                status: data.status,
+                                enhanced_item: data.enhanced_item,
+                                details: data.details,
+                                rawJsonStr: jsonStr
+                            })
+                        }
 
                         // 콜백 호출
                         onData(data)
