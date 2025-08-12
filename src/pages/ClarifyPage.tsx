@@ -11,7 +11,6 @@ import { LoadingSpinner } from "../components/clarify/loading-spinner"
 import { ProgressBar } from "../components/clarify/progress-bar"
 import { QuestionSection } from "../components/clarify/question-section"
 import { StreamingQuestionGenerator } from "../components/streaming/streaming-question-generator"
-import { StreamingChecklistGenerator } from "../components/streaming/streaming-checklist-generator"
 import { useToast } from "../hooks/use-toast"
 import { useAuth } from "../hooks/useAuth"
 import {
@@ -40,7 +39,6 @@ export default function ClarifyPage() {
   const [progress, setProgress] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string>("")
-  const [isCreating, setIsCreating] = useState(false)
   // 세션 정보
   const [sessionId, setSessionId] = useState<string>("")
 
@@ -105,7 +103,7 @@ export default function ClarifyPage() {
     }
   }
 
-  const handleIntentSelect = async (intentId: string) => {
+  const handleIntentSelect = (intentId: string) => {
     const selectedIntentObj = intents.find(i => i.id === intentId)
     if (!selectedIntentObj) return
 
@@ -170,11 +168,33 @@ export default function ClarifyPage() {
     }
   }
 
-  // 체크리스트 생성 시작 (스트리밍 UI가 실제 API 호출을 처리)
+  // 체크리스트 생성 시작 (새 페이지로 이동)
   const handleCreateChecklist = () => {
-    console.log('🚀 체크리스트 생성 UI 표시')
-    setIsCreating(true)
-    setError("")
+    console.log('🚀 체크리스트 생성 페이지로 이동')
+    
+    // 체크리스트 생성에 필요한 데이터 준비
+    const checklistCreationData = {
+      sessionId,
+      goal,
+      intentTitle: selectedIntent,
+      answersArray: questions.map((q, index) => ({
+        questionId: q.id,
+        questionIndex: index,
+        questionText: q.text,
+        questionType: q.type,
+        answer: answers[q.id] || (q.type === 'multiple' ? [] : '')
+      }))
+    }
+
+    console.log('📄 체크리스트 생성 데이터:', {
+      sessionId: checklistCreationData.sessionId,
+      goal: checklistCreationData.goal,
+      intentTitle: checklistCreationData.intentTitle,
+      answersCount: checklistCreationData.answersArray.length
+    })
+
+    // 새 페이지로 이동하면서 상태 전달
+    void navigate('/create-checklist', { state: checklistCreationData })
   }
 
 
@@ -230,14 +250,14 @@ export default function ClarifyPage() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.key === "Enter" && isAllQuestionsAnswered && !isCreating) {
+      if (e.ctrlKey && e.key === "Enter" && isAllQuestionsAnswered) {
         handleCreateChecklist()
       }
     }
 
     document.addEventListener("keydown", handleKeyDown)
     return () => document.removeEventListener("keydown", handleKeyDown)
-  }, [isAllQuestionsAnswered, isCreating])
+  }, [isAllQuestionsAnswered])
 
   // 디버그: 상태 변경 추적
   useEffect(() => {
@@ -339,7 +359,7 @@ export default function ClarifyPage() {
 
         {/* 의도 선택 단계 */}
         {!selectedIntent && intents.length > 0 && (
-          <IntentSelection intents={intents} onSelect={(id) => void handleIntentSelect(id)} />
+          <IntentSelection intents={intents} onSelect={(id) => handleIntentSelect(id)} />
         )}
 
         {/* 스트리밍 질문 생성기 */}
@@ -379,36 +399,8 @@ export default function ClarifyPage() {
           </div>
         )}
 
-        {isAllQuestionsAnswered && !isCreating && (
-          <CreateButton onClick={handleCreateChecklist} isLoading={isCreating} />
-        )}
-
-        {/* 체크리스트 생성 중일 때 스트리밍 UI */}
-        {isCreating && (
-          <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-white/20 dark:border-gray-700/50 rounded-3xl p-6 mb-8">
-            <StreamingChecklistGenerator
-              sessionId={sessionId}
-              goal={goal}
-              intentTitle={selectedIntent}
-              answersArray={questions.map((q, index) => ({
-                questionId: q.id,
-                questionIndex: index,
-                questionText: q.text,
-                questionType: q.type,
-                answer: answers[q.id] || (q.type === 'multiple' ? [] : '')
-              }))}
-              onChecklistComplete={(checklistId) => {
-                console.log('✅ 체크리스트 완료:', checklistId)
-                void navigate(`/result/${checklistId}`)
-              }}
-              onError={(error) => {
-                console.error('❌ 체크리스트 생성 에러:', error)
-                setError(error)
-                setIsCreating(false)
-              }}
-              autoStart={true}
-            />
-          </div>
+        {isAllQuestionsAnswered && (
+          <CreateButton onClick={handleCreateChecklist} isLoading={false} />
         )}
       </div>
     </div>

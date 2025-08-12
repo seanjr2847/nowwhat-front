@@ -8,6 +8,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { ThemeProvider } from './components/theme-provider';
 import { Toaster } from './components/ui/toaster';
 
+import ChecklistCreationPage from './pages/ChecklistCreationPage';
 import ClarifyPage from './pages/ClarifyPage';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
@@ -28,6 +29,7 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/clarify" element={<ClarifyPage />} />
+            <Route path="/create-checklist" element={<ProtectedRoute><ChecklistCreationPage /></ProtectedRoute>} />
             <Route path="/login" element={<LoginPage />} />
             {/* AuthCallback 라우트는 ID 토큰 방식에서는 불필요 */}
             <Route path="/my-lists" element={<ProtectedRoute><MyListsPage /></ProtectedRoute>} />
