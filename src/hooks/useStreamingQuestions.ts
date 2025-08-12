@@ -20,12 +20,42 @@ export interface UseStreamingQuestionsReturn {
   resetStreaming: () => void
   /** 현재 스트리밍 상태 */
   streamingStatus: StreamResponse['status'] | 'progressing' | null
+  /** 진행률 정보 (UX 향상) */
+  progress: {
+    current: number
+    estimated: number
+    percentage: number
+  }
+  /** 성능 메트릭 */
+  metrics: {
+    startTime: number | null
+    firstQuestionTime: number | null
+    completionTime: number | null
+  }
 }
 
 /**
  * 스트리밍 질문 생성을 위한 React Hook (개선된 버전)
  * React 클로저 문제를 해결하고 질문별 스트리밍을 완벽 지원
  */
+// Type guard function to validate question data
+function isValidQuestionData(data: StreamResponse): data is StreamResponse & {
+  question: Question
+  question_number: number
+} {
+  return (
+    data.question !== undefined &&
+    data.question !== null &&
+    typeof data.question === 'object' &&
+    'id' in data.question &&
+    'text' in data.question &&
+    'type' in data.question &&
+    'required' in data.question &&
+    typeof data.question_number === 'number' &&
+    data.question_number > 0
+  )
+}
+
 export function useStreamingQuestions(): UseStreamingQuestionsReturn {
   const [streamingText, setStreamingText] = useState('')
   const [isStreaming, setIsStreaming] = useState(false)
@@ -33,35 +63,81 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
   const [questions, setQuestions] = useState<Question[]>([])
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [streamingStatus, setStreamingStatus] = useState<StreamResponse['status'] | 'progressing' | null>(null)
+  const [progress, setProgress] = useState({
+    current: 0,
+    estimated: 5, // 일반적으로 5개 질문
+    percentage: 0
+  })
+  const [metrics, setMetrics] = useState({
+    startTime: null as number | null,
+    firstQuestionTime: null as number | null,
+    completionTime: null as number | null
+  })
 
   // 스트리밍 중단을 위한 AbortController
   const abortControllerRef = useRef<AbortController | null>(null)
   // 중복 처리 방지를 위한 플래그
   const isProcessingRef = useRef<boolean>(false)
+  // Debounce를 위한 타이머
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   const handleStreamData = useCallback((data: StreamResponse) => {
     setStreamingStatus(data.status)
 
     switch (data.status) {
-      case 'started':
+      case 'started': {
         console.log('🚀 스트리밍 시작:', data.message)
         setStreamingText('')
+        const startTime = performance.now()
+        setMetrics(prev => ({ ...prev, startTime }))
         break
+      }
 
       case 'generating':
-        if (data.chunk) {
-          setStreamingText(prev => prev + data.chunk)
+        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+        if (data.chunk && data.chunk.length > 0) {
+          // 텍스트 스트리밍 디바운스 최적화
+          if (debounceTimerRef.current) {
+            clearTimeout(debounceTimerRef.current)
+          }
+          debounceTimerRef.current = setTimeout(() => {
+            setStreamingText(prev => prev + data.chunk!)
+          }, 16) // 60fps로 업데이트 제한
         }
         break
 
-      case 'question_ready':
+      case 'question_ready': {
         console.log('🎯 개별 질문 완성:', data.question_number, '번째 질문')
-        if (data.question && data.question_number) {
-          handleQuestionReady(data.question, data.question_number)
+        
+        // Use type guard function for proper type narrowing
+        if (isValidQuestionData(data)) {
+          // Now data.question and data.question_number are properly typed
+          const question = data.question
+          const questionNumber = data.question_number
+          
+          handleQuestionReady(question, questionNumber)
+          // 첫 번째 질문 도착 시간 기록
+          if (questionNumber === 1) {
+            const firstQuestionTime = performance.now()
+            setMetrics(prev => {
+              // Only update if not already set to avoid overwriting
+              if (prev.firstQuestionTime === null || prev.firstQuestionTime === undefined) {
+                return { ...prev, firstQuestionTime }
+              }
+              return prev
+            })
+          }
+          // 진행률 업데이트
+          setProgress(prev => ({
+            ...prev,
+            current: questionNumber,
+            percentage: Math.min((questionNumber / prev.estimated) * 100, 100)
+          }))
         }
         break
+      }
 
-      case 'completed':
+      case 'completed': {
         console.log('✅ 스트리밍 상태 완료:', data.message)
         
         // completed 상태에서 data.questions가 완전히 제공된 경우
@@ -71,6 +147,10 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
           setCurrentQuestionIndex(data.questions.length - 1)
           setIsStreaming(false)
           setStreamingStatus('completed')
+          // 완료 시간 기록
+          const completionTime = performance.now()
+          setMetrics(prev => ({ ...prev, completionTime }))
+          setProgress(prev => ({ ...prev, percentage: 100 }))
           isProcessingRef.current = false
         } 
         // 질문별 스트리밍 모드에서는 [DONE] 신호를 기다림
@@ -78,13 +158,25 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
           console.log('⏳ 스트리밍 모드 완료 신호 수신 - [DONE] 신호 대기 중...')
         }
         break
+      }
 
-      case 'error':
+      case 'error': {
         console.error('❌ 스트리밍 에러:', data.error)
-        setError(data.error || 'Unknown streaming error')
+        // 사용자 친화적인 에러 메시지 제공
+        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+        const errorMessage = (data.error && data.error.length > 0) ? data.error : '알 수 없는 오류'
+        const userFriendlyError = errorMessage.includes('timeout') 
+          ? '응답 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.'
+          : errorMessage.includes('network')
+          ? '네트워크 연결을 확인하고 다시 시도해주세요.'
+          : '질문 생성 중 오류가 발생했습니다. 다시 시도해주세요.'
+        setError(userFriendlyError)
         setIsStreaming(false)
         break
+      }
     }
+    // handleQuestionReady is stable and doesn't change, safe to omit from dependencies
+    // eslint-disable-next-line react-hooks/exhaustive-deps  
   }, [])
 
   const handleStreamComplete = useCallback((completedQuestions: Question[] | undefined) => {
@@ -183,6 +275,20 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
     setIsStreaming(true)
     setStreamingStatus('started')
     isProcessingRef.current = false
+    
+    // 진행률 및 메트릭 초기화
+    setProgress({ current: 0, estimated: 5, percentage: 0 })
+    setMetrics({
+      startTime: null,
+      firstQuestionTime: null,
+      completionTime: null
+    })
+    
+    // 디바운스 타이머 정리
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current)
+      debounceTimerRef.current = null
+    }
 
     // 새로운 AbortController 생성
     abortControllerRef.current = new AbortController()
@@ -208,6 +314,10 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
       abortControllerRef.current.abort()
       abortControllerRef.current = null
     }
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current)
+      debounceTimerRef.current = null
+    }
     setIsStreaming(false)
     setStreamingStatus(null)
     console.log('⏹️ 스트리밍 중단됨')
@@ -220,6 +330,12 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
     setQuestions([])
     setCurrentQuestionIndex(0)
     setStreamingStatus(null)
+    setProgress({ current: 0, estimated: 5, percentage: 0 })
+    setMetrics({
+      startTime: null,
+      firstQuestionTime: null,
+      completionTime: null
+    })
     isProcessingRef.current = false
     console.log('🔄 스트리밍 상태 초기화됨')
   }, [stopStreaming])
@@ -233,7 +349,9 @@ export function useStreamingQuestions(): UseStreamingQuestionsReturn {
     startStreaming,
     stopStreaming,
     resetStreaming,
-    streamingStatus
+    streamingStatus,
+    progress,
+    metrics
   }
 }
 

@@ -11,6 +11,11 @@ interface StreamingQuestionUIProps {
   questions: Question[]
   isStreaming: boolean
   currentQuestionIndex: number
+  progress?: {
+    current: number
+    estimated: number
+    percentage: number
+  }
   className?: string
 }
 
@@ -22,6 +27,7 @@ export function StreamingQuestionUI({
   questions,
   isStreaming,
   currentQuestionIndex,
+  progress,
   className
 }: StreamingQuestionUIProps) {
   const [visibleQuestions, setVisibleQuestions] = useState<number[]>([])
@@ -82,6 +88,7 @@ export function StreamingQuestionUI({
             placeholder="답변을 입력하세요..."
             disabled
             className="mt-2 resize-none h-20 opacity-50"
+            aria-label="텍스트 답변 입력 영역"
           />
         )
 
@@ -91,7 +98,7 @@ export function StreamingQuestionUI({
   }
 
   return (
-    <div className={cn("space-y-6", className)}>
+    <div className={cn("space-y-6", className)} role="main" aria-live="polite">
       {questions.map((question, index) => {
         const isCurrentStreaming = isStreaming && index === currentQuestionIndex
         const isVisible = visibleQuestions.includes(index)
@@ -118,23 +125,40 @@ export function StreamingQuestionUI({
                 <div className="flex items-start space-x-3">
                   <div className="flex-shrink-0 mt-0.5">
                     {isCurrentStreaming ? (
-                      <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
+                      <Loader2 
+                        className="w-5 h-5 text-blue-500 animate-spin" 
+                        aria-label="질문 생성 중"
+                        role="status"
+                      />
                     ) : isComplete ? (
-                      <CheckCircle2 className="w-5 h-5 text-green-500" />
+                      <CheckCircle2 
+                        className="w-5 h-5 text-green-500" 
+                        aria-label="질문 완성"
+                      />
                     ) : (
-                      <Circle className="w-5 h-5 text-gray-400" />
+                      <Circle 
+                        className="w-5 h-5 text-gray-400" 
+                        aria-label="대기 중"
+                      />
                     )}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center space-x-2 mb-1">
                       <span className="text-sm font-medium text-gray-500">
                         질문 {index + 1}
+                        {progress && (
+                          <span className="text-xs text-gray-400 ml-1">
+                            / {progress.estimated}
+                          </span>
+                        )}
                       </span>
                       {question.required && (
-                        <span className="text-xs text-red-500">필수</span>
+                        <span className="text-xs text-red-500 bg-red-50 dark:bg-red-900/20 px-1.5 py-0.5 rounded">
+                          필수
+                        </span>
                       )}
                     </div>
-                    <h3 className="text-base font-medium text-gray-900 dark:text-gray-100">
+                    <h3 className="text-base font-medium text-gray-900 dark:text-gray-100 leading-relaxed">
                       {question.text}
                     </h3>
                   </div>
@@ -151,16 +175,23 @@ export function StreamingQuestionUI({
 
               {/* 로딩 애니메이션 */}
               {isCurrentStreaming && (
-                <div className="mt-4 flex items-center space-x-2 text-sm text-blue-600 dark:text-blue-400">
-                  <div className="flex space-x-1">
-                    <div className="w-1.5 h-1.5 bg-blue-600 dark:bg-blue-400 rounded-full animate-bounce" 
-                         style={{ animationDelay: "0ms" }} />
-                    <div className="w-1.5 h-1.5 bg-blue-600 dark:bg-blue-400 rounded-full animate-bounce" 
-                         style={{ animationDelay: "150ms" }} />
-                    <div className="w-1.5 h-1.5 bg-blue-600 dark:bg-blue-400 rounded-full animate-bounce" 
-                         style={{ animationDelay: "300ms" }} />
+                <div className="mt-4 flex items-center justify-between">
+                  <div className="flex items-center space-x-2 text-sm text-blue-600 dark:text-blue-400">
+                    <div className="flex space-x-1" aria-hidden="true">
+                      <div className="w-1.5 h-1.5 bg-blue-600 dark:bg-blue-400 rounded-full animate-bounce" 
+                           style={{ animationDelay: "0ms" }} />
+                      <div className="w-1.5 h-1.5 bg-blue-600 dark:bg-blue-400 rounded-full animate-bounce" 
+                           style={{ animationDelay: "150ms" }} />
+                      <div className="w-1.5 h-1.5 bg-blue-600 dark:bg-blue-400 rounded-full animate-bounce" 
+                           style={{ animationDelay: "300ms" }} />
+                    </div>
+                    <span>질문 생성 중...</span>
                   </div>
-                  <span>질문 생성 중...</span>
+                  {progress && progress.percentage > 0 && (
+                    <div className="text-xs text-gray-500">
+                      {Math.round(progress.percentage)}%
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -170,7 +201,7 @@ export function StreamingQuestionUI({
 
       {/* 스트리밍 중 다음 질문 스켈레톤 */}
       {isStreaming && (
-        <div className="animate-pulse">
+        <div className="animate-pulse" role="status" aria-label="다음 질문 준비 중">
           <div className="bg-gray-100 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
             <div className="flex items-start space-x-3">
               <div className="w-5 h-5 bg-gray-300 dark:bg-gray-600 rounded-full" />
@@ -184,6 +215,7 @@ export function StreamingQuestionUI({
               </div>
             </div>
           </div>
+          <span className="sr-only">다음 질문을 생성하고 있습니다...</span>
         </div>
       )}
     </div>

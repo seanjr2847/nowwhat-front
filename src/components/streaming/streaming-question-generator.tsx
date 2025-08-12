@@ -45,7 +45,9 @@ export function StreamingQuestionGenerator({
     currentQuestionIndex,
     startStreaming,
     resetStreaming,
-    streamingStatus
+    streamingStatus,
+    progress,
+    metrics
   } = useStreamingQuestions()
 
   const outputRef = useRef<HTMLDivElement>(null)
@@ -71,6 +73,11 @@ export function StreamingQuestionGenerator({
   useEffect(() => {
     if (error !== null) {
       onError?.(error)
+      // 접근성 향상: 에러 시 포커스를 에러 메시지로 이동
+      const errorElement = document.querySelector('[role="alert"]')
+      if (errorElement) {
+        errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
     }
   }, [error, onError])
 
@@ -92,17 +99,23 @@ export function StreamingQuestionGenerator({
   }
 
   const getStatusMessage = () => {
+    const progressText = progress.percentage > 0 ? ` (${Math.round(progress.percentage)}%)` : ''
+    const questionsText = questions.length > 0 ? ` - ${questions.length}개 완성` : ''
+    
     switch (streamingStatus) {
       case 'started':
-        return '질문 생성을 시작합니다...'
+        return `질문 생성을 시작합니다...${progressText}`
       case 'generating':
-        return 'AI가 질문을 생성하고 있습니다...'
+        return `AI가 질문을 생성하고 있습니다...${progressText}`
       case 'question_ready':
-        return `질문이 실시간으로 생성되고 있습니다... (${questions.length}개 완성)`
+        return `질문이 실시간으로 생성되고 있습니다${questionsText}${progressText}`
       case 'progressing':
-        return `질문이 실시간으로 추가되고 있습니다 (${questions.length}개)`
+        return `질문이 실시간으로 추가되고 있습니다${questionsText}${progressText}`
       case 'completed':
-        return '질문 생성이 완료되었습니다!'
+        const completionTime = metrics.completionTime && metrics.startTime 
+          ? Math.round((metrics.completionTime - metrics.startTime) / 1000 * 10) / 10 
+          : null
+        return `질문 생성이 완료되었습니다! ${completionTime ? `(${completionTime}초)` : ''}`
       case 'error':
         return '질문 생성 중 오류가 발생했습니다.'
       default:
@@ -128,7 +141,7 @@ export function StreamingQuestionGenerator({
   }
 
   return (
-    <div className={cn("space-y-6", className)}>
+    <div className={cn("space-y-6", className)} role="region" aria-labelledby="question-generator-heading">
       {/* 상태 헤더 */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
@@ -144,10 +157,31 @@ export function StreamingQuestionGenerator({
             )}
           </div>
           <div>
-            <h3 className="font-semibold text-foreground">AI 질문 생성</h3>
-            <p className={cn("text-sm transition-colors duration-300", getStatusColor())}>
+            <h3 id="question-generator-heading" className="font-semibold text-foreground">AI 질문 생성</h3>
+            <p className={cn("text-sm transition-colors duration-300", getStatusColor())} aria-live="polite">
               {getStatusMessage()}
             </p>
+            
+            {/* 진행률 바 */}
+            {isStreaming && progress.percentage > 0 && (
+              <div className="mt-2">
+                <div className="flex justify-between text-xs text-gray-500 mb-1">
+                  <span>진행률</span>
+                  <span>{Math.round(progress.percentage)}%</span>
+                </div>
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                  <div 
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 h-2 rounded-full transition-all duration-300 ease-out"
+                    style={{ width: `${progress.percentage}%` }}
+                    role="progressbar"
+                    aria-valuenow={Math.round(progress.percentage)}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-label="질문 생성 진행률"
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -157,8 +191,9 @@ export function StreamingQuestionGenerator({
             <Button
               onClick={handleStart}
               className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+              aria-describedby="question-generator-heading"
             >
-              <Zap className="w-4 h-4 mr-2" />
+              <Zap className="w-4 h-4 mr-2" aria-hidden="true" />
               시작
             </Button>
           )}
@@ -167,6 +202,7 @@ export function StreamingQuestionGenerator({
             <Button
               onClick={handleReset}
               variant="outline"
+              aria-label="질문 생성 다시 시도"
             >
               다시 생성
             </Button>
@@ -181,6 +217,7 @@ export function StreamingQuestionGenerator({
             questions={questions}
             isStreaming={isStreaming}
             currentQuestionIndex={typeof currentQuestionIndex === 'number' ? currentQuestionIndex : 0}
+            progress={progress}
             className="mt-6"
           />
         </div>
@@ -188,10 +225,22 @@ export function StreamingQuestionGenerator({
 
       {/* 에러 표시 */}
       {error !== null && !isStreaming && (
-        <div className="bg-red-50 dark:bg-red-900/20 rounded-2xl border border-red-200 dark:border-red-800 p-4">
+        <div 
+          className="bg-red-50 dark:bg-red-900/20 rounded-2xl border border-red-200 dark:border-red-800 p-4"
+          role="alert"
+          aria-live="assertive"
+        >
           <div className="text-red-600 dark:text-red-400 text-sm">
             <strong>오류:</strong> {error}
           </div>
+          <Button
+            onClick={handleReset}
+            variant="ghost"
+            size="sm"
+            className="mt-2 text-red-600 hover:text-red-700 hover:bg-red-100 dark:hover:bg-red-900/30"
+          >
+            다시 시도
+          </Button>
         </div>
       )}
     </div>
