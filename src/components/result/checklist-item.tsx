@@ -147,50 +147,50 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
                 aria-label="상세 정보"
               >
                 {item.details?.price && (
-                  <div className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/20 rounded-xl p-4 backdrop-blur-sm">
+                  <div className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30 rounded-xl p-5 backdrop-blur-sm">
                     <div className="flex items-center space-x-3 mb-3">
                       <div className="w-8 h-8 bg-yellow-500/20 rounded-lg flex items-center justify-center">
-                        <DollarSign className="w-4 h-4 text-yellow-400" />
+                        <DollarSign className="w-5 h-5 text-yellow-400" />
                       </div>
-                      <span className="text-base font-semibold text-yellow-300">예상 비용</span>
+                      <span className="text-lg font-semibold text-foreground">예상 비용</span>
                     </div>
                     <div className="pl-11">
-                      <span className="inline-flex items-center px-3 py-2 rounded-lg bg-yellow-500/20 border border-yellow-500/30 text-yellow-200 font-medium">
+                      <div className="text-base font-medium text-foreground bg-white/10 dark:bg-gray-800/50 rounded-lg px-4 py-3 border border-white/20">
                         💰 {item.details?.price}
-                      </span>
+                      </div>
                     </div>
                   </div>
                 )}
 
                 {item.details?.location && (
-                  <div className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20 rounded-xl p-4 backdrop-blur-sm">
+                  <div className="bg-gradient-to-r from-blue-500/20 to-cyan-500/20 border border-blue-500/30 rounded-xl p-5 backdrop-blur-sm">
                     <div className="flex items-center space-x-3 mb-3">
                       <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                        <MapPin className="w-4 h-4 text-blue-400" />
+                        <MapPin className="w-5 h-5 text-blue-400" />
                       </div>
-                      <span className="text-base font-semibold text-blue-300">위치 정보</span>
+                      <span className="text-lg font-semibold text-foreground">위치 정보</span>
                     </div>
                     <div className="pl-11">
-                      <span className="inline-flex items-center px-3 py-2 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-200 font-medium">
+                      <div className="text-base font-medium text-foreground bg-white/10 dark:bg-gray-800/50 rounded-lg px-4 py-3 border border-white/20">
                         📍 {item.details?.location}
-                      </span>
+                      </div>
                     </div>
                   </div>
                 )}
 
                 {item.details?.tips && item.details.tips.length > 0 && (
-                  <div className="bg-gradient-to-r from-orange-500/10 to-red-500/10 border border-orange-500/20 rounded-xl p-4 backdrop-blur-sm">
+                  <div className="bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/30 rounded-xl p-5 backdrop-blur-sm">
                     <div className="flex items-center space-x-3 mb-4">
                       <div className="w-8 h-8 bg-orange-500/20 rounded-lg flex items-center justify-center">
-                        <Lightbulb className="w-4 h-4 text-orange-400" />
+                        <Lightbulb className="w-5 h-5 text-orange-400" />
                       </div>
-                      <span className="text-base font-semibold text-orange-300">유용한 팁</span>
+                      <span className="text-lg font-semibold text-foreground">유용한 팁</span>
                     </div>
                     <ul className="space-y-3 pl-11">
                       {item.details?.tips?.map((tip, tipIndex) => (
-                        <li key={tipIndex} className="text-sm text-muted-foreground flex items-start group">
-                          <div className="w-5 h-5 rounded-full bg-orange-500/20 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0 group-hover:bg-orange-500/30 transition-colors">
-                            <span className="text-orange-400 text-xs font-bold">•</span>
+                        <li key={tipIndex} className="text-base text-foreground flex items-start group">
+                          <div className="w-6 h-6 rounded-full bg-orange-500/20 flex items-center justify-center mr-3 mt-1 flex-shrink-0 group-hover:bg-orange-500/30 transition-colors">
+                            <span className="text-orange-400 text-sm font-bold">•</span>
                           </div>
                           <span className="leading-relaxed">{tip}</span>
                         </li>
@@ -200,22 +200,22 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
                 )}
 
                 {item.details?.contacts && item.details.contacts.length > 0 && (
-                  <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-xl p-4 backdrop-blur-sm">
+                  <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 rounded-xl p-5 backdrop-blur-sm">
                     <div className="flex items-center space-x-3 mb-4">
                       <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                        <Phone className="w-4 h-4 text-purple-400" />
+                        <Phone className="w-5 h-5 text-purple-400" />
                       </div>
-                      <span className="text-base font-semibold text-purple-300">연락처</span>
+                      <span className="text-lg font-semibold text-foreground">연락처</span>
                     </div>
                     <div className="space-y-4 pl-11">
                       {item.details?.contacts?.map((contact, contactIndex) => (
                         <div key={contactIndex} className="bg-white/5 border border-purple-500/10 rounded-lg p-3 hover:bg-white/10 transition-colors">
-                          <div className="text-foreground font-semibold mb-2">{contact.name}</div>
+                          <div className="text-lg font-semibold mb-3 text-foreground">{contact.name}</div>
                           <div className="flex items-center space-x-2 mb-1">
-                            <Phone className="w-3 h-3 text-purple-400" />
+                            <Phone className="w-4 h-4 text-purple-400" />
                             <a 
                               href={`tel:${contact.phone}`} 
-                              className="text-purple-300 hover:text-purple-200 transition-colors font-medium"
+                              className="text-base font-medium text-blue-400 hover:text-blue-300 transition-colors"
                               aria-label={`${contact.name}에게 전화하기`}
                             >
                               {contact.phone}
@@ -223,10 +223,10 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
                           </div>
                           {contact.email && (
                             <div className="flex items-center space-x-2">
-                              <Mail className="w-3 h-3 text-purple-400" />
+                              <Mail className="w-4 h-4 text-purple-400" />
                               <a 
                                 href={`mailto:${contact.email}`} 
-                                className="text-purple-300 hover:text-purple-200 transition-colors font-medium"
+                                className="text-base font-medium text-blue-400 hover:text-blue-300 transition-colors"
                                 aria-label={`${contact.name}에게 이메일 보내기`}
                               >
                                 {contact.email}
@@ -240,12 +240,12 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
                 )}
 
                 {item.details?.links && item.details.links.length > 0 && (
-                  <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-xl p-4 backdrop-blur-sm">
+                  <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30 rounded-xl p-5 backdrop-blur-sm">
                     <div className="flex items-center space-x-3 mb-4">
                       <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
-                        <ExternalLink className="w-4 h-4 text-green-400" />
+                        <ExternalLink className="w-5 h-5 text-green-400" />
                       </div>
-                      <span className="text-base font-semibold text-green-300">유용한 링크</span>
+                      <span className="text-lg font-semibold text-foreground">유용한 링크</span>
                     </div>
                     <div className="space-y-3 pl-11">
                       {item.details?.links?.map((link, linkIndex) => (
@@ -258,13 +258,13 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
                           aria-label={`새 탭에서 ${link.title} 열기`}
                         >
                           <div className="w-6 h-6 bg-green-500/20 rounded-md flex items-center justify-center group-hover:bg-green-500/30 transition-colors">
-                            <ExternalLink className="w-3 h-3 text-green-400 group-hover:scale-110 transition-transform duration-200" />
+                            <ExternalLink className="w-4 h-4 text-green-400 group-hover:scale-110 transition-transform duration-200" />
                           </div>
-                          <span className="text-sm text-green-300 hover:text-green-200 transition-colors font-medium flex-1">
+                          <span className="text-base text-foreground hover:text-blue-400 transition-colors font-medium flex-1">
                             {link.title}
                           </span>
                           <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                            <ExternalLink className="w-3 h-3 text-green-400" />
+                            <ExternalLink className="w-4 h-4 text-green-400" />
                           </div>
                         </a>
                       ))}
