@@ -838,6 +838,23 @@ export async function getMyChecklists(): Promise<ApiResponse<{ checklists: Check
     })
 }
 
+// 체크리스트 수정 API
+export async function updateChecklist(
+    id: string,
+    updateData: {
+        title?: string
+        category?: string
+        description?: string
+    }
+): Promise<ApiResponse<ChecklistData>> {
+    console.log('✏️ 체크리스트 수정 API 호출:', { id, updateData })
+
+    return authenticatedRequest<ChecklistData>(`/api/v1/checklists/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(updateData)
+    })
+}
+
 // 체크리스트 삭제 API
 export async function deleteChecklist(id: string): Promise<ApiResponse<{ success: boolean }>> {
     console.log('🗑️ 체크리스트 삭제 API 호출:', { id })

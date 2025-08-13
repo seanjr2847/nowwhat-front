@@ -10,6 +10,8 @@ import { ChecklistItem } from "../components/result/checklist-item"
 import { CompletionCelebration } from "../components/result/completion-celebration"
 import { FeedbackSection } from "../components/result/feedback-section"
 import { ProgressBar } from "../components/result/progress-bar"
+import { EditChecklistModal } from "../components/result/edit-checklist-modal"
+import { DeleteChecklistModal } from "../components/result/delete-checklist-modal"
 import { getChecklist, type ChecklistData } from "../lib/api"
 
 /**
@@ -20,11 +22,13 @@ import { getChecklist, type ChecklistData } from "../lib/api"
 export default function ResultPage() {
     const { id } = useParams<{ id: string }>()
     const navigate = useNavigate()
-    const { user } = useAuth()
+    const { user, isAuthenticated } = useAuth()
     const [checklist, setChecklist] = useState<ChecklistData | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [feedbackGiven, setFeedbackGiven] = useState(false)
     const [showCelebration, setShowCelebration] = useState(false)
+    const [showEditModal, setShowEditModal] = useState(false)
+    const [showDeleteModal, setShowDeleteModal] = useState(false)
 
     // 체크리스트 상세 정보 조회 API 연결
     const fetchChecklist = async () => {
@@ -106,6 +110,36 @@ export default function ResultPage() {
         setShowCelebration(false)
     }
 
+    const handleEditClick = () => {
+        setShowEditModal(true)
+    }
+
+    const handleEditClose = () => {
+        setShowEditModal(false)
+    }
+
+    const handleChecklistUpdate = (updatedChecklist: ChecklistData) => {
+        setChecklist(updatedChecklist)
+    }
+
+    const handleDeleteClick = () => {
+        setShowDeleteModal(true)
+    }
+
+    const handleDeleteClose = () => {
+        setShowDeleteModal(false)
+    }
+
+    const handleChecklistDelete = () => {
+        // 삭제 완료 후 홈으로 리다이렉트
+        navigate("/")
+    }
+
+    // 편집 권한 확인 (로그인한 사용자만 편집 가능)
+    const canEditChecklist = isAuthenticated && user !== null
+    // 삭제 권한 확인 (편집 권한과 동일)
+    const canDeleteChecklist = isAuthenticated && user !== null
+
     if (isLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background">
@@ -135,7 +169,14 @@ export default function ResultPage() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-brand-primary-50 dark:from-gray-900 dark:to-slate-900">
             <div className="max-w-4xl mx-auto px-4 py-8">
-                <ChecklistHeader goal={checklist.title} createdAt={checklist.createdAt} />
+                <ChecklistHeader 
+                    goal={checklist.title} 
+                    createdAt={checklist.createdAt}
+                    onEdit={handleEditClick}
+                    onDelete={handleDeleteClick}
+                    canEdit={canEditChecklist}
+                    canDelete={canDeleteChecklist}
+                />
 
                 <ProgressBar
                     completed={completedCount}
@@ -186,6 +227,27 @@ export default function ResultPage() {
                     feedbackGiven={feedbackGiven}
                     checklistId={checklist.id}
                 />
+
+                {/* 편집 모달 */}
+                {showEditModal && checklist && (
+                    <EditChecklistModal
+                        isOpen={showEditModal}
+                        onClose={handleEditClose}
+                        checklist={checklist}
+                        onUpdate={handleChecklistUpdate}
+                    />
+                )}
+
+                {/* 삭제 확인 모달 */}
+                {showDeleteModal && checklist && (
+                    <DeleteChecklistModal
+                        isOpen={showDeleteModal}
+                        onClose={handleDeleteClose}
+                        checklistTitle={checklist.title}
+                        checklistId={checklist.id}
+                        onDelete={handleChecklistDelete}
+                    />
+                )}
             </div>
         </div>
     )
