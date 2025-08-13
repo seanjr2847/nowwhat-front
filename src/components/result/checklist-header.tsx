@@ -101,7 +101,7 @@ export function ChecklistHeader({
 
         <div className="space-y-2">
           <h1 className="text-3xl font-bold text-foreground">
-            <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">"{goal}"</span>
+            <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">{goal}</span>
           </h1>
           <div className="flex items-center justify-center space-x-2 text-muted-foreground">
             <Calendar className="w-4 h-4" />

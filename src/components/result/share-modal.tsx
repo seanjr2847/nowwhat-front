@@ -95,7 +95,7 @@ export function ShareModal({ isOpen, onClose, checklistData, userName = "사용�
   }
 
   const handleCopyText = async () => {
-    const shareText = `🎉 "${checklistData.title}" 체크리스트를 ${checklistData.progressPercentage}% 달성했어요!
+    const shareText = `🎉 ${checklistData.title} 체크리스트를 ${checklistData.progressPercentage}% 달성했어요!
 
 ✅ 완료한 항목: ${checklistData.completedItems}/${checklistData.totalItems}개
 
@@ -152,7 +152,7 @@ ${personalMessage || "꾸준히 목표를 향해 나아가고 있어요! 💪"}
   const handleWebShare = async () => {
     const shareData = {
       title: `${userName}님의 성취 달성!`,
-      text: `"${checklistData.title}" 체크리스트를 ${checklistData.progressPercentage}% 달성했어요!`,
+      text: `${checklistData.title} 체크리스트를 ${checklistData.progressPercentage}% 달성했어요!`,
       url: 'https://nowwhat.co.kr'
     }
 

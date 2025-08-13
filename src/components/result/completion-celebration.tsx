@@ -73,7 +73,7 @@ export function CompletionCelebration({ onClose, goal, checklistData, userName }
             </div>
 
             <p className="text-muted-foreground text-lg">
-              <span className="text-yellow-400 font-semibold">"{goal}"</span> 체크리스트를 모두 완료하셨습니다!
+              <span className="text-yellow-400 font-semibold">{goal}</span> 체크리스트를 모두 완료하셨습니다!
             </p>
 
             <div className="bg-gradient-to-r from-green-500/20 to-blue-500/20 rounded-lg p-4 border border-green-500/30">

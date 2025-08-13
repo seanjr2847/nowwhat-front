@@ -45,7 +45,7 @@ export function ClarifyHeader({ goal }: ClarifyHeaderProps) {
 
         <div className="space-y-3">
           <h1 className="text-xl font-bold text-foreground" id="main-heading">
-            <span className="bg-gradient-to-r from-brand-primary-400 to-brand-secondary-400 bg-clip-text text-transparent">"{goal}"</span>
+            <span className="bg-gradient-to-r from-brand-primary-400 to-brand-secondary-400 bg-clip-text text-transparent">{goal}</span>
             <span className="text-foreground"> 구체화하기</span>
           </h1>
 
