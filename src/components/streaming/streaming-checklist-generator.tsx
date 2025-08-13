@@ -402,14 +402,14 @@ export function StreamingChecklistGenerator({
                   
                   {/* 팁 표시 */}
                   {item.tips && item.tips.length > 0 && (
-                    <div className="mt-3 bg-gradient-to-r from-orange-500/10 to-red-500/10 border border-orange-500/20 rounded-lg p-3 backdrop-blur-sm">
+                    <div className="mt-3 bg-gradient-to-r from-orange-500/10 to-red-500/10 border border-orange-500/15 rounded-lg p-3 backdrop-blur-sm">
                       <div className="flex items-center space-x-2 mb-2">
                         <div className="w-5 h-5 bg-orange-500/20 rounded flex items-center justify-center">
                           <span className="text-orange-400 text-xs">💡</span>
                         </div>
-                        <h5 className="text-base font-semibold text-foreground">유용한 팁</h5>
+                        <h5 className="text-base font-semibold text-foreground/80">유용한 팁</h5>
                       </div>
-                      <ul className="text-sm text-foreground space-y-2 pl-7">
+                      <ul className="text-sm text-foreground/80 space-y-2 pl-7">
                         {item.tips.map((tip, tipIndex) => (
                           <li key={tipIndex} className="flex items-start space-x-2">
                             <div className="w-3 h-3 rounded-full bg-orange-500/20 flex items-center justify-center mt-0.5 flex-shrink-0">
@@ -424,12 +424,12 @@ export function StreamingChecklistGenerator({
                   
                   {/* 링크 표시 */}
                   {item.links && item.links.length > 0 && (
-                    <div className="mt-3 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-lg p-3 backdrop-blur-sm">
+                    <div className="mt-3 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/15 rounded-lg p-3 backdrop-blur-sm">
                       <div className="flex items-center space-x-2 mb-2">
                         <div className="w-5 h-5 bg-green-500/20 rounded flex items-center justify-center">
                           <span className="text-green-400 text-xs">🔗</span>
                         </div>
-                        <h5 className="text-base font-semibold text-foreground">참고 링크</h5>
+                        <h5 className="text-base font-semibold text-foreground/80">참고 링크</h5>
                       </div>
                       <div className="space-y-2 pl-7">
                         {item.links.map((link, linkIndex) => (
@@ -438,12 +438,12 @@ export function StreamingChecklistGenerator({
                             href={link.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="group flex items-center space-x-2 p-2 bg-white/5 border border-green-500/10 rounded hover:bg-green-500/10 hover:border-green-500/30 transition-all duration-200"
+                            className="group flex items-center space-x-2 p-2 bg-white/5 border border-white/10 rounded hover:bg-white/10 hover:border-white/20 transition-all duration-200"
                           >
                             <div className="w-4 h-4 bg-green-500/20 rounded flex items-center justify-center group-hover:bg-green-500/30 transition-colors">
                               <span className="text-green-400 text-xs">↗</span>
                             </div>
-                            <span className="text-sm text-foreground hover:text-blue-400 transition-colors font-medium">
+                            <span className="text-sm text-foreground/80 hover:text-blue-400 transition-colors font-medium">
                               {link.title}
                             </span>
                           </a>
@@ -454,15 +454,15 @@ export function StreamingChecklistGenerator({
                   
                   {/* 가격 정보 */}
                   {item.price && (
-                    <div className="mt-3 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/20 rounded-lg p-3 backdrop-blur-sm">
+                    <div className="mt-3 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/15 rounded-lg p-3 backdrop-blur-sm">
                       <div className="flex items-center space-x-2 mb-2">
                         <div className="w-5 h-5 bg-yellow-500/20 rounded flex items-center justify-center">
                           <span className="text-yellow-400 text-xs">💰</span>
                         </div>
-                        <h5 className="text-base font-semibold text-foreground">예상 비용</h5>
+                        <h5 className="text-base font-semibold text-foreground/80">예상 비용</h5>
                       </div>
                       <div className="pl-7">
-                        <div className="text-sm font-medium text-foreground bg-white/10 dark:bg-gray-800/50 rounded-lg px-3 py-2 border border-white/20">
+                        <div className="text-sm font-medium text-foreground/80 bg-white/5 dark:bg-gray-800/20 rounded-lg px-3 py-2 border border-white/10">
                           💰 {item.price}
                         </div>
                       </div>
