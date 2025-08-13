@@ -3,6 +3,7 @@
 import { ChevronDown, DollarSign, ExternalLink, Lightbulb, Mail, MapPin, Phone } from "lucide-react"
 import { useState } from "react"
 import { toggleChecklistItem } from "../../lib/api"
+import { useToast } from "../../hooks/use-toast"
 import { Button } from "../ui/button"
 import { Card, CardContent } from "../ui/card"
 import { Checkbox } from "../ui/checkbox"
@@ -40,6 +41,7 @@ interface ChecklistItemProps {
 export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistItemProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [isUpdating, setIsUpdating] = useState(false)
+  const { toast } = useToast()
 
   const hasDetails =
     (item.details?.tips?.length ?? 0) > 0 ||
@@ -52,20 +54,43 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
   const handleToggle = async (itemId: string) => {
     if (checklistId == null || checklistId === '' || isUpdating) return
 
+    // 낙관적 UI 업데이트 - 즉시 UI 변경
+    const newIsCompleted = !item.isCompleted
+    onToggle(itemId) // 먼저 UI 업데이트
+
+    setIsUpdating(true)
+    
     try {
-      setIsUpdating(true)
-      const newIsCompleted = !item.isCompleted
       const response = await toggleChecklistItem(checklistId, itemId, newIsCompleted)
 
       if (response.success) {
-        onToggle(itemId)
+        // 성공: 이미 UI가 업데이트됨, 성공 알림
+        toast({
+          title: newIsCompleted ? "완료 처리됨" : "완료 취소됨",
+          description: newIsCompleted 
+            ? `"${item.title}" 항목을 완료했습니다.` 
+            : `"${item.title}" 항목을 미완료로 변경했습니다.`,
+          duration: 2000,
+        })
       } else {
+        // 실패: UI를 원래 상태로 롤백
+        onToggle(itemId) // 다시 토글해서 원상복구
         console.error("체크리스트 항목 토글 실패:", response.error)
-        alert("항목 상태 변경에 실패했습니다. 다시 시도해주세요.")
+        toast({
+          title: "변경 실패",
+          description: "항목 상태 변경에 실패했습니다. 다시 시도해주세요.",
+          variant: "destructive",
+        })
       }
     } catch (error) {
+      // 오류: UI를 원래 상태로 롤백
+      onToggle(itemId) // 다시 토글해서 원상복구
       console.error("체크리스트 항목 토글 오류:", error)
-      alert("항목 상태 변경 중 오류가 발생했습니다.")
+      toast({
+        title: "오류 발생",
+        description: "항목 상태 변경 중 오류가 발생했습니다. 네트워크 연결을 확인해주세요.",
+        variant: "destructive",
+      })
     } finally {
       setIsUpdating(false)
     }
