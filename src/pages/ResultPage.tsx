@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
+import { useAuth } from "../hooks/useAuth"
 import { LoadingSpinner } from "../components/clarify/loading-spinner"
 import { ActionButtons } from "../components/result/action-buttons"
 import { ChecklistHeader } from "../components/result/checklist-header"
@@ -19,6 +20,7 @@ import { getChecklist, type ChecklistData } from "../lib/api"
 export default function ResultPage() {
     const { id } = useParams<{ id: string }>()
     const navigate = useNavigate()
+    const { user } = useAuth()
     const [checklist, setChecklist] = useState<ChecklistData | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [feedbackGiven, setFeedbackGiven] = useState(false)
@@ -142,8 +144,15 @@ export default function ResultPage() {
                 />
 
                 <ActionButtons
-                    onShare={handleShare}
+                    onShare={handleShare} // 기존 호환성 유지
                     onNewChecklist={handleNewChecklist}
+                    checklistData={{
+                        title: checklist.title,
+                        completedItems: completedCount,
+                        totalItems: checklist.items.length,
+                        progressPercentage: Math.round(checklist.progress)
+                    }}
+                    userName={user?.name || "사용자"}
                 />
 
                 <div className="space-y-6 mb-8">
@@ -158,7 +167,19 @@ export default function ResultPage() {
                     ))}
                 </div>
 
-                {showCelebration && <CompletionCelebration onClose={handleCelebrationClose} goal={checklist.title} />}
+                {showCelebration && (
+                    <CompletionCelebration 
+                        onClose={handleCelebrationClose} 
+                        goal={checklist.title}
+                        checklistData={{
+                            title: checklist.title,
+                            completedItems: completedCount,
+                            totalItems: checklist.items.length,
+                            progressPercentage: Math.round(checklist.progress)
+                        }}
+                        userName={user?.name || "사용자"}
+                    />
+                )}
 
                 <FeedbackSection 
                     onFeedback={handleFeedback} 
