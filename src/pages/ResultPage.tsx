@@ -132,7 +132,7 @@ export default function ResultPage() {
 
     const handleChecklistDelete = () => {
         // 삭제 완료 후 홈으로 리다이렉트
-        navigate("/")
+        void navigate("/")
     }
 
     // 편집 권한 확인 (로그인한 사용자만 편집 가능)
