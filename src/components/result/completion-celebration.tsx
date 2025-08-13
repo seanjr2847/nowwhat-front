@@ -1,13 +1,21 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Card, CardContent } from "../ui/card"
 import { Button } from "../ui/button"
-import { Trophy, Sparkles, X } from "lucide-react"
+import { Trophy, Sparkles, X, Share2 } from "lucide-react"
+import { ShareModal } from "./share-modal"
 
 interface CompletionCelebrationProps {
   onClose: () => void
   goal: string
+  checklistData?: {
+    title: string
+    completedItems: number
+    totalItems: number
+    progressPercentage: number
+  }
+  userName?: string
 }
 
 /**
@@ -17,8 +25,9 @@ interface CompletionCelebrationProps {
  * @param {string} props.goal - 완료된 체크리스트의 목표입니다.
  * @returns {JSX.Element} 렌더링된 축하 모달입니다.
  */
-export function CompletionCelebration({ onClose, goal }: CompletionCelebrationProps) {
+export function CompletionCelebration({ onClose, goal, checklistData, userName }: CompletionCelebrationProps) {
   const modalRef = useRef<HTMLDivElement>(null)
+  const [showShareModal, setShowShareModal] = useState(false)
 
   useEffect(() => {
     if (modalRef.current) {
@@ -73,15 +82,37 @@ export function CompletionCelebration({ onClose, goal }: CompletionCelebrationPr
               </p>
             </div>
 
-            <Button
-              onClick={onClose}
-              className="w-full bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-105"
-            >
-              확인
-            </Button>
+            <div className="flex gap-3">
+              {checklistData && (
+                <Button
+                  onClick={() => setShowShareModal(true)}
+                  variant="outline"
+                  className="flex-1 bg-white/10 border-white/20 text-foreground hover:bg-white/20 py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-105"
+                >
+                  <Share2 className="w-4 h-4 mr-2" />
+                  공유하기
+                </Button>
+              )}
+              <Button
+                onClick={onClose}
+                className={`${checklistData ? 'flex-1' : 'w-full'} bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-105`}
+              >
+                확인
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
+
+      {/* 공유 모달 */}
+      {showShareModal && checklistData && (
+        <ShareModal
+          isOpen={showShareModal}
+          onClose={() => setShowShareModal(false)}
+          checklistData={checklistData}
+          userName={userName}
+        />
+      )}
     </div>
   )
 }
