@@ -402,13 +402,20 @@ export function StreamingChecklistGenerator({
                   
                   {/* 팁 표시 */}
                   {item.tips && item.tips.length > 0 && (
-                    <div className="mt-2">
-                      <h5 className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">💡 팁</h5>
-                      <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                    <div className="mt-3 bg-gradient-to-r from-orange-500/10 to-red-500/10 border border-orange-500/20 rounded-lg p-3 backdrop-blur-sm">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <div className="w-5 h-5 bg-orange-500/20 rounded flex items-center justify-center">
+                          <span className="text-orange-400 text-xs">💡</span>
+                        </div>
+                        <h5 className="text-xs font-semibold text-orange-300">유용한 팁</h5>
+                      </div>
+                      <ul className="text-xs text-gray-300 space-y-2 pl-7">
                         {item.tips.map((tip, tipIndex) => (
-                          <li key={tipIndex} className="flex items-start space-x-1">
-                            <span>•</span>
-                            <span>{tip}</span>
+                          <li key={tipIndex} className="flex items-start space-x-2">
+                            <div className="w-3 h-3 rounded-full bg-orange-500/20 flex items-center justify-center mt-0.5 flex-shrink-0">
+                              <span className="text-orange-400 text-xs">•</span>
+                            </div>
+                            <span className="leading-relaxed">{tip}</span>
                           </li>
                         ))}
                       </ul>
@@ -417,18 +424,28 @@ export function StreamingChecklistGenerator({
                   
                   {/* 링크 표시 */}
                   {item.links && item.links.length > 0 && (
-                    <div className="mt-2">
-                      <h5 className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">🔗 참고 링크</h5>
-                      <div className="space-y-1">
+                    <div className="mt-3 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-lg p-3 backdrop-blur-sm">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <div className="w-5 h-5 bg-green-500/20 rounded flex items-center justify-center">
+                          <span className="text-green-400 text-xs">🔗</span>
+                        </div>
+                        <h5 className="text-xs font-semibold text-green-300">참고 링크</h5>
+                      </div>
+                      <div className="space-y-2 pl-7">
                         {item.links.map((link, linkIndex) => (
                           <a
                             key={linkIndex}
                             href={link.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-xs text-blue-600 dark:text-blue-400 hover:underline block"
+                            className="group flex items-center space-x-2 p-2 bg-white/5 border border-green-500/10 rounded hover:bg-green-500/10 hover:border-green-500/30 transition-all duration-200"
                           >
-                            {link.title}
+                            <div className="w-4 h-4 bg-green-500/20 rounded flex items-center justify-center group-hover:bg-green-500/30 transition-colors">
+                              <span className="text-green-400 text-xs">↗</span>
+                            </div>
+                            <span className="text-xs text-green-300 hover:text-green-200 transition-colors font-medium">
+                              {link.title}
+                            </span>
                           </a>
                         ))}
                       </div>
@@ -437,10 +454,18 @@ export function StreamingChecklistGenerator({
                   
                   {/* 가격 정보 */}
                   {item.price && (
-                    <div className="mt-2">
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                        💰 {item.price}
-                      </span>
+                    <div className="mt-3 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/20 rounded-lg p-3 backdrop-blur-sm">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <div className="w-5 h-5 bg-yellow-500/20 rounded flex items-center justify-center">
+                          <span className="text-yellow-400 text-xs">💰</span>
+                        </div>
+                        <h5 className="text-xs font-semibold text-yellow-300">예상 비용</h5>
+                      </div>
+                      <div className="pl-7">
+                        <span className="inline-flex items-center px-3 py-1 rounded-lg bg-yellow-500/20 border border-yellow-500/30 text-yellow-200 font-medium text-xs">
+                          {item.price}
+                        </span>
+                      </div>
                     </div>
                   )}
                 </div>
