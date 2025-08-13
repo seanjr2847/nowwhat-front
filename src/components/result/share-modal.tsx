@@ -6,8 +6,7 @@ import { Button } from "../ui/button"
 import { Card, CardContent } from "../ui/card"
 import { AchievementCard } from "./achievement-card"
 import { useToast } from "../../hooks/use-toast"
-// html2canvas는 별도 설치 필요 시 사용
-// import html2canvas from "html2canvas"
+import html2canvas from "html2canvas"
 
 interface ShareModalProps {
   isOpen: boolean
@@ -40,34 +39,111 @@ export function ShareModal({ isOpen, onClose, checklistData, userName = "사용�
   ]
 
   const handleDownloadImage = async () => {
-    // TODO: html2canvas 패키지 설치 후 이미지 다운로드 기능 구현
-    // npm install html2canvas @types/html2canvas
-    
-    toast({
-      title: "이미지 다운로드",
-      description: "현재 텍스트 복사 기능을 이용해주세요. 이미지 다운로드는 곧 지원될 예정입니다.",
-      duration: 3000,
-    })
-    
-    // 임시로 텍스트 복사 실행
-    await handleCopyText()
+    if (!cardRef.current) {
+      toast({
+        title: "오류",
+        description: "이미지를 생성할 수 없습니다. 다시 시도해주세요.",
+        variant: "destructive"
+      })
+      return
+    }
+
+    try {
+      toast({
+        title: "이미지 생성 중...",
+        description: "잠시만 기다려주세요.",
+        duration: 2000,
+      })
+
+      // html2canvas로 카드 요소를 캡처
+      const canvas = await html2canvas(cardRef.current, {
+        useCORS: true,
+        allowTaint: false,
+        width: cardRef.current.offsetWidth,
+        height: cardRef.current.offsetHeight
+      })
+
+      // Canvas를 Blob으로 변환
+      canvas.toBlob((blob) => {
+        if (blob) {
+          // 다운로드 링크 생성
+          const url = URL.createObjectURL(blob)
+          const link = document.createElement('a')
+          link.href = url
+          link.download = `${checklistData.title.replace(/[^a-zA-Z0-9가-힣\s]/g, '')}_성취카드.png`
+          document.body.appendChild(link)
+          link.click()
+          document.body.removeChild(link)
+          URL.revokeObjectURL(url)
+
+          toast({
+            title: "다운로드 완료",
+            description: "성취 카드가 이미지로 저장되었습니다.",
+            duration: 3000,
+          })
+        }
+      }, 'image/png', 1.0)
+
+    } catch (error) {
+      console.error('이미지 생성 실패:', error)
+      toast({
+        title: "다운로드 실패",
+        description: "이미지 생성 중 오류가 발생했습니다. 텍스트 복사를 이용해주세요.",
+        variant: "destructive"
+      })
+    }
   }
 
   const handleCopyText = async () => {
-    const shareText = `🎉 "${checklistData.title}" 체크리스트를 ${checklistData.progressPercentage}% 달성했어요!\n\n✅ ${checklistData.completedItems}개 중 ${checklistData.totalItems}개 완료\n\n${personalMessage || "꾸준히 목표를 향해 나아가고 있어요! 💪"}\n\n🔗 나도 체크리스트 만들어보기: nowwhat.co.kr`
+    const shareText = `🎉 "${checklistData.title}" 체크리스트를 ${checklistData.progressPercentage}% 달성했어요!
+
+✅ 완료한 항목: ${checklistData.completedItems}/${checklistData.totalItems}개
+
+${personalMessage || "꾸준히 목표를 향해 나아가고 있어요! 💪"}
+
+🔗 나도 체크리스트 만들어보기: https://nowwhat.co.kr`
 
     try {
-      await navigator.clipboard.writeText(shareText)
-      toast({
-        title: "텍스트 복사 완료",
-        description: "공유용 텍스트가 클립보드에 복사되었습니다.",
-        duration: 2000,
-      })
+      // 클립보드 API 지원 여부 확인
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(shareText)
+        toast({
+          title: "텍스트 복사 완료",
+          description: "공유용 텍스트가 클립보드에 복사되었습니다.",
+          duration: 2000,
+        })
+      } else {
+        // 클립보드 API를 지원하지 않는 경우 대체 방법
+        const textArea = document.createElement('textarea')
+        textArea.value = shareText
+        textArea.style.position = 'fixed'
+        textArea.style.left = '-9999px'
+        document.body.appendChild(textArea)
+        textArea.select()
+        
+        try {
+          document.execCommand('copy')
+          toast({
+            title: "텍스트 복사 완료",
+            description: "공유용 텍스트가 클립보드에 복사되었습니다.",
+            duration: 2000,
+          })
+        } catch (fallbackError) {
+          console.error('Fallback 복사도 실패:', fallbackError)
+          toast({
+            title: "복사 실패",
+            description: "텍스트 복사가 지원되지 않는 환경입니다.",
+            variant: "destructive"
+          })
+        } finally {
+          document.body.removeChild(textArea)
+        }
+      }
     } catch (error) {
       console.error('텍스트 복사 실패:', error)
       toast({
         title: "복사 실패",
-        description: "텍스트 복사 중 오류가 발생했습니다.",
+        description: "텍스트 복사 중 오류가 발생했습니다. 수동으로 복사해주세요.",
         variant: "destructive"
       })
     }

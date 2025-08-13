@@ -41,14 +41,30 @@ export function initializePWA(): void {
 function handleInstallPrompt(): void {
   let deferredPrompt: BeforeInstallPromptEvent | null = null
   
+  // 설치 프롬프트 표시 여부 체크
+  const hasShownInstallPrompt = sessionStorage.getItem('pwa-install-prompt-shown') === 'true'
+  const userDismissedInstall = localStorage.getItem('pwa-install-dismissed') === 'true'
+  const installDeclinedAt = localStorage.getItem('pwa-install-declined-at')
+  
+  // 설치를 거부한지 24시간이 지났는지 확인
+  const shouldShowAgain = !installDeclinedAt || 
+    (Date.now() - parseInt(installDeclinedAt)) > 24 * 60 * 60 * 1000 // 24시간
+  
   window.addEventListener('beforeinstallprompt', (e: Event) => {
     const event = e as BeforeInstallPromptEvent
     // 기본 브라우저 설치 프롬프트 방지
     event.preventDefault()
     deferredPrompt = event
     
-    // 커스텀 설치 버튼 표시
-    showInstallButton(deferredPrompt)
+    // 표시 조건: 세션에서 표시 안함 && (거부하지 않음 || 24시간 경과)
+    if (!hasShownInstallPrompt && (!userDismissedInstall || shouldShowAgain)) {
+      // 커스텀 설치 버튼 표시 (5초 후에)
+      setTimeout(() => {
+        if (deferredPrompt) {
+          showInstallButton(deferredPrompt)
+        }
+      }, 5000)
+    }
   })
   
   // 앱이 설치되었을 때
@@ -73,7 +89,7 @@ function showInstallButton(prompt: BeforeInstallPromptEvent): void {
     fixed bottom-4 right-4 z-50 bg-blue-600 hover:bg-blue-700 text-white 
     px-4 py-2 rounded-full shadow-lg transition-all duration-300
     flex items-center space-x-2 text-sm font-medium
-    animate-bounce hover:animate-none
+    hover:scale-105
   `.trim()
   installButton.innerHTML = `
     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -97,6 +113,8 @@ function showInstallButton(prompt: BeforeInstallPromptEvent): void {
         console.log('❌ 사용자가 PWA 설치를 거부했습니다')
       }
       
+      // 설치 프롬프트 처리 완료 기록
+      sessionStorage.setItem('pwa-install-prompt-shown', 'true')
       hideInstallButton()
     }
   })
@@ -107,18 +125,23 @@ function showInstallButton(prompt: BeforeInstallPromptEvent): void {
   closeButton.innerHTML = '✕'
   closeButton.addEventListener('click', (e) => {
     e.stopPropagation()
+    // 세션 중 다시 표시하지 않도록 기록
+    sessionStorage.setItem('pwa-install-prompt-shown', 'true')
     hideInstallButton()
   })
   installButton.appendChild(closeButton)
   
   document.body.appendChild(installButton)
   
-  // 3초 후 자동 숨김 (사용자가 상호작용하지 않은 경우)
+  // 세션에 표시됨을 기록
+  sessionStorage.setItem('pwa-install-prompt-shown', 'true')
+  
+  // 15초 후 자동 숨김 (사용자가 상호작용하지 않은 경우)
   setTimeout(() => {
     if (document.getElementById('pwa-install-button')) {
       hideInstallButton()
     }
-  }, 10000) // 10초
+  }, 15000) // 15초
 }
 
 /**
