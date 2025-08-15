@@ -104,7 +104,15 @@ export function EditChecklistModal({ isOpen, onClose, checklist, onUpdate }: Edi
           title: "수정 완료",
           description: "체크리스트가 성공적으로 수정되었습니다.",
         })
-        onUpdate(response.data)
+        // 업데이트된 데이터를 기존 체크리스트와 병합
+        const updatedChecklist = {
+          ...checklist,
+          ...response.data,
+          // items와 progress는 기존 값 유지 (제목/설명만 업데이트)
+          items: checklist.items,
+          progress: checklist.progress
+        }
+        onUpdate(updatedChecklist)
         onClose()
       } else {
         toast({

@@ -119,7 +119,17 @@ export default function ResultPage() {
     }
 
     const handleChecklistUpdate = (updatedChecklist: ChecklistData) => {
-        setChecklist(updatedChecklist)
+        // API 응답 데이터를 현재 상태와 병합
+        const mergedChecklist = {
+            ...checklist!,
+            ...updatedChecklist,
+            // progress와 items는 현재 상태 유지 (체크리스트 제목/설명만 업데이트)
+            items: checklist!.items,
+            progress: checklist!.progress
+        }
+        setChecklist(mergedChecklist)
+        // 페이지 새로고침하여 최신 데이터 반영
+        void fetchChecklist()
     }
 
     const handleDeleteClick = () => {
