@@ -102,6 +102,11 @@ export function StreamingQuestionGenerator({
     const progressText = progress.percentage > 0 ? ` (${Math.round(progress.percentage)}%)` : ''
     const questionsText = questions.length > 0 ? ` - ${questions.length}개 완성` : ''
     
+    // 5개 이상의 질문이 있을 때 추가 분석 메시지 표시
+    if (questions.length >= 5 && isStreaming) {
+      return `추가 분석이 필요하여 추가 질문 생성 중...${questionsText}${progressText}`
+    }
+    
     switch (streamingStatus) {
       case 'started':
         return `질문 생성을 시작합니다...${progressText}`
@@ -124,6 +129,11 @@ export function StreamingQuestionGenerator({
   }
 
   const getStatusColor = () => {
+    // 5개 이상의 질문이 있을 때 주황색으로 표시
+    if (questions.length >= 5 && isStreaming) {
+      return 'text-orange-600 dark:text-orange-400'
+    }
+    
     switch (streamingStatus) {
       case 'started':
       case 'generating':
