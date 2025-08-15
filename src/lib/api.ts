@@ -782,6 +782,7 @@ export interface ChecklistItemData {
     description: string
     details: {
         tips?: string[]
+        steps?: string[] // 새로운 단계별 가이드 필드 추가
         contacts?: { name: string; phone: string; email?: string }[]
         links?: { title: string; url: string }[]
         price?: string

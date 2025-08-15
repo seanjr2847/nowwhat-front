@@ -39,7 +39,7 @@ interface ChecklistItemProps {
  * @returns {JSX.Element} 렌더링된 체크리스트 항목입니다.
  */
 export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistItemProps) {
-  const [isExpanded, setIsExpanded] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(true)
   const [isUpdating, setIsUpdating] = useState(false)
   const { toast } = useToast()
 
@@ -154,7 +154,7 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
                     <span className="text-sm font-medium mr-2 relative z-10">
-                      {isExpanded ? "간단히 보기" : "자세히 보기"}
+                      {isExpanded ? "접기" : "펼치기"}
                     </span>
                     <div className={`transition-transform duration-300 relative z-10 ${isExpanded ? 'rotate-180' : ''}`}>
                       <ChevronDown className="w-4 h-4" />
@@ -203,24 +203,28 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
                   </div>
                 )}
 
-                {item.details?.tips && item.details.tips.length > 0 && (
-                  <div className="bg-gradient-to-r from-orange-500/10 to-red-500/10 border border-orange-500/15 rounded-xl p-4 backdrop-blur-sm">
+                {(item.details?.steps || item.details?.tips) && (item.details?.steps?.length > 0 || item.details?.tips?.length > 0) && (
+                  <div className="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border border-blue-500/15 rounded-xl p-4 backdrop-blur-sm">
                     <div className="flex items-center space-x-3 mb-4">
-                      <div className="w-8 h-8 bg-orange-500/20 rounded-lg flex items-center justify-center">
-                        <Lightbulb className="w-5 h-5 text-orange-400" />
+                      <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                        <Lightbulb className="w-5 h-5 text-blue-400" />
                       </div>
-                      <span className="text-lg font-semibold text-foreground/80">유용한 팁</span>
+                      <span className="text-lg font-semibold text-foreground/80">
+                        {item.details?.steps ? "실행 단계" : "유용한 팁"}
+                      </span>
                     </div>
-                    <ul className="space-y-3 pl-11">
-                      {item.details?.tips?.map((tip, tipIndex) => (
-                        <li key={tipIndex} className="text-base text-foreground/80 flex items-start group">
-                          <div className="w-6 h-6 rounded-full bg-orange-500/20 flex items-center justify-center mr-3 mt-1 flex-shrink-0 group-hover:bg-orange-500/30 transition-colors">
-                            <span className="text-orange-400 text-sm font-bold">•</span>
+                    <ol className="space-y-3 pl-11">
+                      {(item.details?.steps || item.details?.tips)?.map((step, stepIndex) => (
+                        <li key={stepIndex} className="text-base text-foreground/80 flex items-start group">
+                          <div className="w-7 h-7 rounded-full bg-blue-500/20 flex items-center justify-center mr-3 mt-1 flex-shrink-0 group-hover:bg-blue-500/30 transition-colors">
+                            <span className="text-blue-400 text-sm font-bold">
+                              {item.details?.steps ? stepIndex + 1 : "•"}
+                            </span>
                           </div>
-                          <span className="leading-relaxed">{tip}</span>
+                          <span className="leading-relaxed">{step}</span>
                         </li>
                       ))}
-                    </ul>
+                    </ol>
                   </div>
                 )}
 
