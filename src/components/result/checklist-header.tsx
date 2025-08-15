@@ -1,13 +1,6 @@
 import { Button } from "../ui/button"
-import { ArrowLeft, Calendar, Target, Edit3, Trash2, MoreVertical } from "lucide-react"
+import { ArrowLeft, Calendar, Target, Edit3, Trash2 } from "lucide-react"
 import { Link } from "react-router-dom"
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger,
-  DropdownMenuSeparator 
-} from "../ui/dropdown-menu"
 
 interface ChecklistHeaderProps {
   goal: string
@@ -60,34 +53,28 @@ export function ChecklistHeader({
         </Link>
         
         {(canEdit || canDelete) && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+          <div className="flex items-center space-x-2">
+            {canEdit && onEdit && (
               <Button
                 variant="outline"
-                className="text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all duration-300 focus-ring rounded-xl px-3 py-2 border-input/50"
+                onClick={onEdit}
+                className="text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all duration-300 focus-ring rounded-xl px-4 py-2 border-input/50"
               >
-                <MoreVertical className="w-4 h-4" />
+                <Edit3 className="w-4 h-4 mr-2" />
+                편집하기
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              {canEdit && onEdit && (
-                <DropdownMenuItem onClick={onEdit} className="cursor-pointer">
-                  <Edit3 className="w-4 h-4 mr-2" />
-                  편집하기
-                </DropdownMenuItem>
-              )}
-              {canEdit && canDelete && <DropdownMenuSeparator />}
-              {canDelete && onDelete && (
-                <DropdownMenuItem 
-                  onClick={onDelete} 
-                  className="cursor-pointer text-destructive focus:text-destructive"
-                >
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  삭제하기
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+            )}
+            {canDelete && onDelete && (
+              <Button
+                variant="outline"
+                onClick={onDelete}
+                className="text-destructive hover:text-destructive hover:bg-destructive/10 transition-all duration-300 focus-ring rounded-xl px-4 py-2 border-destructive/50"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                삭제하기
+              </Button>
+            )}
+          </div>
         )}
       </div>
 
