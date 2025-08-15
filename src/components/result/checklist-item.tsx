@@ -14,6 +14,7 @@ interface ChecklistItemData {
   description: string
   details: {
     tips?: string[]
+    steps?: string[]
     contacts?: { name: string; phone: string; email?: string }[]
     links?: { title: string; url: string }[]
     price?: string
@@ -203,22 +204,22 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
                   </div>
                 )}
 
-                {(item.details?.steps || item.details?.tips) && (item.details?.steps?.length > 0 || item.details?.tips?.length > 0) && (
+                {((item.details?.steps && item.details.steps.length > 0) || (item.details?.tips && item.details.tips.length > 0)) && (
                   <div className="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border border-blue-500/15 rounded-xl p-4 backdrop-blur-sm">
                     <div className="flex items-center space-x-3 mb-4">
                       <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
                         <Lightbulb className="w-5 h-5 text-blue-400" />
                       </div>
                       <span className="text-lg font-semibold text-foreground/80">
-                        {item.details?.steps ? "실행 단계" : "유용한 팁"}
+                        {(item.details?.steps && item.details.steps.length > 0) ? "실행 단계" : "유용한 팁"}
                       </span>
                     </div>
                     <ol className="space-y-3 pl-11">
-                      {(item.details?.steps || item.details?.tips)?.map((step, stepIndex) => (
+                      {(item.details?.steps || item.details?.tips || []).map((step: string, stepIndex: number) => (
                         <li key={stepIndex} className="text-base text-foreground/80 flex items-start group">
                           <div className="w-7 h-7 rounded-full bg-blue-500/20 flex items-center justify-center mr-3 mt-1 flex-shrink-0 group-hover:bg-blue-500/30 transition-colors">
                             <span className="text-blue-400 text-sm font-bold">
-                              {item.details?.steps ? stepIndex + 1 : "•"}
+                              {(item.details?.steps && item.details.steps.length > 0) ? stepIndex + 1 : "•"}
                             </span>
                           </div>
                           <span className="leading-relaxed">{step}</span>
