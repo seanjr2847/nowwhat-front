@@ -10,7 +10,6 @@ import { ChecklistItem } from "../components/result/checklist-item"
 import { CompletionCelebration } from "../components/result/completion-celebration"
 import { FeedbackSection } from "../components/result/feedback-section"
 import { ProgressBar } from "../components/result/progress-bar"
-import { EditChecklistModal } from "../components/result/edit-checklist-modal"
 import { DeleteChecklistModal } from "../components/result/delete-checklist-modal"
 import { getChecklist, type ChecklistData } from "../lib/api"
 
@@ -27,7 +26,6 @@ export default function ResultPage() {
     const [isLoading, setIsLoading] = useState(true)
     const [feedbackGiven, setFeedbackGiven] = useState(false)
     const [showCelebration, setShowCelebration] = useState(false)
-    const [showEditModal, setShowEditModal] = useState(false)
     const [showDeleteModal, setShowDeleteModal] = useState(false)
 
     // 체크리스트 상세 정보 조회 API 연결
@@ -110,26 +108,18 @@ export default function ResultPage() {
         setShowCelebration(false)
     }
 
-    const handleEditClick = () => {
-        setShowEditModal(true)
-    }
-
-    const handleEditClose = () => {
-        setShowEditModal(false)
-    }
-
-    const handleChecklistUpdate = (updatedChecklist: ChecklistData) => {
-        // API 응답 데이터를 현재 상태와 병합
+    const handleChecklistUpdate = (updatedChecklist: Partial<ChecklistData>) => {
+        if (!checklist) return
+        
+        // 기존 체크리스트 데이터와 업데이트된 데이터 병합
         const mergedChecklist = {
-            ...checklist!,
+            ...checklist,
             ...updatedChecklist,
-            // progress와 items는 현재 상태 유지 (체크리스트 제목/설명만 업데이트)
-            items: checklist!.items,
-            progress: checklist!.progress
+            // progress와 items는 현재 상태 유지 (제목/카테고리/설명만 업데이트)
+            items: checklist.items,
+            progress: checklist.progress
         }
         setChecklist(mergedChecklist)
-        // 페이지 새로고침하여 최신 데이터 반영
-        void fetchChecklist()
     }
 
     const handleDeleteClick = () => {
@@ -182,8 +172,11 @@ export default function ResultPage() {
                 <ChecklistHeader 
                     goal={checklist.title} 
                     createdAt={checklist.createdAt}
-                    onEdit={handleEditClick}
+                    checklistId={checklist.id}
+                    category={checklist.category}
+                    description={checklist.description}
                     onDelete={handleDeleteClick}
+                    onUpdate={handleChecklistUpdate}
                     canEdit={canEditChecklist}
                     canDelete={canDeleteChecklist}
                 />
@@ -237,16 +230,6 @@ export default function ResultPage() {
                     feedbackGiven={feedbackGiven}
                     checklistId={checklist.id}
                 />
-
-                {/* 편집 모달 */}
-                {showEditModal && checklist && (
-                    <EditChecklistModal
-                        isOpen={showEditModal}
-                        onClose={handleEditClose}
-                        checklist={checklist}
-                        onUpdate={handleChecklistUpdate}
-                    />
-                )}
 
                 {/* 삭제 확인 모달 */}
                 {showDeleteModal && checklist && (
