@@ -262,7 +262,7 @@ export function QuestionSection({ questions, answers, onAnswerChange }: Question
                       >
                         <div className="flex items-center space-x-3">
                           <Circle className={`w-4 h-4 ${answers[question.id] === option.value ? "fill-current" : ""}`} />
-                          <span className="font-medium">{option.text}</span>
+                          <span className="text-base font-medium">{option.text}</span>
                         </div>
                       </Button>
                     ) : (
@@ -282,7 +282,7 @@ export function QuestionSection({ questions, answers, onAnswerChange }: Question
                         />
                         <label
                           htmlFor={`${question.id}-${option.id}`}
-                          className="text-foreground cursor-pointer flex-1 font-medium"
+                          className="text-base text-foreground cursor-pointer flex-1 font-medium"
                         >
                           {option.text}
                         </label>
