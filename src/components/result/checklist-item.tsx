@@ -348,10 +348,8 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
                 </div>
               </div>
             )}
-              </div>
-            )}
           </div>
-        </div>
+        )}
       </CardContent>
     </Card>
   )
