@@ -199,7 +199,7 @@ export default function ResultPage() {
                     userName={user?.name || "사용자"}
                 />
 
-                <div className="space-y-6 mb-8">
+                <div className="space-y-8 mb-12">
                     {checklist.items.map((item, index) => (
                         <ChecklistItem
                             key={item.id}

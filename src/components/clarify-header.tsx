@@ -1,4 +1,4 @@
-import { ArrowLeft, Sparkles } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 import { Link } from "react-router-dom"
 import { Button } from "./ui/button"
 
@@ -37,10 +37,6 @@ export function ClarifyHeader({ goal }: ClarifyHeaderProps) {
 
       <div className="text-center space-y-4">
         <div className="flex items-center justify-center mb-3">
-          <div className="flex items-center space-x-2 px-3 py-1.5 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full border border-blue-500/30 backdrop-blur-sm">
-            <Sparkles className="w-4 h-4 text-blue-400" />
-            <span className="text-sm font-medium text-blue-300">AI 분석 완료</span>
-          </div>
         </div>
 
         <div className="space-y-3">
