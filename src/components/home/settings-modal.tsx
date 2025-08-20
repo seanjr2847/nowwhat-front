@@ -163,11 +163,27 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                       <CommandGroup>
                         {Object.entries(countries)
                           .sort(([, a], [, b]) => a.name.localeCompare(b.name))  // 알파벳 순 정렬
-                          .map(([code, country]) => (
-                            <CommandItem
-                              key={code}
-                              value={`${code} ${country.name}`}
-                              onSelect={() => {
+                          .map(([code, country]) => {
+                            // 영어권 국가들 체크 (미국, 영국, 캐나다, 호주 등)
+                            const englishSpeakingCountries = ['US', 'GB', 'CA', 'AU', 'NZ', 'IE', 'ZA', 'SG', 'IN', 'PH']
+                            const isEnglishCountry = englishSpeakingCountries.includes(code)
+                            
+                            return (
+                              <CommandItem
+                                key={code}
+                                value={`${code} ${country.name}`}
+                                className={isEnglishCountry ? 'opacity-50 cursor-not-allowed' : ''}
+                                onSelect={() => {
+                                if (isEnglishCountry) {
+                                  toast({
+                                    title: "준비중입니다",
+                                    description: "영어권 국가는 현재 준비중입니다. 빠른 시일 내에 지원예정입니다.",
+                                    variant: "destructive"
+                                  })
+                                  setCountryPopoverOpen(false)
+                                  return
+                                }
+                                
                                 const updatedSettings = {
                                   ...settings,
                                   userCountry: code
@@ -189,10 +205,14 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                                   settings.userCountry === code ? "opacity-100" : "opacity-0"
                                 )}
                               />
-                              <span className="mr-2 text-lg">{country.flag}</span>
-                              <span className="truncate">{country.name}</span>
-                            </CommandItem>
-                          ))
+                                <span className="mr-2 text-lg">{country.flag}</span>
+                                <span className="truncate">
+                                  {country.name}
+                                  {isEnglishCountry && <span className="ml-2 text-xs text-muted-foreground">(준비중)</span>}
+                                </span>
+                              </CommandItem>
+                            )
+                          })
                         }
                       </CommandGroup>
                     </CommandList>
