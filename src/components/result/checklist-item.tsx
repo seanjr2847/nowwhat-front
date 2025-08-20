@@ -325,43 +325,45 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
                     const isStepInfoTip = typeof tip === 'object' && tip !== null && 'description' in tip
                     
                     if (isStepInfoTip) {
+                      // TypeScript가 tip을 StepInfo로 인식하도록 타입 캐스팅
+                      const tipInfo = tip as StepInfo
                       // StepInfo 객체인 경우 구조화된 형태로 렌더링
                       return (
                         <li key={tipIndex} className="bg-white/60 dark:bg-amber-950/40 border border-amber-200/40 dark:border-amber-700/40 rounded-xl p-5">
                           <div className="flex items-start gap-4 mb-3">
                             <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white flex items-center justify-center font-bold shadow-lg">
-                              {tip.order}
+                              {tipInfo.order}
                             </div>
                             <div className="flex-1 min-w-0">
                               <h5 className="text-lg font-bold text-amber-900 dark:text-amber-100 mb-2">
-                                {tip.title}
+                                {tipInfo.title}
                               </h5>
                               <p className="text-base text-amber-800 dark:text-amber-200 leading-relaxed">
-                                {tip.description}
+                                {tipInfo.description}
                               </p>
                             </div>
                           </div>
                           
                           {/* 메타데이터 */}
-                          {(tip.estimatedTime || tip.difficulty) && (
+                          {(tipInfo.estimatedTime || tipInfo.difficulty) && (
                             <div className="flex items-center gap-4 mt-4 pt-3 border-t border-amber-200/40 dark:border-amber-700/40">
-                              {tip.estimatedTime && (
+                              {tipInfo.estimatedTime && (
                                 <div className="flex items-center gap-2 text-sm text-amber-600 dark:text-amber-400">
                                   <Clock className="w-4 h-4" />
-                                  <span className="font-medium">{tip.estimatedTime}</span>
+                                  <span className="font-medium">{tipInfo.estimatedTime}</span>
                                 </div>
                               )}
-                              {tip.difficulty && (
+                              {tipInfo.difficulty && (
                                 <div className="flex items-center gap-2 text-sm">
                                   <TrendingUp className="w-4 h-4" />
                                   <span className={`font-medium px-2 py-1 rounded-full text-xs ${
-                                    tip.difficulty === '쉬움' 
+                                    tipInfo.difficulty === '쉬움' 
                                       ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' 
-                                      : tip.difficulty === '보통'
+                                      : tipInfo.difficulty === '보통'
                                       ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300'
                                       : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
                                   }`}>
-                                    {tip.difficulty}
+                                    {tipInfo.difficulty}
                                   </span>
                                 </div>
                               )}

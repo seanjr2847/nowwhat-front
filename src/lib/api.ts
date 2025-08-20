@@ -790,7 +790,7 @@ export interface ChecklistItemData {
     title: string
     description: string
     details: {
-        tips?: string[]
+        tips?: (string | StepInfo)[] // 하위 호환성을 위해 string과 StepInfo 모두 지원
         steps?: (string | StepInfo)[] // 하위 호환성을 위해 string과 StepInfo 모두 지원
         contacts?: { name: string; phone: string; email?: string }[]
         links?: { title: string; url: string }[]
