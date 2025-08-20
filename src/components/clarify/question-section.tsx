@@ -1,7 +1,7 @@
 "use client"
 
 import { Check, Circle } from "lucide-react"
-import { useEffect, useRef } from "react"
+import { useEffect } from "react"
 import { Button } from "../ui/button"
 import { Card, CardContent } from "../ui/card"
 import { Checkbox } from "../ui/checkbox"
@@ -37,11 +37,13 @@ interface QuestionSectionProps {
  * @returns {JSX.Element} 렌더링된 질문 섹션 컴포넌트입니다.
  */
 export function QuestionSection({ questions, answers, onAnswerChange }: QuestionSectionProps) {
-  const questionRefs = useRef<(HTMLDivElement | null)[]>([])
-
   useEffect(() => {
-    if (questions.length > 0 && questionRefs.current[0]) {
-      questionRefs.current[0].focus()
+    if (questions.length > 0) {
+      // 질문이 로드되면 첫 번째 질문에 포커스
+      const firstQuestion = document.querySelector('[id^="question-"]')
+      if (firstQuestion) {
+        (firstQuestion as HTMLElement).focus()
+      }
     }
   }, [questions])
 
@@ -63,53 +65,9 @@ export function QuestionSection({ questions, answers, onAnswerChange }: Question
     return () => clearTimeout(timer)
   }, [])
 
-  const scrollToNextQuestion = (currentQuestionId: string) => {
-    const currentIndex = questions.findIndex((q) => q.id === currentQuestionId)
-    const nextIndex = currentIndex + 1
-
-    console.log('📜 스크롤 시도:', { currentQuestionId, currentIndex, nextIndex, totalQuestions: questions.length })
-
-    if (nextIndex < questions.length) {
-      const nextQuestionElement = questionRefs.current[nextIndex]
-      if (nextQuestionElement) {
-        const headerHeight = 120
-        const targetPosition = nextQuestionElement.offsetTop - headerHeight
-
-        console.log('⬇️ 다음 질문으로 스크롤:', { targetPosition })
-
-        setTimeout(() => {
-          window.scrollTo({
-            top: targetPosition,
-            behavior: "smooth",
-          })
-        }, 200)
-      } else {
-        console.log('❌ 다음 질문 엘리먼트를 찾을 수 없음')
-      }
-    } else {
-      console.log('✅ 마지막 질문 - 생성 버튼으로 스크롤')
-      setTimeout(() => {
-        const createButtonElement = document.getElementById("create-button-section")
-        if (createButtonElement) {
-          const headerHeight = 100
-          const targetPosition = createButtonElement.offsetTop - headerHeight
-
-          console.log('🔘 생성 버튼으로 스크롤:', { targetPosition })
-
-          window.scrollTo({
-            top: targetPosition,
-            behavior: "smooth",
-          })
-        } else {
-          console.log('❌ 생성 버튼 엘리먼트를 찾을 수 없음')
-        }
-      }, 500)
-    }
-  }
 
   const handleSingleAnswer = async (questionId: string, option: string) => {
     await onAnswerChange(questionId, option)
-    scrollToNextQuestion(questionId)
 
     const announcement = document.createElement("div")
     announcement.setAttribute("aria-live", "polite")
@@ -126,10 +84,6 @@ export function QuestionSection({ questions, answers, onAnswerChange }: Question
       : [...currentAnswers, option]
     await onAnswerChange(questionId, newAnswers)
 
-    if (currentAnswers.length === 0 && newAnswers.length === 1) {
-      scrollToNextQuestion(questionId)
-    }
-
     const isSelected = !currentAnswers.includes(option)
     const announcement = document.createElement("div")
     announcement.setAttribute("aria-live", "polite")
@@ -141,12 +95,6 @@ export function QuestionSection({ questions, answers, onAnswerChange }: Question
 
   const handleTextAnswer = async (questionId: string, value: string) => {
     await onAnswerChange(questionId, value)
-    
-    // 텍스트가 입력되기 시작하면 다음 질문으로 스크롤 (한 번만)
-    const currentAnswer = answers[questionId] as string || ""
-    if (currentAnswer.length === 0 && value.length > 0) {
-      scrollToNextQuestion(questionId)
-    }
   }
 
   const getAnswerStatus = (questionId: string) => {
@@ -182,7 +130,6 @@ export function QuestionSection({ questions, answers, onAnswerChange }: Question
           className={`bg-white/70 dark:bg-gray-900/70 backdrop-blur-2xl border border-white/40 dark:border-gray-700/40 transition-all duration-300 rounded-2xl ${
             isQuestionAnswered(question.id) ? "border-green-500/50 bg-green-500/10" : "hover:border-blue-500/50"
           }`}
-          ref={(el) => {(questionRefs.current[index] = el)}}
           tabIndex={-1}
         >
           <CardContent className="p-8">
