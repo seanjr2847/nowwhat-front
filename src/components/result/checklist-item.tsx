@@ -49,7 +49,7 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
         description: step,
         estimatedTime: undefined,
         difficulty: undefined
-      } as StepInfo
+      }
     })
   }
 
@@ -320,14 +320,67 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
                   <h4 className="text-lg font-bold text-amber-900 dark:text-amber-100">유용한 팁</h4>
                 </div>
                 <ul className="space-y-3 ml-16">
-                  {item.details.tips.map((tip, tipIndex) => (
-                    <li key={tipIndex} className="text-base text-amber-800 dark:text-amber-200 flex items-start">
-                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-amber-200/80 dark:bg-amber-800/60 flex items-center justify-center mr-3 mt-1">
-                        <span className="text-amber-700 dark:text-amber-300 text-sm font-bold">•</span>
-                      </div>
-                      <span className="leading-relaxed pt-1 flex-1">{tip}</span>
-                    </li>
-                  ))}
+                  {item.details.tips.map((tip, tipIndex) => {
+                    // tip이 StepInfo 객체인지 문자열인지 확인
+                    const isStepInfoTip = typeof tip === 'object' && tip !== null && 'description' in tip
+                    
+                    if (isStepInfoTip) {
+                      // StepInfo 객체인 경우 구조화된 형태로 렌더링
+                      return (
+                        <li key={tipIndex} className="bg-white/60 dark:bg-amber-950/40 border border-amber-200/40 dark:border-amber-700/40 rounded-xl p-5">
+                          <div className="flex items-start gap-4 mb-3">
+                            <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white flex items-center justify-center font-bold shadow-lg">
+                              {tip.order}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h5 className="text-lg font-bold text-amber-900 dark:text-amber-100 mb-2">
+                                {tip.title}
+                              </h5>
+                              <p className="text-base text-amber-800 dark:text-amber-200 leading-relaxed">
+                                {tip.description}
+                              </p>
+                            </div>
+                          </div>
+                          
+                          {/* 메타데이터 */}
+                          {(tip.estimatedTime || tip.difficulty) && (
+                            <div className="flex items-center gap-4 mt-4 pt-3 border-t border-amber-200/40 dark:border-amber-700/40">
+                              {tip.estimatedTime && (
+                                <div className="flex items-center gap-2 text-sm text-amber-600 dark:text-amber-400">
+                                  <Clock className="w-4 h-4" />
+                                  <span className="font-medium">{tip.estimatedTime}</span>
+                                </div>
+                              )}
+                              {tip.difficulty && (
+                                <div className="flex items-center gap-2 text-sm">
+                                  <TrendingUp className="w-4 h-4" />
+                                  <span className={`font-medium px-2 py-1 rounded-full text-xs ${
+                                    tip.difficulty === '쉬움' 
+                                      ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' 
+                                      : tip.difficulty === '보통'
+                                      ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300'
+                                      : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                                  }`}>
+                                    {tip.difficulty}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </li>
+                      )
+                    } else {
+                      // 기존 문자열 형태인 경우
+                      return (
+                        <li key={tipIndex} className="text-base text-amber-800 dark:text-amber-200 flex items-start">
+                          <div className="flex-shrink-0 w-6 h-6 rounded-full bg-amber-200/80 dark:bg-amber-800/60 flex items-center justify-center mr-3 mt-1">
+                            <span className="text-amber-700 dark:text-amber-300 text-sm font-bold">•</span>
+                          </div>
+                          <span className="leading-relaxed pt-1 flex-1">{tip}</span>
+                        </li>
+                      )
+                    }
+                  })}
                 </ul>
               </div>
             )}
