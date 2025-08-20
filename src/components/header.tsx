@@ -224,7 +224,7 @@ export function Header() {
           </h1>
         </button>
         <Badge variant="secondary" className="bg-muted text-muted-foreground text-xs">
-          Alpha
+          Beta
         </Badge>
       </div>
 
