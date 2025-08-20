@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom"
 import { useIsMobile } from "../hooks/use-mobile"
 import { useToast } from "../hooks/use-toast"
 import { useAuth } from "../hooks/useAuth"
+import { SimpleCreditDisplay } from "./credits/credit-display"
 import {
   SUPPORTED_LANGUAGES,
   getUserLocaleSettings,
@@ -159,10 +160,11 @@ export function Header() {
                 {(user?.name !== undefined && user.name.length > 0) ? user.name.charAt(0).toUpperCase() : 'U'}
               </span>
             </div>
-            <div className="flex flex-col">
+            <div className="flex flex-col flex-1">
               <span className="text-sm font-medium">{(user?.name !== undefined && user.name.length > 0) ? user.name : t('auth.user')}</span>
               <span className="text-xs text-muted-foreground">{user?.email}</span>
             </div>
+            <SimpleCreditDisplay className="ml-2" />
           </div>
 
           <Button onClick={() => handleNavigation("/my-lists")} variant="ghost" className="w-full justify-start px-3">

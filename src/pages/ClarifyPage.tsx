@@ -13,6 +13,7 @@ import { QuestionSection } from "../components/clarify/question-section"
 import { StreamingQuestionGenerator } from "../components/streaming/streaming-question-generator"
 import { useToast } from "../hooks/use-toast"
 import { useAuth } from "../hooks/useAuth"
+import { useCredit } from "../hooks/useCredit"
 import {
   analyzeIntents,
   saveQuestionAnswer,
@@ -30,6 +31,7 @@ export default function ClarifyPage() {
   const navigate = useNavigate()
   const { isAuthenticated, isLoading: authLoading } = useAuth()
   const { toast } = useToast()
+  const { showCreditModal, decrementCredits } = useCredit()
 
   const [goal, setGoal] = useState<string>("")
   const [intents, setIntents] = useState<Intent[]>([])
@@ -61,6 +63,9 @@ export default function ClarifyPage() {
       if (response.success && response.data) {
         console.log('✅ 의도 분석 성공:', response.data)
         
+        // 성공 시 크레딧 차감 (낙관적 업데이트)
+        decrementCredits(1)
+        
         // Intent에 id가 없는 경우 생성해주기
         const intentsWithId = (response.data.intents || []).map((intent, index) => ({
           ...intent,
@@ -78,6 +83,31 @@ export default function ClarifyPage() {
           description: `${response.data.intents?.length || 0}개의 방향을 찾았습니다.`,
           variant: "default",
         })
+      } else if (response.status === 402) {
+        // 크레딧 부족 에러 처리
+        console.log('💎 의도 분석 크레딧 부족:', response.error)
+        
+        try {
+          // 에러 메시지에서 크레딧 정보 파싱 시도
+          const errorMessage = response.error || ""
+          const currentCreditsMatch = errorMessage.match(/현재 (\d+)크레딧/)
+          const requiredCreditsMatch = errorMessage.match(/필요 (\d+)크레딧/)
+          
+          showCreditModal({
+            error: "INSUFFICIENT_CREDITS" as const,
+            message: errorMessage,
+            current_credits: currentCreditsMatch ? parseInt(currentCreditsMatch[1]) : 0,
+            required_credits: requiredCreditsMatch ? parseInt(requiredCreditsMatch[1]) : 1
+          })
+        } catch {
+          // 파싱 실패 시 기본 메시지
+          showCreditModal({
+            error: "INSUFFICIENT_CREDITS" as const,
+            message: "크레딧이 부족합니다. 의도 분석에는 1크레딧이 필요합니다.",
+            current_credits: 0,
+            required_credits: 1
+          })
+        }
       } else {
         console.error('❌ 의도 분석 실패:', response.error)
         const errorMessage = formatApiError(response.error) || "의도 분석 중 오류가 발생했습니다."

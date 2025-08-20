@@ -7,6 +7,7 @@ import { KakaoRedirect } from './components/kakao-redirect';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { ThemeProvider } from './components/theme-provider';
 import { Toaster } from './components/ui/toaster';
+import { CreditProvider } from './hooks/useCredit';
 
 import ChecklistCreationPage from './pages/ChecklistCreationPage';
 import ClarifyPage from './pages/ClarifyPage';
@@ -22,7 +23,8 @@ function App() {
   return (
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange={false}>
       <AuthProvider>
-        <BrowserRouter>
+        <CreditProvider>
+          <BrowserRouter>
           {/* 카카오톡 인앱 브라우저에서 외부 브라우저로 리다이렉트 */}
           <KakaoRedirect autoRedirect={true} delay={3000} />
 
@@ -38,7 +40,8 @@ function App() {
             <Route path="/terms" element={<TermsOfServicePage />} />
           </Routes>
           <Toaster />
-        </BrowserRouter>
+          </BrowserRouter>
+        </CreditProvider>
       </AuthProvider>
       <Analytics />
       <SpeedInsights />

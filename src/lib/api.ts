@@ -302,6 +302,16 @@ async function authenticatedRequest<T>(
         }
     }
 
+    // 402 에러 처리 (크레딧 부족)
+    if (!response.success && response.status === 402) {
+        console.error('💎 402 크레딧 부족 에러')
+        return {
+            success: false,
+            status: 402,
+            error: response.error || '크레딧이 부족합니다.',
+        }
+    }
+
     // 403 에러 처리 (권한 부족)
     if (!response.success && response.status === 403) {
         console.error('❌ 403 권한 부족 에러')
@@ -952,6 +962,55 @@ export function formatApiError(error: unknown): string {
     }
 
     return String(error)
+}
+
+// 크레딧 관련 타입 정의
+export interface CreditInfo {
+    user_id: string
+    credits: number
+    status: "sufficient" | "insufficient"
+}
+
+export interface CreditLog {
+    id: string
+    action: string // "analyze_intents", "migration_initial_bonus"
+    credits_before: number
+    credits_after: number
+    created_at: string
+}
+
+export interface CreditLogListResponse {
+    logs: CreditLog[]
+    total_count: number
+    has_more: boolean
+}
+
+export interface CreditErrorResponse {
+    error: "INSUFFICIENT_CREDITS"
+    message: string
+    current_credits: number
+    required_credits: number
+}
+
+// 크레딧 조회 API
+export async function getCredits(): Promise<ApiResponse<CreditInfo>> {
+    console.log('💎 크레딧 조회 API 호출')
+
+    return authenticatedRequest<CreditInfo>('/api/v1/credits/', {
+        method: 'GET'
+    })
+}
+
+// 크레딧 사용 내역 조회 API
+export async function getCreditHistory(
+    limit = 50,
+    offset = 0
+): Promise<ApiResponse<CreditLogListResponse>> {
+    console.log('📋 크레딧 사용 내역 조회 API 호출:', { limit, offset })
+
+    return authenticatedRequest<CreditLogListResponse>(`/api/v1/credits/history?limit=${limit}&offset=${offset}`, {
+        method: 'GET'
+    })
 }
 
 export { apiRequest, authenticatedRequest }
