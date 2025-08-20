@@ -4,7 +4,6 @@ import { AlertTriangle, Zap, X } from "lucide-react"
 import { useEffect, useState } from "react"
 import { type CreditErrorResponse } from "../../lib/api"
 import { Button } from "../ui/button"
-import { CreditDisplay } from "./credit-display"
 
 interface CreditModalProps {
   isOpen: boolean

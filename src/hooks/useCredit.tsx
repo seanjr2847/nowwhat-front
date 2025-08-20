@@ -1,7 +1,7 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { getCredits, type CreditInfo, type CreditErrorResponse } from '../lib/api'
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
+import { getCredits, type CreditErrorResponse } from '../lib/api'
 import { useToast } from './use-toast'
 
 interface CreditContextType {
