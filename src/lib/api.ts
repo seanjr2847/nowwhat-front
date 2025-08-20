@@ -776,13 +776,22 @@ export async function generateChecklistStream(
 }
 
 // 체크리스트 관련 타입 정의
+// 새로운 StepInfo 구조
+export interface StepInfo {
+    order: number
+    title: string
+    description: string
+    estimatedTime?: string
+    difficulty?: "쉬움" | "보통" | "어려움"
+}
+
 export interface ChecklistItemData {
     id: string
     title: string
     description: string
     details: {
         tips?: string[]
-        steps?: string[] // 새로운 단계별 가이드 필드 추가
+        steps?: (string | StepInfo)[] // 하위 호환성을 위해 string과 StepInfo 모두 지원
         contacts?: { name: string; phone: string; email?: string }[]
         links?: { title: string; url: string }[]
         price?: string

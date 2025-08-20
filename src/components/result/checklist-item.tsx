@@ -1,27 +1,12 @@
 "use client"
 
-import { ChevronDown, DollarSign, ExternalLink, Lightbulb, Mail, MapPin, Phone } from "lucide-react"
+import { ChevronDown, DollarSign, ExternalLink, Lightbulb, Mail, MapPin, Phone, Clock, TrendingUp } from "lucide-react"
 import { useState } from "react"
-import { toggleChecklistItem } from "../../lib/api"
+import { toggleChecklistItem, type ChecklistItemData, type StepInfo } from "../../lib/api"
 import { useToast } from "../../hooks/use-toast"
 import { Button } from "../ui/button"
 import { Card, CardContent } from "../ui/card"
 import { Checkbox } from "../ui/checkbox"
-
-interface ChecklistItemData {
-  id: string
-  title: string
-  description: string
-  details: {
-    tips?: string[]
-    steps?: string[]
-    contacts?: { name: string; phone: string; email?: string }[]
-    links?: { title: string; url: string }[]
-    price?: string
-    location?: string
-  }
-  isCompleted: boolean
-}
 
 interface ChecklistItemProps {
   item: ChecklistItemData
@@ -44,8 +29,33 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
   const [isUpdating, setIsUpdating] = useState(false)
   const { toast } = useToast()
 
+  // Helper function to check if a step is StepInfo object
+  const isStepInfo = (step: string | StepInfo): step is StepInfo => {
+    return typeof step === 'object' && 'order' in step && 'title' in step
+  }
+
+  // Helper function to get structured steps
+  const getStructuredSteps = (): StepInfo[] => {
+    if (!item.details?.steps) return []
+    
+    return item.details.steps.map((step, index) => {
+      if (isStepInfo(step)) {
+        return step
+      }
+      // Convert legacy string format to StepInfo
+      return {
+        order: index + 1,
+        title: `${index + 1}단계`,
+        description: step,
+        estimatedTime: undefined,
+        difficulty: undefined
+      } as StepInfo
+    })
+  }
+
   const hasDetails =
     (item.details?.tips?.length ?? 0) > 0 ||
+    (item.details?.steps?.length ?? 0) > 0 ||
     (item.details?.contacts?.length ?? 0) > 0 ||
     (item.details?.links?.length ?? 0) > 0 ||
     (item.details?.price != null && item.details?.price !== '') ||
@@ -243,28 +253,83 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
               </div>
             )}
 
-            {((item.details?.steps && item.details.steps.length > 0) || (item.details?.tips && item.details.tips.length > 0)) && (
-              <div className="group/detail bg-gradient-to-br from-violet-50/80 via-purple-50/60 to-indigo-50/80 dark:from-violet-950/30 dark:via-purple-950/20 dark:to-indigo-950/30 border border-violet-200/50 dark:border-violet-700/30 rounded-2xl p-5 transition-all duration-300 hover:shadow-lg hover:shadow-violet-100/50 dark:hover:shadow-violet-900/20">
+            {/* Steps Section - New Structured Format */}
+            {(getStructuredSteps().length > 0) && (
+              <div className="group/detail bg-gradient-to-br from-violet-50/80 via-purple-50/60 to-indigo-50/80 dark:from-violet-950/30 dark:via-purple-950/20 dark:to-indigo-950/30 border border-violet-200/50 dark:border-violet-700/30 rounded-2xl p-6 transition-all duration-300 hover:shadow-lg hover:shadow-violet-100/50 dark:hover:shadow-violet-900/20">
                 <div className="flex items-center gap-4 mb-6">
                   <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-violet-400 to-purple-500 rounded-2xl flex items-center justify-center shadow-lg shadow-violet-200/50 dark:shadow-violet-900/30">
                     <Lightbulb className="w-6 h-6 text-white" />
                   </div>
-                  <h4 className="text-lg font-bold text-violet-900 dark:text-violet-100">
-                    {(item.details?.steps && item.details.steps.length > 0) ? "실행 단계" : "유용한 팁"}
-                  </h4>
+                  <h4 className="text-lg font-bold text-violet-900 dark:text-violet-100">실행 단계</h4>
                 </div>
-                <ol className="space-y-4 ml-16">
-                  {(item.details?.steps || item.details?.tips || []).map((step: string, stepIndex: number) => (
-                    <li key={stepIndex} className="text-base text-violet-800 dark:text-violet-200 flex items-start group/step">
-                      <div className="flex-shrink-0 w-8 h-8 rounded-xl bg-violet-200/80 dark:bg-violet-800/60 flex items-center justify-center mr-4 mt-1 group-hover/step:bg-violet-300/80 dark:group-hover/step:bg-violet-700/60 transition-all duration-300 shadow-sm">
-                        <span className="text-violet-700 dark:text-violet-300 text-sm font-bold">
-                          {(item.details?.steps && item.details.steps.length > 0) ? stepIndex + 1 : "•"}
-                        </span>
+                <div className="space-y-5 ml-16">
+                  {getStructuredSteps().map((step, stepIndex) => (
+                    <div key={stepIndex} className="group/step bg-white/60 dark:bg-violet-950/40 border border-violet-200/40 dark:border-violet-700/40 rounded-xl p-5 hover:bg-white/80 dark:hover:bg-violet-950/60 transition-all duration-300 hover:shadow-md">
+                      {/* Step Header */}
+                      <div className="flex items-start gap-4 mb-3">
+                        <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 text-white flex items-center justify-center font-bold shadow-lg group-hover/step:scale-110 transition-transform duration-300">
+                          {step.order}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h5 className="text-lg font-bold text-violet-900 dark:text-violet-100 mb-2">
+                            {step.title}
+                          </h5>
+                          <p className="text-base text-violet-800 dark:text-violet-200 leading-relaxed">
+                            {step.description}
+                          </p>
+                        </div>
                       </div>
-                      <span className="leading-relaxed pt-1 flex-1">{step}</span>
+                      
+                      {/* Step Metadata */}
+                      {(step.estimatedTime || step.difficulty) && (
+                        <div className="flex items-center gap-4 mt-4 pt-3 border-t border-violet-200/40 dark:border-violet-700/40">
+                          {step.estimatedTime && (
+                            <div className="flex items-center gap-2 text-sm text-violet-600 dark:text-violet-400">
+                              <Clock className="w-4 h-4" />
+                              <span className="font-medium">{step.estimatedTime}</span>
+                            </div>
+                          )}
+                          {step.difficulty && (
+                            <div className="flex items-center gap-2 text-sm">
+                              <TrendingUp className="w-4 h-4" />
+                              <span className={`font-medium px-2 py-1 rounded-full text-xs ${
+                                step.difficulty === '쉬움' 
+                                  ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' 
+                                  : step.difficulty === '보통'
+                                  ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300'
+                                  : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                              }`}>
+                                {step.difficulty}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Tips Section - Legacy Format */}
+            {(item.details?.tips && item.details.tips.length > 0) && (
+              <div className="group/detail bg-gradient-to-br from-amber-50/80 via-yellow-50/60 to-orange-50/80 dark:from-amber-950/30 dark:via-yellow-950/20 dark:to-orange-950/30 border border-amber-200/50 dark:border-amber-700/30 rounded-2xl p-5 transition-all duration-300 hover:shadow-lg hover:shadow-amber-100/50 dark:hover:shadow-amber-900/20">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-200/50 dark:shadow-amber-900/30">
+                    <Lightbulb className="w-6 h-6 text-white" />
+                  </div>
+                  <h4 className="text-lg font-bold text-amber-900 dark:text-amber-100">유용한 팁</h4>
+                </div>
+                <ul className="space-y-3 ml-16">
+                  {item.details.tips.map((tip, tipIndex) => (
+                    <li key={tipIndex} className="text-base text-amber-800 dark:text-amber-200 flex items-start group/tip">
+                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-amber-200/80 dark:bg-amber-800/60 flex items-center justify-center mr-3 mt-1 group-hover/tip:bg-amber-300/80 dark:group-hover/tip:bg-amber-700/60 transition-all duration-300">
+                        <span className="text-amber-700 dark:text-amber-300 text-sm font-bold">•</span>
+                      </div>
+                      <span className="leading-relaxed pt-1 flex-1">{tip}</span>
                     </li>
                   ))}
-                </ol>
+                </ul>
               </div>
             )}
 

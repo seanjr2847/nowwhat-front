@@ -13,7 +13,6 @@ interface ChecklistHeaderProps {
   checklistId: string
   category?: string
   description?: string
-  onEdit?: () => void
   onDelete?: () => void
   onUpdate?: (updatedData: Partial<ChecklistData>) => void
   canEdit?: boolean
@@ -26,7 +25,6 @@ interface ChecklistHeaderProps {
  * @param {ChecklistHeaderProps} props - 헤더 컴포넌트의 props입니다.
  * @param {string} props.goal - 체크리스트의 목표입니다.
  * @param {string} props.createdAt - 체크리스트 생성 날짜입니다.
- * @param {() => void} [props.onEdit] - 편집 버튼 클릭 시 호출될 함수입니다.
  * @param {() => void} [props.onDelete] - 삭제 버튼 클릭 시 호출될 함수입니다.
  * @param {boolean} [props.canEdit] - 편집 가능 여부입니다.
  * @param {boolean} [props.canDelete] - 삭제 가능 여부입니다.
@@ -38,7 +36,6 @@ export function ChecklistHeader({
   checklistId,
   category = "",
   description = "",
-  onEdit, 
   onDelete, 
   onUpdate,
   canEdit = false, 
@@ -171,7 +168,7 @@ export function ChecklistHeader({
                   취소
                 </Button>
                 <Button
-                  onClick={handleSave}
+                  onClick={() => void handleSave()}
                   disabled={isLoading || !editTitle.trim()}
                   className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white transition-all duration-300 focus-ring rounded-xl px-4 py-2"
                 >
