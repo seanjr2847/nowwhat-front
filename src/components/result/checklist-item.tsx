@@ -109,11 +109,11 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
 
   return (
     <Card
-      className={`group relative overflow-hidden transition-all duration-500 ease-out ${
+      className={`group relative overflow-hidden transition-all duration-300 ease-out ${
         item.isCompleted 
           ? "bg-gradient-to-br from-emerald-50/90 via-green-50/70 to-teal-50/90 dark:from-emerald-950/40 dark:via-green-950/30 dark:to-teal-950/40 border border-emerald-200/60 dark:border-emerald-700/40 shadow-emerald-100/50 dark:shadow-emerald-900/20" 
-          : "bg-gradient-to-br from-white via-slate-50/30 to-blue-50/20 dark:from-slate-900 dark:via-slate-800/50 dark:to-slate-900 border border-slate-200/60 dark:border-slate-700/40 shadow-lg dark:shadow-slate-900/20 hover:shadow-xl hover:border-blue-300/60 dark:hover:border-blue-600/40"
-      } rounded-2xl shadow-lg hover:shadow-2xl transform hover:-translate-y-2 hover:scale-[1.02] active:scale-[0.98]`}
+          : "bg-gradient-to-br from-white via-slate-50/30 to-blue-50/20 dark:from-slate-900 dark:via-slate-800/50 dark:to-slate-900 border border-slate-200/60 dark:border-slate-700/40 shadow-lg dark:shadow-slate-900/20"
+      } rounded-2xl shadow-lg`}
     >
       {/* Success celebration overlay */}
       {item.isCompleted && (
@@ -121,10 +121,10 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
       )}
       
       {/* Left accent border */}
-      <div className={`absolute left-0 top-0 w-1.5 h-full transition-all duration-300 ${
+      <div className={`absolute left-0 top-0 w-1.5 h-full ${
         item.isCompleted 
           ? "bg-gradient-to-b from-emerald-400 to-green-500" 
-          : "bg-gradient-to-b from-blue-400 to-indigo-500 group-hover:from-blue-500 group-hover:to-indigo-600"
+          : "bg-gradient-to-b from-blue-400 to-indigo-500"
       }`} />
       
       <CardContent className="relative p-6 sm:p-8">
@@ -134,7 +134,7 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
             <div className={`relative p-2 rounded-2xl transition-all duration-300 ${
               item.isCompleted 
                 ? "bg-emerald-100/80 dark:bg-emerald-900/40 ring-2 ring-emerald-200/60 dark:ring-emerald-700/40" 
-                : "bg-slate-100/80 dark:bg-slate-800/60 group-hover:bg-blue-50/80 dark:group-hover:bg-blue-900/30 ring-1 ring-slate-200/60 dark:ring-slate-700/40 group-hover:ring-2 group-hover:ring-blue-200/60 dark:group-hover:ring-blue-700/40"
+                : "bg-slate-100/80 dark:bg-slate-800/60 ring-1 ring-slate-200/60 dark:ring-slate-700/40"
             }`}>
               <Checkbox
                 id={`item-${item.id}`}
@@ -155,10 +155,10 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
             {/* Header with improved hierarchy */}
             <div className="flex items-start gap-3 sm:gap-4">
               <div
-                className={`flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-2xl text-sm font-bold transition-all duration-300 ${
+                className={`flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-2xl text-sm font-bold ${
                   item.isCompleted 
                     ? "bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-lg shadow-emerald-200/50 dark:shadow-emerald-900/30 ring-2 ring-emerald-200/40 dark:ring-emerald-700/40" 
-                    : "bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-200/50 dark:shadow-blue-900/30 ring-1 ring-blue-200/40 dark:ring-blue-700/40 group-hover:ring-2"
+                    : "bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-200/50 dark:shadow-blue-900/30 ring-1 ring-blue-200/40 dark:ring-blue-700/40"
                 }`}
               >
                 {index + 1}
@@ -169,7 +169,7 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
                   className={`text-lg sm:text-xl font-bold tracking-tight transition-all duration-300 leading-tight ${
                     item.isCompleted 
                       ? "text-emerald-700 dark:text-emerald-300 line-through decoration-2 decoration-emerald-500/70" 
-                      : "text-slate-900 dark:text-slate-100 group-hover:text-blue-700 dark:group-hover:text-blue-300"
+                      : "text-slate-900 dark:text-slate-100"
                   }`}
                 >
                   {item.title}
@@ -192,16 +192,15 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
               <Button
                 variant="ghost"
                 onClick={() => setIsExpanded(!isExpanded)}
-                className={`group/btn relative overflow-hidden px-4 py-3 h-auto rounded-xl transition-all duration-300 ${
+                className={`px-4 py-3 h-auto rounded-xl transition-all duration-300 ${
                   isExpanded 
                     ? 'text-blue-600 dark:text-blue-400 bg-blue-50/80 dark:bg-blue-900/30 border border-blue-200/60 dark:border-blue-700/40 shadow-sm' 
-                    : 'text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-900/20 border border-slate-200/60 dark:border-slate-700/40 hover:border-blue-200/60 dark:hover:border-blue-700/40'
-                } hover:shadow-md focus:ring-2 focus:ring-blue-500/30 focus:ring-offset-2 focus:ring-offset-transparent`}
+                    : 'text-slate-600 dark:text-slate-400 border border-slate-200/60 dark:border-slate-700/40'
+                } focus:ring-2 focus:ring-blue-500/30 focus:ring-offset-2 focus:ring-offset-transparent`}
                 aria-expanded={isExpanded}
                 aria-controls={`details-${item.id}`}
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/5 to-transparent translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-700" />
-                <div className="flex items-center gap-2 relative z-10">
+                <div className="flex items-center gap-2">
                   <span className="text-sm font-medium">
                     {isExpanded ? "세부사항 접기" : "세부사항 보기"}
                   </span>
@@ -222,7 +221,7 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
             aria-label="상세 정보"
           >
             {item.details?.price && (
-              <div className="group/detail bg-gradient-to-br from-amber-50/80 via-yellow-50/60 to-orange-50/80 dark:from-amber-950/30 dark:via-yellow-950/20 dark:to-orange-950/30 border border-amber-200/50 dark:border-amber-700/30 rounded-2xl p-5 transition-all duration-300 hover:shadow-lg hover:shadow-amber-100/50 dark:hover:shadow-amber-900/20">
+              <div className="bg-gradient-to-br from-amber-50/80 via-yellow-50/60 to-orange-50/80 dark:from-amber-950/30 dark:via-yellow-950/20 dark:to-orange-950/30 border border-amber-200/50 dark:border-amber-700/30 rounded-2xl p-5">
                 <div className="flex items-center gap-4 mb-4">
                   <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-200/50 dark:shadow-amber-900/30">
                     <DollarSign className="w-6 h-6 text-white" />
@@ -238,7 +237,7 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
             )}
 
             {item.details?.location && (
-              <div className="group/detail bg-gradient-to-br from-sky-50/80 via-blue-50/60 to-cyan-50/80 dark:from-sky-950/30 dark:via-blue-950/20 dark:to-cyan-950/30 border border-sky-200/50 dark:border-sky-700/30 rounded-2xl p-5 transition-all duration-300 hover:shadow-lg hover:shadow-sky-100/50 dark:hover:shadow-sky-900/20">
+              <div className="bg-gradient-to-br from-sky-50/80 via-blue-50/60 to-cyan-50/80 dark:from-sky-950/30 dark:via-blue-950/20 dark:to-cyan-950/30 border border-sky-200/50 dark:border-sky-700/30 rounded-2xl p-5">
                 <div className="flex items-center gap-4 mb-4">
                   <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-sky-400 to-blue-500 rounded-2xl flex items-center justify-center shadow-lg shadow-sky-200/50 dark:shadow-sky-900/30">
                     <MapPin className="w-6 h-6 text-white" />
@@ -255,7 +254,7 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
 
             {/* Steps Section - New Structured Format */}
             {(getStructuredSteps().length > 0) && (
-              <div className="group/detail bg-gradient-to-br from-violet-50/80 via-purple-50/60 to-indigo-50/80 dark:from-violet-950/30 dark:via-purple-950/20 dark:to-indigo-950/30 border border-violet-200/50 dark:border-violet-700/30 rounded-2xl p-6 transition-all duration-300 hover:shadow-lg hover:shadow-violet-100/50 dark:hover:shadow-violet-900/20">
+              <div className="bg-gradient-to-br from-violet-50/80 via-purple-50/60 to-indigo-50/80 dark:from-violet-950/30 dark:via-purple-950/20 dark:to-indigo-950/30 border border-violet-200/50 dark:border-violet-700/30 rounded-2xl p-6">
                 <div className="flex items-center gap-4 mb-6">
                   <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-violet-400 to-purple-500 rounded-2xl flex items-center justify-center shadow-lg shadow-violet-200/50 dark:shadow-violet-900/30">
                     <Lightbulb className="w-6 h-6 text-white" />
@@ -264,10 +263,10 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
                 </div>
                 <div className="space-y-5 ml-16">
                   {getStructuredSteps().map((step, stepIndex) => (
-                    <div key={stepIndex} className="group/step bg-white/60 dark:bg-violet-950/40 border border-violet-200/40 dark:border-violet-700/40 rounded-xl p-5 hover:bg-white/80 dark:hover:bg-violet-950/60 transition-all duration-300 hover:shadow-md">
+                    <div key={stepIndex} className="bg-white/60 dark:bg-violet-950/40 border border-violet-200/40 dark:border-violet-700/40 rounded-xl p-5">
                       {/* Step Header */}
                       <div className="flex items-start gap-4 mb-3">
-                        <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 text-white flex items-center justify-center font-bold shadow-lg group-hover/step:scale-110 transition-transform duration-300">
+                        <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 text-white flex items-center justify-center font-bold shadow-lg">
                           {step.order}
                         </div>
                         <div className="flex-1 min-w-0">

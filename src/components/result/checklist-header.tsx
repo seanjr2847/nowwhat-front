@@ -1,18 +1,16 @@
+import { ArrowLeft, Calendar, Edit3, Save, Target, Trash2, X } from "lucide-react"
 import { useState } from "react"
-import { Button } from "../ui/button"
-import { Input } from "../ui/input"
-import { Textarea } from "../ui/textarea"
-import { ArrowLeft, Calendar, Target, Edit3, Trash2, Save, X } from "lucide-react"
 import { Link } from "react-router-dom"
 import { useToast } from "../../hooks/use-toast"
 import { updateChecklist, type ChecklistData } from "../../lib/api"
+import { Button } from "../ui/button"
+import { Input } from "../ui/input"
 
 interface ChecklistHeaderProps {
   goal: string
   createdAt: string
   checklistId: string
   category?: string
-  description?: string
   onDelete?: () => void
   onUpdate?: (updatedData: Partial<ChecklistData>) => void
   canEdit?: boolean
@@ -35,7 +33,6 @@ export function ChecklistHeader({
   createdAt,
   checklistId,
   category = "",
-  description = "",
   onDelete, 
   onUpdate,
   canEdit = false, 
@@ -44,7 +41,6 @@ export function ChecklistHeader({
   const [isEditing, setIsEditing] = useState(false)
   const [editTitle, setEditTitle] = useState(goal)
   const [editCategory, setEditCategory] = useState(category)
-  const [editDescription, setEditDescription] = useState(description)
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
 
@@ -60,14 +56,12 @@ export function ChecklistHeader({
     setIsEditing(true)
     setEditTitle(goal)
     setEditCategory(category)
-    setEditDescription(description)
   }
 
   const handleCancel = () => {
     setIsEditing(false)
     setEditTitle(goal)
     setEditCategory(category)
-    setEditDescription(description)
   }
 
   const handleSave = async () => {
@@ -92,8 +86,7 @@ export function ChecklistHeader({
     // 변경사항이 있는지 확인
     const hasChanges = 
       editTitle.trim() !== goal ||
-      editCategory.trim() !== category ||
-      editDescription.trim() !== description
+      editCategory.trim() !== category
 
     if (!hasChanges) {
       setIsEditing(false)
@@ -105,8 +98,7 @@ export function ChecklistHeader({
     try {
       const updateData = {
         title: editTitle.trim(),
-        ...(editCategory.trim() && { category: editCategory.trim() }),
-        ...(editDescription.trim() && { description: editDescription.trim() })
+        ...(editCategory.trim() && { category: editCategory.trim() })
       }
 
       const response = await updateChecklist(checklistId, updateData)
@@ -241,20 +233,6 @@ export function ChecklistHeader({
                 </div>
               )}
               
-              {(editDescription || isEditing) && (
-                <div>
-                  <Textarea
-                    value={editDescription}
-                    onChange={(e) => setEditDescription(e.target.value)}
-                    placeholder="체크리스트 설명 (선택사항)"
-                    className="text-center bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-white/30 dark:border-gray-700/30 rounded-xl shadow-lg resize-none"
-                    rows={3}
-                    maxLength={500}
-                    disabled={isLoading}
-                  />
-                  <p className="text-xs text-muted-foreground text-center mt-2">{editDescription.length}/500</p>
-                </div>
-              )}
             </div>
           ) : (
             <div className="space-y-2">
@@ -267,11 +245,6 @@ export function ChecklistHeader({
                     {category}
                   </span>
                 </div>
-              )}
-              {description && (
-                <p className="text-muted-foreground max-w-2xl mx-auto">
-                  {description}
-                </p>
               )}
             </div>
           )}

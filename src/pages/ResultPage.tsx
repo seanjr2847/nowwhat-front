@@ -174,7 +174,6 @@ export default function ResultPage() {
                     createdAt={checklist.createdAt}
                     checklistId={checklist.id}
                     category={checklist.category}
-                    description={checklist.description}
                     onDelete={handleDeleteClick}
                     onUpdate={handleChecklistUpdate}
                     canEdit={canEditChecklist}
