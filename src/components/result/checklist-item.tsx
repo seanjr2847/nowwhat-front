@@ -1,9 +1,10 @@
 "use client"
 
-import { ChevronDown, DollarSign, ExternalLink, Lightbulb, Mail, MapPin, Phone, Clock, TrendingUp } from "lucide-react"
-import { useState } from "react"
-import { toggleChecklistItem, type ChecklistItemData, type StepInfo } from "../../lib/api"
+import { ChevronDown, Clock, DollarSign, ExternalLink, Lightbulb, Mail, MapPin, Phone, TrendingUp } from "lucide-react"
+import { useEffect, useState } from "react"
 import { useToast } from "../../hooks/use-toast"
+import type { StepInfo } from "../../lib/api"
+import { toggleChecklistItem, type ChecklistItemData } from "../../lib/api"
 import { Button } from "../ui/button"
 import { Card, CardContent } from "../ui/card"
 import { Checkbox } from "../ui/checkbox"
@@ -13,6 +14,7 @@ interface ChecklistItemProps {
   index: number
   checklistId?: string
   onToggle: (itemId: string) => void
+  showDetails?: boolean
 }
 
 /**
@@ -24,10 +26,15 @@ interface ChecklistItemProps {
  * @param {(itemId: string) => void} props.onToggle - 항목의 완료 상태를 토글하는 함수입니다.
  * @returns {JSX.Element} 렌더링된 체크리스트 항목입니다.
  */
-export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistItemProps) {
+export function ChecklistItem({ item, index, checklistId, onToggle, showDetails = true }: ChecklistItemProps) {
   const [isExpanded, setIsExpanded] = useState(true)
   const [isUpdating, setIsUpdating] = useState(false)
   const { toast } = useToast()
+
+  // showDetails props가 변경될 때 isExpanded 상태 업데이트
+  useEffect(() => {
+    setIsExpanded(showDetails)
+  }, [showDetails])
 
   // Helper function to check if a step is StepInfo object
   const isStepInfo = (step: string | StepInfo): step is StepInfo => {
@@ -326,7 +333,7 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
                     
                     if (isStepInfoTip) {
                       // TypeScript가 tip을 StepInfo로 인식하도록 타입 캐스팅
-                      const tipInfo = tip as StepInfo
+                      const tipInfo = tip
                       // StepInfo 객체인 경우 구조화된 형태로 렌더링
                       return (
                         <li key={tipIndex} className="bg-white/60 dark:bg-amber-950/40 border border-amber-200/40 dark:border-amber-700/40 rounded-xl p-5">

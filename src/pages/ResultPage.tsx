@@ -2,15 +2,15 @@
 
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { useAuth } from "../hooks/useAuth"
 import { LoadingSpinner } from "../components/clarify/loading-spinner"
 import { ActionButtons } from "../components/result/action-buttons"
 import { ChecklistHeader } from "../components/result/checklist-header"
 import { ChecklistItem } from "../components/result/checklist-item"
 import { CompletionCelebration } from "../components/result/completion-celebration"
+import { DeleteChecklistModal } from "../components/result/delete-checklist-modal"
 import { FeedbackSection } from "../components/result/feedback-section"
 import { ProgressBar } from "../components/result/progress-bar"
-import { DeleteChecklistModal } from "../components/result/delete-checklist-modal"
+import { useAuth } from "../hooks/useAuth"
 import { getChecklist, type ChecklistData } from "../lib/api"
 
 /**
@@ -27,6 +27,7 @@ export default function ResultPage() {
     const [feedbackGiven, setFeedbackGiven] = useState(false)
     const [showCelebration, setShowCelebration] = useState(false)
     const [showDeleteModal, setShowDeleteModal] = useState(false)
+    const [showAllDetails, setShowAllDetails] = useState(true) // 전체 details 열기/닫기 상태
 
     // 체크리스트 상세 정보 조회 API 연결
     const fetchChecklist = async () => {
@@ -135,6 +136,10 @@ export default function ResultPage() {
         void navigate("/")
     }
 
+    const handleToggleAllDetails = () => {
+        setShowAllDetails(!showAllDetails)
+    }
+
     // 편집 권한 확인 (로그인한 사용자만 편집 가능)
     const canEditChecklist = isAuthenticated && user !== null
     // 삭제 권한 확인 (편집 권한과 동일)
@@ -196,6 +201,8 @@ export default function ResultPage() {
                         progressPercentage: Math.round(checklist.progress)
                     }}
                     userName={user?.name || "사용자"}
+                    showAllDetails={showAllDetails}
+                    onToggleDetails={handleToggleAllDetails}
                 />
 
                 <div className="space-y-8 mb-12">
@@ -206,6 +213,7 @@ export default function ResultPage() {
                             index={index}
                             checklistId={checklist.id}
                             onToggle={handleItemToggle}
+                            showDetails={showAllDetails}
                         />
                     ))}
                 </div>

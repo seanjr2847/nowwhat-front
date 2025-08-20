@@ -1,7 +1,7 @@
 "use client"
 
+import { Eye, EyeOff, Plus, Share2 } from "lucide-react"
 import { useState } from "react"
-import { Plus, Share2 } from "lucide-react"
 import { Button } from "../ui/button"
 import { ShareModal } from "./share-modal"
 
@@ -15,6 +15,8 @@ interface ActionButtonsProps {
     progressPercentage: number
   }
   userName?: string
+  showAllDetails?: boolean
+  onToggleDetails?: () => void
 }
 
 /**
@@ -24,7 +26,7 @@ interface ActionButtonsProps {
  * @param {() => void} props.onNewChecklist - 새 체크리스트 만들기 버튼 클릭 시 호출될 함수입니다.
  * @returns {JSX.Element} 렌더링된 액션 버튼 그룹입니다.
  */
-export function ActionButtons({ onShare, onNewChecklist, checklistData, userName }: ActionButtonsProps) {
+export function ActionButtons({ onShare, onNewChecklist, checklistData, userName, showAllDetails = true, onToggleDetails }: ActionButtonsProps) {
   const [showShareModal, setShowShareModal] = useState(false)
 
   const handleShareClick = () => {
@@ -46,6 +48,26 @@ export function ActionButtons({ onShare, onNewChecklist, checklistData, userName
           <Share2 className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
           <span className="font-medium">공유하기</span>
         </Button>
+
+        {onToggleDetails && (
+          <Button
+            onClick={onToggleDetails}
+            variant="outline"
+            className="flex-1 bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl border border-white/40 dark:border-gray-700/40 text-muted-foreground hover:bg-white/80 dark:hover:bg-gray-900/80 hover:border-indigo-500/50 py-3 rounded-xl transition-all duration-300 group hover:text-foreground shadow-lg"
+          >
+            {showAllDetails ? (
+              <>
+                <EyeOff className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
+                <span className="font-medium">간단히 보기</span>
+              </>
+            ) : (
+              <>
+                <Eye className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
+                <span className="font-medium">상세히 보기</span>
+              </>
+            )}
+          </Button>
+        )}
 
       <Button
         onClick={onNewChecklist}
