@@ -9,7 +9,7 @@ interface CreateButtonProps {
 }
 
 /**
- * 모든 질문에 답변한 후 체크리스트 생성을 시작하는 버튼 컴포넌트입니다.
+ * 필수 질문에 답변한 후 체크리스트 생성을 시작하는 버튼 컴포넌트입니다.
  * 로딩 상태에 따라 UI가 변경됩니다.
  * @param {CreateButtonProps} props - 생성 버튼 컴포넌트의 props입니다.
  * @param {() => void} props.onClick - 버튼 클릭 시 호출될 함수입니다.
@@ -22,7 +22,7 @@ export function CreateButton({ onClick, isLoading }: CreateButtonProps) {
       <div className="mb-6">
         <div className="inline-flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-green-500/20 to-blue-500/20 rounded-full border border-green-500/30 mb-4">
           <Sparkles className="w-4 h-4 text-green-400" />
-          <span className="text-sm font-medium text-green-300">모든 질문 완료!</span>
+          <span className="text-sm font-medium text-green-300">필수 질문 완료!</span>
         </div>
       </div>
 
@@ -47,7 +47,7 @@ export function CreateButton({ onClick, isLoading }: CreateButtonProps) {
       </Button>
 
       <div id="create-button-help" className="sr-only">
-        모든 질문에 답변하신 후 이 버튼을 클릭하여 개인화된 체크리스트를 생성하세요. 키보드 단축키: Ctrl + Enter
+        필수 질문에 답변하신 후 이 버튼을 클릭하여 개인화된 체크리스트를 생성하세요. 키보드 단축키: Ctrl + Enter
       </div>
 
       {!isLoading && (

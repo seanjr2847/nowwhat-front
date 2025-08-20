@@ -204,7 +204,11 @@ export function QuestionSection({ questions, answers, onAnswerChange }: Question
                     {question.type === "multiple" ? "여러 개 선택 가능" : 
                      question.type === "single" ? "하나만 선택" : 
                      "텍스트로 답변해주세요"}
-                    {question.required && <span className="text-red-500 ml-1">*</span>}
+                    {question.required ? (
+                      <span className="text-red-500 ml-1 font-semibold">* 필수</span>
+                    ) : (
+                      <span className="text-slate-400 ml-1 text-xs">선택사항</span>
+                    )}
                   </p>
                 </div>
               </div>

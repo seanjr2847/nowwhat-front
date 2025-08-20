@@ -198,12 +198,17 @@ export default function ClarifyPage() {
   }
 
 
-  const isAllQuestionsAnswered =
+  const isRequiredQuestionsAnswered =
     questions.length > 0 &&
     questions.every((q) => {
       const answer = answers[q.id]
-      if (!answer) return !q.required // 필수가 아니면 답변 없어도 OK
       
+      // 답변이 없는 경우
+      if (answer === undefined || answer === null) {
+        return !q.required // 필수가 아니면 답변 없어도 OK
+      }
+      
+      // 답변이 있는 경우 유효성 검사
       if (Array.isArray(answer)) {
         return answer.length > 0
       } else if (typeof answer === 'string') {
@@ -250,14 +255,14 @@ export default function ClarifyPage() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.key === "Enter" && isAllQuestionsAnswered) {
+      if (e.ctrlKey && e.key === "Enter" && isRequiredQuestionsAnswered) {
         handleCreateChecklist()
       }
     }
 
     document.addEventListener("keydown", handleKeyDown)
     return () => document.removeEventListener("keydown", handleKeyDown)
-  }, [isAllQuestionsAnswered])
+  }, [isRequiredQuestionsAnswered])
 
   // 디버그: 상태 변경 추적
   useEffect(() => {
@@ -338,7 +343,7 @@ export default function ClarifyPage() {
           {progress < 25 && "AI가 목표를 분석 중입니다"}
           {progress >= 25 && progress < 50 && "의도를 선택해주세요"}
           {progress >= 50 && progress < 90 && "맞춤 질문에 답변해주세요"}
-          {progress >= 90 && "모든 질문에 답변하셨습니다. 체크리스트를 생성할 수 있습니다"}
+          {progress >= 90 && "필수 질문에 답변하셨습니다. 체크리스트를 생성할 수 있습니다"}
         </div>
 
         <ClarifyHeader goal={goal} />
@@ -399,7 +404,7 @@ export default function ClarifyPage() {
           </div>
         )}
 
-        {isAllQuestionsAnswered && (
+        {isRequiredQuestionsAnswered && (
           <CreateButton onClick={handleCreateChecklist} isLoading={false} />
         )}
       </div>
