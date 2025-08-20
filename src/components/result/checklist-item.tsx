@@ -201,9 +201,7 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
                 </div>
               </Button>
             )}
-              </div>
-            </div>
-
+          </div>
         </div>
         
         {isExpanded && hasDetails && (
