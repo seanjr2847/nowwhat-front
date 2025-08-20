@@ -312,7 +312,7 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
 
             {/* Tips Section - Legacy Format */}
             {(item.details?.tips && item.details.tips.length > 0) && (
-              <div className="group/detail bg-gradient-to-br from-amber-50/80 via-yellow-50/60 to-orange-50/80 dark:from-amber-950/30 dark:via-yellow-950/20 dark:to-orange-950/30 border border-amber-200/50 dark:border-amber-700/30 rounded-2xl p-5 transition-all duration-300 hover:shadow-lg hover:shadow-amber-100/50 dark:hover:shadow-amber-900/20">
+              <div className="bg-gradient-to-br from-amber-50/80 via-yellow-50/60 to-orange-50/80 dark:from-amber-950/30 dark:via-yellow-950/20 dark:to-orange-950/30 border border-amber-200/50 dark:border-amber-700/30 rounded-2xl p-5">
                 <div className="flex items-center gap-4 mb-6">
                   <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-200/50 dark:shadow-amber-900/30">
                     <Lightbulb className="w-6 h-6 text-white" />
@@ -321,8 +321,8 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
                 </div>
                 <ul className="space-y-3 ml-16">
                   {item.details.tips.map((tip, tipIndex) => (
-                    <li key={tipIndex} className="text-base text-amber-800 dark:text-amber-200 flex items-start group/tip">
-                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-amber-200/80 dark:bg-amber-800/60 flex items-center justify-center mr-3 mt-1 group-hover/tip:bg-amber-300/80 dark:group-hover/tip:bg-amber-700/60 transition-all duration-300">
+                    <li key={tipIndex} className="text-base text-amber-800 dark:text-amber-200 flex items-start">
+                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-amber-200/80 dark:bg-amber-800/60 flex items-center justify-center mr-3 mt-1">
                         <span className="text-amber-700 dark:text-amber-300 text-sm font-bold">•</span>
                       </div>
                       <span className="leading-relaxed pt-1 flex-1">{tip}</span>
@@ -333,7 +333,7 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
             )}
 
             {item.details?.contacts && item.details.contacts.length > 0 && (
-              <div className="group/detail bg-gradient-to-br from-rose-50/80 via-pink-50/60 to-fuchsia-50/80 dark:from-rose-950/30 dark:via-pink-950/20 dark:to-fuchsia-950/30 border border-rose-200/50 dark:border-rose-700/30 rounded-2xl p-5 transition-all duration-300 hover:shadow-lg hover:shadow-rose-100/50 dark:hover:shadow-rose-900/20">
+              <div className="bg-gradient-to-br from-rose-50/80 via-pink-50/60 to-fuchsia-50/80 dark:from-rose-950/30 dark:via-pink-950/20 dark:to-fuchsia-950/30 border border-rose-200/50 dark:border-rose-700/30 rounded-2xl p-5">
                 <div className="flex items-center gap-4 mb-6">
                   <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-rose-400 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg shadow-rose-200/50 dark:shadow-rose-900/30">
                     <Phone className="w-6 h-6 text-white" />
@@ -342,7 +342,7 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
                 </div>
                 <div className="space-y-4 ml-16">
                   {item.details?.contacts?.map((contact, contactIndex) => (
-                    <div key={contactIndex} className="bg-white/60 dark:bg-rose-950/40 border border-rose-200/40 dark:border-rose-700/40 rounded-xl p-4 hover:bg-white/80 dark:hover:bg-rose-950/60 transition-all duration-300 hover:shadow-md">
+                    <div key={contactIndex} className="bg-white/60 dark:bg-rose-950/40 border border-rose-200/40 dark:border-rose-700/40 rounded-xl p-4">
                       <div className="text-lg font-bold mb-3 text-rose-900 dark:text-rose-100">{contact.name}</div>
                       <div className="space-y-2">
                         <div className="flex items-center gap-3">
@@ -351,7 +351,7 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
                           </div>
                           <a 
                             href={`tel:${contact.phone}`} 
-                            className="text-base font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors hover:underline"
+                            className="text-base font-medium text-blue-600 dark:text-blue-400"
                             aria-label={`${contact.name}에게 전화하기`}
                           >
                             {contact.phone}
@@ -364,7 +364,7 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
                             </div>
                             <a 
                               href={`mailto:${contact.email}`} 
-                              className="text-base font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors hover:underline"
+                              className="text-base font-medium text-blue-600 dark:text-blue-400"
                               aria-label={`${contact.name}에게 이메일 보내기`}
                             >
                               {contact.email}
@@ -379,7 +379,7 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
             )}
 
             {item.details?.links && item.details.links.length > 0 && (
-              <div className="group/detail bg-gradient-to-br from-emerald-50/80 via-green-50/60 to-teal-50/80 dark:from-emerald-950/30 dark:via-green-950/20 dark:to-teal-950/30 border border-emerald-200/50 dark:border-emerald-700/30 rounded-2xl p-5 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-100/50 dark:hover:shadow-emerald-900/20">
+              <div className="bg-gradient-to-br from-emerald-50/80 via-green-50/60 to-teal-50/80 dark:from-emerald-950/30 dark:via-green-950/20 dark:to-teal-950/30 border border-emerald-200/50 dark:border-emerald-700/30 rounded-2xl p-5">
                 <div className="flex items-center gap-4 mb-6">
                   <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-emerald-400 to-green-500 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-200/50 dark:shadow-emerald-900/30">
                     <ExternalLink className="w-6 h-6 text-white" />
@@ -393,16 +393,16 @@ export function ChecklistItem({ item, index, checklistId, onToggle }: ChecklistI
                       href={link.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group/link flex items-center gap-4 p-4 bg-white/60 dark:bg-emerald-950/40 border border-emerald-200/40 dark:border-emerald-700/40 rounded-xl hover:bg-white/80 dark:hover:bg-emerald-950/60 hover:shadow-md transition-all duration-300 focus:ring-2 focus:ring-emerald-500/30 focus:ring-offset-2 focus:ring-offset-transparent focus:outline-none"
+                      className="flex items-center gap-4 p-4 bg-white/60 dark:bg-emerald-950/40 border border-emerald-200/40 dark:border-emerald-700/40 rounded-xl focus:ring-2 focus:ring-emerald-500/30 focus:ring-offset-2 focus:ring-offset-transparent focus:outline-none"
                       aria-label={`새 탭에서 ${link.title} 열기`}
                     >
-                      <div className="flex-shrink-0 w-10 h-10 bg-emerald-200/80 dark:bg-emerald-800/60 rounded-xl flex items-center justify-center group-hover/link:bg-emerald-300/80 dark:group-hover/link:bg-emerald-700/60 transition-all duration-300">
-                        <ExternalLink className="w-5 h-5 text-emerald-600 dark:text-emerald-400 group-hover/link:scale-110 transition-transform duration-300" />
+                      <div className="flex-shrink-0 w-10 h-10 bg-emerald-200/80 dark:bg-emerald-800/60 rounded-xl flex items-center justify-center">
+                        <ExternalLink className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                       </div>
-                      <span className="text-base text-emerald-800 dark:text-emerald-200 font-medium flex-1 group-hover/link:text-emerald-900 dark:group-hover/link:text-emerald-100 transition-colors">
+                      <span className="text-base text-emerald-800 dark:text-emerald-200 font-medium flex-1">
                         {link.title}
                       </span>
-                      <div className="opacity-0 group-hover/link:opacity-100 transition-opacity duration-300">
+                      <div>
                         <ExternalLink className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
                       </div>
                     </a>

@@ -109,9 +109,9 @@ export function StreamingQuestionGenerator({
     
     switch (streamingStatus) {
       case 'started':
-        return `질문 생성을 시작합니다...${progressText}`
+        return `질문 생성을 시작합니다... (약 10초 소요)${progressText}`
       case 'generating':
-        return `AI가 질문을 생성하고 있습니다...${progressText}`
+        return `AI가 질문을 생성하고 있습니다... (약 10초 소요)${progressText}`
       case 'question_ready':
         return `질문이 실시간으로 생성되고 있습니다${questionsText}${progressText}`
       case 'progressing':
