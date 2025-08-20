@@ -259,13 +259,6 @@ export function QuestionSection({ questions, answers, onAnswerChange }: Question
         </Card>
       ))}
 
-      <div className="text-center mt-6">
-        <p className="text-muted-foreground text-sm">
-          <kbd className="px-2 py-1 bg-muted rounded text-xs mr-2">Tab</kbd>
-          이동 ·<kbd className="px-2 py-1 bg-muted rounded text-xs ml-2 mr-1">Enter</kbd>
-          선택
-        </p>
-      </div>
     </section>
   )
 }
