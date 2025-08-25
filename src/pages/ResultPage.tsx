@@ -40,8 +40,8 @@ export default function ResultPage() {
             if (response.success && response.data) {
                 // API 응답 데이터를 UI에 맞게 변환
                 const safeProgress = typeof response.data.progressPercentage === 'number' 
-                    ? Math.max(0, Math.min(100, response.data.progressPercentage))
-                    : (response.data.completedItems || 0) / Math.max(response.data.totalItems || 1, 1) * 100
+                    ? Math.round(Math.max(0, Math.min(100, response.data.progressPercentage)))
+                    : Math.round((response.data.completedItems || 0) / Math.max(response.data.totalItems || 1, 1) * 100)
                     
                 const checklistData = {
                     ...response.data,
@@ -73,7 +73,7 @@ export default function ResultPage() {
         )
 
         const completedCount = updatedItems.filter(item => item.isCompleted).length
-        const progress = (completedCount / updatedItems.length) * 100
+        const progress = Math.round((completedCount / updatedItems.length) * 100)
 
         setChecklist({
             ...checklist,

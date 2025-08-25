@@ -1,4 +1,4 @@
-import { ArrowLeft, Calendar, Edit3, Save, Target, Trash2, X } from "lucide-react"
+import { ArrowLeft, Calendar, Edit3, Save, Trash2, X } from "lucide-react"
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import { useToast } from "../../hooks/use-toast"
@@ -197,12 +197,6 @@ export function ChecklistHeader({
       </div>
 
       <div className="text-center space-y-4">
-        <div className="flex items-center justify-center mb-3">
-          <div className="flex items-center space-x-2 px-4 py-2 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-white/30 dark:border-gray-700/30 rounded-full shadow-lg">
-            <Target className="w-4 h-4 text-blue-500" />
-            <span className="text-sm font-medium text-blue-600 dark:text-blue-400">목표 달성</span>
-          </div>
-        </div>
 
         <div className="space-y-4">
           {isEditing ? (
