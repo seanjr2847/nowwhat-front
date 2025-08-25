@@ -1,6 +1,6 @@
 "use client"
 
-import { AlertTriangle, Zap, X, Mail } from "lucide-react"
+import { AlertTriangle, Mail, X, Zap } from "lucide-react"
 import { useEffect, useState } from "react"
 import { type CreditErrorResponse } from "../../lib/api"
 import { Button } from "../ui/button"
@@ -87,7 +87,7 @@ export function CreditModal({ isOpen, errorData, onClose }: CreditModalProps) {
               <span className="text-sm font-medium text-red-800 dark:text-red-200">현재 크레딧</span>
               <div className="flex items-center gap-1 text-red-700 dark:text-red-300">
                 <Zap className="w-4 h-4" />
-                <span className="font-bold">{errorData?.current_credits || 0}</span>
+                <span className="font-bold">{errorData?.current_credits ?? 0}</span>
               </div>
             </div>
             
@@ -95,12 +95,12 @@ export function CreditModal({ isOpen, errorData, onClose }: CreditModalProps) {
               <span className="text-sm font-medium text-red-800 dark:text-red-200">필요 크레딧</span>
               <div className="flex items-center gap-1 text-red-700 dark:text-red-300">
                 <Zap className="w-4 h-4" />
-                <span className="font-bold">{errorData?.required_credits || 1}</span>
+                <span className="font-bold">{errorData?.required_credits ?? 1}</span>
               </div>
             </div>
           </div>
 
-          {errorData?.message && (
+          {(errorData?.message != null && errorData.message !== '') && (
             <div className="text-sm text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3">
               {errorData.message}
             </div>
@@ -141,7 +141,7 @@ export function CreditModal({ isOpen, errorData, onClose }: CreditModalProps) {
             onClick={() => {
               const subject = encodeURIComponent("NowWhat 크레딧 충전 요청")
               const body = encodeURIComponent(
-                `안녕하세요!\n\n크레딧 충전을 요청드립니다.\n\n현재 크레딧: ${errorData?.current_credits || 0}개\n필요한 작업: ${errorData?.message || "목표 분석"}\n\n감사합니다.`
+                `크레딧 충전을 요청드립니다.\n\n 간단한 사용후기:`
               )
               window.open(`mailto:seanjr28475@gmail.com?subject=${subject}&body=${body}`, '_blank')
               handleClose()
@@ -157,31 +157,3 @@ export function CreditModal({ isOpen, errorData, onClose }: CreditModalProps) {
   )
 }
 
-/**
- * 크레딧 부족 상황을 위한 전역 모달 훅
- * @returns {Object} showModal 함수와 Modal 컴포넌트
- */
-export function useCreditModal() {
-  const [isOpen, setIsOpen] = useState(false)
-  const [errorData, setErrorData] = useState<CreditErrorResponse>()
-
-  const showModal = (data: CreditErrorResponse) => {
-    setErrorData(data)
-    setIsOpen(true)
-  }
-
-  const closeModal = () => {
-    setIsOpen(false)
-    setErrorData(undefined)
-  }
-
-  const Modal = () => (
-    <CreditModal 
-      isOpen={isOpen} 
-      errorData={errorData} 
-      onClose={closeModal} 
-    />
-  )
-
-  return { showModal, Modal }
-}
