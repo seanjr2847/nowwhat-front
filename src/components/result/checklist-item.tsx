@@ -319,14 +319,14 @@ export function ChecklistItem({ item, index, checklistId, onToggle, showDetails 
 
             {/* Tips Section - Legacy Format */}
             {(item.details?.tips && item.details.tips.length > 0) && (
-              <div className="bg-gradient-to-br from-amber-50/80 via-yellow-50/60 to-orange-50/80 dark:from-amber-950/30 dark:via-yellow-950/20 dark:to-orange-950/30 border border-amber-200/50 dark:border-amber-700/30 rounded-2xl p-5">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-200/50 dark:shadow-amber-900/30">
+              <div className="bg-gradient-to-br from-blue-50/80 via-sky-50/60 to-indigo-50/80 dark:from-blue-950/30 dark:via-sky-950/20 dark:to-indigo-950/30 border border-blue-200/50 dark:border-blue-700/30 rounded-2xl p-4">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200/50 dark:shadow-blue-900/30">
                     <Lightbulb className="w-6 h-6 text-white" />
                   </div>
-                  <h4 className="text-lg font-bold text-amber-900 dark:text-amber-100">유용한 팁</h4>
+                  <h4 className="text-base font-bold text-blue-900 dark:text-blue-100">실행 방법</h4>
                 </div>
-                <ul className="space-y-3 ml-16">
+                <ul className="space-y-3 ml-12">
                   {item.details.tips.map((tip, tipIndex) => {
                     // tip이 StepInfo 객체인지 문자열인지 확인
                     const isStepInfoTip = typeof tip === 'object' && tip !== null && 'description' in tip
@@ -336,16 +336,16 @@ export function ChecklistItem({ item, index, checklistId, onToggle, showDetails 
                       const tipInfo = tip
                       // StepInfo 객체인 경우 구조화된 형태로 렌더링
                       return (
-                        <li key={tipIndex} className="bg-white/60 dark:bg-amber-950/40 border border-amber-200/40 dark:border-amber-700/40 rounded-xl p-5">
+                        <li key={tipIndex} className="bg-white/60 dark:bg-blue-950/40 border border-blue-200/40 dark:border-blue-700/40 rounded-xl p-4">
                           <div className="flex items-start gap-4 mb-3">
-                            <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white flex items-center justify-center font-bold shadow-lg">
+                            <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center font-bold shadow-lg">
                               {tipInfo.order}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h5 className="text-lg font-bold text-amber-900 dark:text-amber-100 mb-2">
+                              <h5 className="text-base font-bold text-blue-900 dark:text-blue-100 mb-2">
                                 {tipInfo.title}
                               </h5>
-                              <p className="text-base text-amber-800 dark:text-amber-200 leading-relaxed">
+                              <p className="text-sm text-blue-800 dark:text-blue-200 leading-relaxed">
                                 {tipInfo.description}
                               </p>
                             </div>
@@ -353,9 +353,9 @@ export function ChecklistItem({ item, index, checklistId, onToggle, showDetails 
                           
                           {/* 메타데이터 */}
                           {(tipInfo.estimatedTime || tipInfo.difficulty) && (
-                            <div className="flex items-center gap-4 mt-4 pt-3 border-t border-amber-200/40 dark:border-amber-700/40">
+                            <div className="flex items-center gap-4 mt-4 pt-3 border-t border-blue-200/40 dark:border-blue-700/40">
                               {tipInfo.estimatedTime && (
-                                <div className="flex items-center gap-2 text-sm text-amber-600 dark:text-amber-400">
+                                <div className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400">
                                   <Clock className="w-4 h-4" />
                                   <span className="font-medium">{tipInfo.estimatedTime}</span>
                                 </div>
@@ -381,9 +381,9 @@ export function ChecklistItem({ item, index, checklistId, onToggle, showDetails 
                     } else {
                       // 기존 문자열 형태인 경우
                       return (
-                        <li key={tipIndex} className="text-base text-amber-800 dark:text-amber-200 flex items-start">
-                          <div className="flex-shrink-0 w-6 h-6 rounded-full bg-amber-200/80 dark:bg-amber-800/60 flex items-center justify-center mr-3 mt-1">
-                            <span className="text-amber-700 dark:text-amber-300 text-sm font-bold">•</span>
+                        <li key={tipIndex} className="text-sm text-blue-800 dark:text-blue-200 flex items-start">
+                          <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-200/80 dark:bg-blue-800/60 flex items-center justify-center mr-3 mt-1">
+                            <span className="text-blue-700 dark:text-blue-300 text-sm font-bold">•</span>
                           </div>
                           <span className="leading-relaxed pt-1 flex-1">{tip}</span>
                         </li>
