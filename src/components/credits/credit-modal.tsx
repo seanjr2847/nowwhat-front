@@ -1,6 +1,6 @@
 "use client"
 
-import { AlertTriangle, Zap, X } from "lucide-react"
+import { AlertTriangle, Zap, X, Mail } from "lucide-react"
 import { useEffect, useState } from "react"
 import { type CreditErrorResponse } from "../../lib/api"
 import { Button } from "../ui/button"
@@ -138,11 +138,18 @@ export function CreditModal({ isOpen, errorData, onClose }: CreditModalProps) {
             나중에 하기
           </Button>
           <Button
-            onClick={handleClose}
+            onClick={() => {
+              const subject = encodeURIComponent("NowWhat 크레딧 충전 요청")
+              const body = encodeURIComponent(
+                `안녕하세요!\n\n크레딧 충전을 요청드립니다.\n\n현재 크레딧: ${errorData?.current_credits || 0}개\n필요한 작업: ${errorData?.message || "목표 분석"}\n\n감사합니다.`
+              )
+              window.open(`mailto:seanjr28475@gmail.com?subject=${subject}&body=${body}`, '_blank')
+              handleClose()
+            }}
             className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
-            disabled // 크레딧 구매 기능이 구현될 때까지 비활성화
           >
-            크레딧 구매 (준비중)
+            <Mail className="w-4 h-4 mr-2" />
+            이메일로 충전 요청
           </Button>
         </div>
       </div>
